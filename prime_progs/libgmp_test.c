@@ -173,6 +173,7 @@ int main()
 	mpz_t a, b, c, d;
 	long n;
 	float start, stop;
+	char str_out[1024];
 	
 	mpz_inits(a, b, c, d, NULL);
 	//mpz_set_ui(a, 1);
@@ -185,6 +186,7 @@ int main()
 	mpz_set_str(c, "308189028181009f2665b909cc0b0d64ac7fe6840ea36e02b0d1b66eb78f9c78696db12031928ba4e5e22704eb79ffc953db182c435044f21c9a6a9ac2d5dceba0a3a638a3fbe10399cf9814f335c9fe6f05e128e110a8486bdeb9ccd186997e765d92f3e92cec3c2b2b3cedb8c2b3fb83af97641f11e024b67973863c67f8eed5e16b4138638b0203010001", 16);
 	//gmp_printf ("mpz %Zd\n", c);
 	
+	/*
 	for (long i=0; i<1; i++)
 	{
 	    start = clock();
@@ -203,15 +205,16 @@ int main()
 	mpz_set_ui(a, 2L);
 	mpz_pow_ui(a, a, 63);                   // 2^63
 	mpz_sub_ui(a, a, 1);                    // 2^63-1
-	//mpz_get_str(str_out, 16, a);
 	
-	//gmp_printf("2^63-1 = 0x%Zx\n\n", a);
+	gmp_printf("2^63-1 = 0x%Zx\n\n", a);
+	*/
 
-	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7aa9edb845", 16);
+	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b2cdbb133", 16);
 
 	start = (float)clock()/CLOCKS_PER_SEC;
 	printf("clock() = %.0f ms\n\n", start*1000.0f);
-
+    stop = (float)clock()/CLOCKS_PER_SEC;
+    
 	FILE *F_TP = fopen("./twin_primes.txt", "a+");
 	if(!F_TP) {
 		printf("File opening failed.\n");
@@ -256,10 +259,12 @@ int main()
 		if (miller_rabin(d, 23))
 		{
 			print_time(F_TP);
-			//mpz_get_str(str_out, 10, c);
-			//mpz_get_str(str_out2, 10, d);
-			gmp_printf("%Zx\n%Zx\n\n", c, d);
-			gmp_fprintf(F_TP, "%Zx\n%Zx\n\n", c, d);
+			gmp_sprintf(str_out, "%Zx\n%Zx\n\n", c, d);
+			//gmp_fprintf(F_TP, "%Zx\n%Zx\n\n", c, d);                  // seg faults when using mpir.dll!  Fix function prototype in fprintf.c
+			
+			printf("%s", str_out);
+			fprintf(F_TP, "%s", str_out);
+			
 			fflush(F_TP);
 		}
 		mpz_add_ui(c, d, 2);
@@ -269,6 +274,8 @@ int main()
     mpz_clears(a, b, c, d, NULL);
 
     return EXIT_SUCCESS;
+	
+	// UNREACHABLE CODE!
 	//powers_of_two();
     
 	printf("\nEnter n: ");
@@ -276,7 +283,6 @@ int main()
 
 	mpz_fac_ui(b, n);
 	//mpz_sub_ui(b, b, 1);
-	//mpz_get_str(str_out, 10, b);
 	
 	gmp_printf("\nfact(%ld) = %Zd\nfact(%ld).length = %d\n", n, b, n, (int32_t)mpz_sizeinbase(b, 10));
 	
@@ -287,9 +293,7 @@ int main()
 
 	mpz_sqrt(b, a);
 	
-	//mpz_get_str(str_out, 10, a);
 	gmp_printf("\nsqrt(%Zd) =\n", a);
-	//mpz_get_str(str_out, 10, b);
 	gmp_printf("%Zd\n", b);
 	
     mpz_clears(a, b, c, d, NULL);
