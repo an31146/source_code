@@ -1,0 +1,6 @@
+*.exe
+*.txt
+*.bak
+*.elf
+.vs/
+
