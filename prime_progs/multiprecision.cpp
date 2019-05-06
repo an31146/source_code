@@ -19,13 +19,14 @@ int main(int argc, char** argv)
     using namespace boost::multiprecision;
 
     typedef mpz_int int_type;
-    boost::random::mt11213b base_gen(clock());
+    time_t time_seed = time(NULL);
+    boost::random::mt11213b base_gen(time_seed);
     boost::random::independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
 
     // We must use a different generator for the tests and number generation, otherwise
     // we get false positives.
     //
-    boost::random::mt19937 gen2(clock());
+    boost::random::mt19937 gen2(time_seed);
     int_type n = gen();
 
     uint32_t limit = 1000000;
