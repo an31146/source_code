@@ -8,10 +8,12 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <iostream>
 #include <iomanip>
+#include <cstring>
+#include <cstdint>
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
     using namespace boost::random;
     using namespace boost::multiprecision;
@@ -26,9 +28,13 @@ int main()
     boost::random::mt19937 gen2(clock());
     int_type n = gen();
 
-    for(unsigned i = 0; i < 1000000; ++i)
+    uint32_t limit = 1000000;
+    if (argc == 2)
+        limit = atol(argv[1]);
+        
+    for(uint32_t i = 0; i < limit; ++i)
     {
-        if(miller_rabin_test(n, 25, gen2))
+        if(miller_rabin_test(n, 23, gen2))
         {
             // Value n is probably prime, see if (n-1)/2 is also prime:
             cout << "probable prime: " << endl << hex << showbase << n << endl;
