@@ -1,5 +1,5 @@
 /*
- *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lgmp
+ *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lmpir
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -183,7 +183,7 @@ int main()
 	//mpz_set_str(c, "67399868083273799563567977110671938751166936794494779375573996285276182286171", 10);
 	
 	//mpz_set_str(c, "9502f934800000083400000001e0000005cd0000000d4800000080c000000f63", 16);
-	mpz_set_str(c, "308189028181009f2665b909cc0b0d64ac7fe6840ea36e02b0d1b66eb78f9c78696db12031928ba4e5e22704eb79ffc953db182c435044f21c9a6a9ac2d5dceba0a3a638a3fbe10399cf9814f335c9fe6f05e128e110a8486bdeb9ccd186997e765d92f3e92cec3c2b2b3cedb8c2b3fb83af97641f11e024b67973863c67f8eed5e16b4138638b0203010001", 16);
+	//mpz_set_str(c, "308189028181009f2665b909cc0b0d64ac7fe6840ea36e02b0d1b66eb78f9c78696db12031928ba4e5e22704eb79ffc953db182c435044f21c9a6a9ac2d5dceba0a3a638a3fbe10399cf9814f335c9fe6f05e128e110a8486bdeb9ccd186997e765d92f3e92cec3c2b2b3cedb8c2b3fb83af97641f11e024b67973863c67f8eed5e16b4138638b0203010001", 16);
 	//gmp_printf ("mpz %Zd\n", c);
 	
 	/*
@@ -209,7 +209,7 @@ int main()
 	gmp_printf("2^63-1 = 0x%Zx\n\n", a);
 	*/
 
-	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b2cdbb133", 16);
+	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b96835a99", 16);
 
 	start = (float)clock()/CLOCKS_PER_SEC;
 	printf("clock() = %.0f ms\n\n", start*1000.0f);
