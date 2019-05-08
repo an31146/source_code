@@ -5,16 +5,18 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define SEED 0xdeadbeef
+
 int main(void)
 {
     double r1, r2, pi;
-    double m, n;
+    long m, n;
     long niter;
     
     m = n = 0;
     
     printf("Enter the number of iterations used to estimate pi: ");
-    scanf("%d",&niter);
+    scanf("%lu", &niter);
     
     srand(SEED);
 
@@ -24,14 +26,15 @@ int main(void)
         for (long i=0; i<niter; i++)
         {
             m++;
-            r1 = (double)rand() / 16384.0 - 1.0;
-            r2 = (double)rand() / 16384.0 - 1.0;
+            r1 = (double)rand() / RAND_MAX;
+            r2 = (double)rand() / RAND_MAX;
             
             if ( (r1*r1+r2*r2) < 1.0 )
                 n++;
         }
-        pi = 4.0 * n / m;
-        printf("%.10f\r", pi);
+        pi = 4.0f * (double)n / (double)m;
+
+        printf("%.10f\t%.10f\t%8lu\t%8lu\t%.10f\r", r1, r2, m, n, pi);
     }
     
     return 0;

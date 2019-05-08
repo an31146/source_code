@@ -1,5 +1,6 @@
 ﻿//
-// gcc -O2 -Wall -std=c99 -o mpi_prime_v3.exe mpi_prime_v3.c -lmsmpi
+//
+// gcc -O2 -Wall -std=c99 -o mpi_prime_v3 mpi_prime_v3.c -lmsmpi
 //
 /******************************************************************************
 * FILE: mpi_prime.c
@@ -240,3 +241,11 @@ int main (int argc, char *argv[])
     //MPI_Type_free( &my_mpi_array );
     MPI_Finalize();
 }
+/*
+Using 4 tasks to scan 1000000000 numbers
+rank: 0
+
+Done. Largest prime is 999999937
+Total primes 50847534
+Wallclock time elapsed: 6550.49 seconds
+*/

@@ -14,7 +14,6 @@
 #include <cstdlib>
 #include <stdint.h>
 #include <time.h>
-#include <windows.h>
 
 const int L1D_CACHE_SIZE = 32768;
 
@@ -34,49 +33,54 @@ void segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
   int64_t n = 3;
 
   // vector used for sieving
-  vector<char> segment(segment_size);
+  std::vector<char> segment(segment_size);
 
   // generate small primes <= sqrt
-  vector<char> is_prime(sqrt + 1, 1);
+  std::vector<char> is_prime(sqrt + 1, 1);
   for (int i = 2; i * i <= sqrt; i++)
     if (is_prime[i])
       for (int j = i * i; j <= sqrt; j += i)
         is_prime[j] = 0;
 
-  vector<int> primes;
-  vector<int> next;
+  std::vector<int> primes;
+  std::vector<int> next;
 
   for (int64_t low = 0; low <= limit; low += segment_size)
   {
-    fill(segment.begin(), segment.end(), 1);
+    std::fill(segment.begin(), segment.end(), 1);
 
     // current segment = interval [low, high]
-    int64_t high = min(low + segment_size - 1, limit);
+    int64_t high = std::min(low + segment_size - 1, limit);
 
     // store small primes needed to cross off multiples
+    //cout << setw(8) << s;
     for (; s * s <= high; s++)
       if (is_prime[s])
       {
+        //cout << s << endl;
         primes.push_back((int) s);
           next.push_back((int)(s * s - low));
       }
 
     // segmented sieve of Eratosthenes
-    for (size_t i = 1; i < primes.size(); i++)
+    for (std::size_t i = 1; i < primes.size(); i++)
     {
       int j = next[i];
       for (int k = primes[i] * 2; j < segment_size; j += k)
         segment[j] = 0;
       next[i] = j - segment_size;
     }
+    //cout << setw(12) << n;
     for (; n <= high; n += 2)
-        count += segment[n - low];
-//      if (segment[n - low])
-//      {
-//        //cout << setw(10) << n;
-//        count++;
-//        twin_prime_const *= 1.0d - 1.0d / (double)((n-1) * (n-1));
-//      }  
+      count+=(segment[n - low]);
+/*
+      if (segment[n - low])
+      {
+        cout << setw(10) << n;
+        count++;
+        //twin_prime_const *= 1.0 - 1.0 / (double)((n-1) * (n-1));
+      }  
+*/
   }
 
   cout << endl << count << " primes found." << endl;
@@ -102,7 +106,7 @@ int main(int argc, char** argv)
   segmented_sieve(limit, size);
   stop = clock();
   
-  cout << "sieve time: " << (stop-start) << " ms." << endl;
+  cout << "sieve time: " << (stop-start) / 1000 << " ms." << endl;
   return 0;
 }
 

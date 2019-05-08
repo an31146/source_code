@@ -1,7 +1,9 @@
-// gcc -Wall -O2 -std=c99 -o mpi_sharing_struct.exe mpi_sharing_struct.c -lmsmpi
+/*
+    gcc -Wall -O2 -std=c99 -I /usr/lib/arm-linux-gnueabihf/openmpi/include -o mpi_sharing_struct mpi_sharing_struct.c -lmpi
+*/
 #include <stdio.h>
 #include <stdint.h>
-#include "mpi.h"
+#include <mpi.h>
 
 #define MSMPI_NO_DEPRECATE_20 1
 
@@ -40,15 +42,16 @@ char **argv;
 
     do {
         if (rank == 0) 
-        {
-            printf("Enter <integer> <double>: ");
-            scanf( "%d %lf", &value.a, &value.b );
-        }
+	{
+	    printf( "Input {integer} {double}: ");
+	    fflush(stdout);
+            scanf( "%u %lf", &value.a, &value.b );
+	}
 
 //  int MPI_Bcast( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm )    
         MPI_Bcast( &value, 1, mystruct, 0, MPI_COMM_WORLD );
     	
-        printf( "Process %d got %2d and %0.10lf\n", rank, value.a, value.b );
+        printf( "Process %d got %2u and %0.18lf\n", rank, value.a, value.b );
     } while (value.a != UINT32_MAX);
 
     /* Clean up the type */

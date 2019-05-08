@@ -55,7 +55,7 @@ void sound(float freq, long duration)
 void play_note(float freq)
 {
         bcm2835_gpio_write(PIN_05, HIGH);
-        sound(freq, 250);
+        sound(freq, 100);
         bcm2835_gpio_write(PIN_05, LOW);
 	usleep(100000);
 }
@@ -75,12 +75,13 @@ int main(int argc, char *argv[])
     {  
 	//for (uint32_t i=0; i<100; i++)
         //sound(frequency, 20000);
-	play_note(130.813);
-	play_note(261.626);
-	play_note(523.251);
-	play_note(1046.50);
-	play_note(2093.00);
-	play_note(2793.83);
+	play_note(frequency);
+	//play_note(130.813);
+	//play_note(261.626);
+	//play_note(523.251);
+	//play_note(1046.50);
+	//play_note(2093.00);
+	//play_note(2793.83);
 
 	frequency += 100;
 	if (frequency > 2400)

@@ -1,5 +1,5 @@
 //
-// gcc -O2 -Wall -std=c99 -o mpi_prime.exe mpi_prime.c -lmsmpi
+// gcc -O2 -Wall -std=c99 -o mpi_prime mpi_prime.c -lmpi -lm
 //
 /******************************************************************************
 * FILE: mpi_prime.c
@@ -17,16 +17,14 @@
 *   Richard Ng &  Wong Sze Cheong during MHPCC Singapore Workshop (8/22/95).
 * LAST REVISED: 04/13/05
 ******************************************************************************/
-#include "mpi.h"
+#include <mpi/mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define LIMIT     100000000     /* Increase this to find more primes */
+#define LIMIT     1200000000     /* Increase this to find more primes */
 #define FIRST     0             /* Rank of first task */
 
-
-//TO-DO: convert to using array of pre-sieved primes
 int isprime(int n) {
     int i, squareroot;
     if (n>10) {
@@ -59,6 +57,8 @@ int main (int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+    printf("ntasks%%2: %d\nLIMIT%%ntasks: %d\n", ntasks%2, LIMIT%ntasks);
+    printf("LIMIT: %d\n", LIMIT);
     if (((ntasks%2) !=0) || ((LIMIT%ntasks) !=0)) {
         printf("Sorry - this exercise requires an even number of tasks ");
         printf("evenly divisible into %d.  Try 4 or 8.\n", LIMIT);
@@ -115,15 +115,3 @@ int main (int argc, char *argv[])
     
     MPI_Finalize();
 }
-
-/*
-13/08/2017 22:32:07
-C:\Users\rhammond\Google Drive\source_code\prime_progs>mpiexec -n 4 mpi_prime_v2.exe
-rank: 2
-rank: 3
-Using 4 tasks to scan 1000000000 numbers
-Done. Largest prime is 999999937
-Total primes 50847534
-Wallclock time elapsed: 1656.38 seconds
-rank: 1
-*/

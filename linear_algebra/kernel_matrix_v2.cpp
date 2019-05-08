@@ -152,7 +152,7 @@ void gauss(Matrix<int>& m)
 #endif        
     } // for p
     printf("row swaps: %d\nrow adds: %d\n", swaps, adds);
-    getchar();
+    //getchar();
 }
 
 void dump(Matrix<int>& m)
@@ -212,10 +212,16 @@ int main(int argc, char *argv[])
 	augment(M);
 #if DEBUG                
     dump(M);
-    gauss(M);
-    dump(M);
-#else    
-    gauss(M);
 #endif    
+
+    int start = clock();
+    gauss(M);
+    int stop = clock();
+
+#if DEBUG                
+    dump(M);
+#endif    
+
+    cout << "time: " << (stop-start) / 1000 << " ms" << endl;
     return 0;
 }

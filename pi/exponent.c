@@ -25,7 +25,10 @@ void mpf_exp(mpf_ptr e, double x)
     mpf_t mpf_tmp, mpf_fact, mpf_r, mpf_x1;
     mpz_t mpz_fact;
 
-    mpf_inits(mpf_fact, mpf_tmp, mpf_r, mpf_x1, NULL);
+    mpf_init(mpf_fact);
+    mpf_init(mpf_tmp);
+    mpf_init(mpf_r);
+    mpf_init(mpf_x1);
     mpz_init(mpz_fact);
     mpf_set_ui(e, 1);
 

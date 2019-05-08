@@ -1,5 +1,5 @@
 //
-// gcc -O2 -Wall -std=c99 -o mpi_prime.exe mpi_prime.c -lmsmpi
+// gcc -O2 -Wall -std=c99 -o mpi_prime mpi_prime.c -lmpich -lm
 //
 /******************************************************************************
 * FILE: mpi_prime.c
@@ -17,13 +17,13 @@
 *   Richard Ng &  Wong Sze Cheong during MHPCC Singapore Workshop (8/22/95).
 * LAST REVISED: 04/13/05
 ******************************************************************************/
-#include "mpi.h"
+#include <mpi/mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define LIMIT     1000000000     /* Increase this to find more primes */
-#define FIRST     0              /* Rank of first task */
+#define LIMIT     100000000    /* Increase this to find more primes */
+#define FIRST     0            /* Rank of first task */
 
 int isprime(int n) {
     int i,squareroot;
@@ -52,11 +52,11 @@ int main (int argc, char *argv[])
           mystart,              /* where to start calculating */
           stride;               /* calculate every nth number */
     
-    double start_time, end_time;
+    double start_time,end_time;
     	
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+    MPI_Init(&argc,&argv);
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    MPI_Comm_size(MPI_COMM_WORLD,&ntasks);
     if (((ntasks%2) !=0) || ((LIMIT%ntasks) !=0)) {
         printf("Sorry - this exercise requires an even number of tasks.\n");
         printf("evenly divisible into %d.  Try 4 or 8.\n",LIMIT);
@@ -74,38 +74,36 @@ int main (int argc, char *argv[])
     if (rank == FIRST) {
         printf("Using %d tasks to scan %d numbers\n",ntasks,LIMIT);
         pc = 4;                  /* Assume first four primes are counted here */
-        for (n=mystart; n<=LIMIT; n+=stride) {
-            if (isprime(n) && isprime(n+2)) {
+        for (n=mystart; n<=LIMIT; n=n+stride) {
+            if (isprime(n)) {
                 pc++;
                 foundone = n;
-                /***** Optional: print each prime as it is found */
-                //printf("%10d", foundone);
-                printf("%10d\r", pc);
-                /*****/
+                /***** Optional: print each prime as it is found
+                printf("%d\n",foundone);
+                *****/
             }
         }
-        printf("\n");
-        MPI_Reduce(&pc, &pcsum, 1, MPI_INT, MPI_SUM, FIRST, MPI_COMM_WORLD);
-        MPI_Reduce(&foundone, &maxprime, 1, MPI_INT, MPI_MAX, FIRST, MPI_COMM_WORLD);
+        MPI_Reduce(&pc,&pcsum,1,MPI_INT,MPI_SUM,FIRST,MPI_COMM_WORLD);
+        MPI_Reduce(&foundone,&maxprime,1,MPI_INT,MPI_MAX,FIRST,MPI_COMM_WORLD);
         end_time=MPI_Wtime();
-        printf("Done.  Largest prime is %d\nTotal primes %d\n", maxprime,pcsum);
-        printf("Wallclock time elapsed: %.2lf seconds\n", end_time-start_time);
+        printf("Done. Largest prime is %d\nTotal primes %d\n",maxprime,pcsum);
+        printf("Wallclock time elapsed: %.2lf seconds\n",end_time-start_time);
     }
     
     
     /******************** all other tasks do this part ***********************/
     if (rank > FIRST) {
-        for (n=mystart; n<=LIMIT; n+=stride) {
+        for (n=mystart; n<=LIMIT; n=n+stride) {
            if (isprime(n)) {
                 pc++;
                 foundone = n;
                 /***** Optional: print each prime as it is found
-                printf("%10d", foundone);
+                printf("%d\n",foundone);
                 *****/
            }
        }
-       MPI_Reduce(&pc, &pcsum, 1, MPI_INT, MPI_SUM, FIRST, MPI_COMM_WORLD);
-       MPI_Reduce(&foundone, &maxprime, 1, MPI_INT, MPI_MAX, FIRST, MPI_COMM_WORLD);
+       MPI_Reduce(&pc,&pcsum,1,MPI_INT,MPI_SUM,FIRST,MPI_COMM_WORLD);
+       MPI_Reduce(&foundone,&maxprime,1,MPI_INT,MPI_MAX,FIRST,MPI_COMM_WORLD);
     }
     
     MPI_Finalize();

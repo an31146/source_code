@@ -1,7 +1,7 @@
 ﻿/*
  gmp_pi.c - calculate pi with arbitrary precision using binomial coefficients (Machin-like formula)
  
- gcc -Wall -O2 -std=c99 -o gmp_pi.exe gmp_pi.c -fopenmp -l gomp -l gmp
+ gcc -std=c99 -o gmp_pi.exe gmp_pi.c -fopenmp -l gomp -l gmp
  
  pi = -2 + sum(2^(n+1) / nCr(2n, n))
  */
@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include <mpir.h>
+#include <gmp.h>
 #include <omp.h>
 
 double binomial_coeff(double n, double r)

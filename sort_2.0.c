@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 // number of elements
-#define LIMIT 200000000
+#define LIMIT 1000000
 #define SWAP(A, B) {int T=(A);A=(B);B=T;}
 
 typedef struct int_array
@@ -22,12 +22,6 @@ void init(_int_array *a, size_t array_size )
     
     a->size = array_size;
     a->array = malloc(array_size*sizeof(int));
-	
-	if (a->array == 0)
-	{
-		printf("Error allocating memory for array.\n");
-	    exit(-1);
-    }
     for (i=0; i<a->size; i++)
 	{
 	    a->array[i] = i;

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <time.h>
 
-_CRTIMP char* __cdecl __MINGW_NOTHROW	strrev (char*);
+char* strrev (char*);
 
 void long_mult(char *c, char *a, char *b)
 {

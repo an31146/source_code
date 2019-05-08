@@ -17,8 +17,8 @@ $ ./quicksort [1000000]
 #include <sys/time.h>
 #include <string.h>
 
-#define DNUM 1000000
-#define THREAD_LEVEL 5
+#define DNUM 20000000
+#define THREAD_LEVEL 7
 
 #define SWAP(A, B) {double T=A;A=B;B=T;}
     

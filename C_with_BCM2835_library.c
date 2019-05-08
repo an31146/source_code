@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	    //printf("%ld\n", nanosecs(ts1)-nanosecs(ts0));
 	}
         bcm2835_gpio_write(PIN_05, LOW);
-	usleep(250000);
+	usleep(100000);
 
 	pause += 20;
 	if (pause > 1200)

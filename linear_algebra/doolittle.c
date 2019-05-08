@@ -70,24 +70,33 @@ int  Upper_Triangular_Solve(double *U, double B[], double x[], int n);
 //                                                                            //
 int Doolittle_LU_Decomposition(double *A, int n)
 {
-   int i, j, k, p;
-   double *p_k, *p_row, *p_col;
-
 //         For each row and column, k = 0, ..., n-1,
 //            find the upper triangular matrix elements for row k
 //            and if the matrix is non-singular (nonzero diagonal element).
 //            find the lower triangular matrix elements for column k. 
- 
-   for (k = 0, p_k = A; k < n; p_k += n, k++) {
-      for (j = k; j < n; j++) {
-         for (p = 0, p_col = A; p < k; p_col += n,  p++)
-            *(p_k + j) -= *(p_k + p) * *(p_col + j);
+   double *p_col, *p_row, *p_k; 
+
+   p_k = A;
+   for (int k = 0; k < n; p_k += n, k++)
+   {
+      for (int j = k; j < n; j++)
+      {
+         p_col = A;
+         for (int p = 0; p < k; p++)
+            *(double *)(p_k + j) -= *(double *)(p_k + p) * *(double *)(p_col + j);
       }
-      if ( *(p_k + k) == 0.0 ) return -1;
-      for (i = k+1, p_row = p_k + n; i < n; p_row += n, i++) {
-         for (p = 0, p_col = A; p < k; p_col += n, p++)
-            *(p_row + k) -= *(p_row + p) * *(p_col + k);
-         *(p_row + k) /= *(p_k + k);
+
+      if ( *(double *)(p_k + k) == 0.0 )
+         return -1;
+
+      p_row = p_k + n;
+      for (int i = k+1; i < n; p_row += n, i++)
+      {
+         p_col = A;
+         for (int p = 0; p < k; p_col += n, p++)
+            *(double *)(p_row + k) -= *(double *)(p_row + p) * *(double *)(p_col + k);
+
+         *(double *)(p_row + k) /= *(double *)(p_k + k);
       }  
    }
    return 0;

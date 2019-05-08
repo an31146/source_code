@@ -1,13 +1,13 @@
 /*
- *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lgmp
+ *  gcc -Wall -O2 -std=c99 -o libgmp_test libgmp_test.c -lm -lgmp
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <string.h>
 #include <time.h>
-#include <mpir.h>
+#include <gmp.h>
+#include <math.h>
 
 int base_primes[25] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
 
@@ -72,7 +72,11 @@ bool miller_rabin(const mpz_t n, int rounds)
         return false;
     */
         
-    mpz_inits(nm1, q, x, y, NULL);
+    //mpz_init(nm1);
+    //mpz_init(x);
+    //mpz_init(y);
+    //mpz_init(q);
+    mpz_inits(nm1, x, y, q, NULL);
     
     mpz_sub_ui(nm1, n, 1L);
     
@@ -107,10 +111,10 @@ bool miller_rabin(const mpz_t n, int rounds)
             }
         }
         if (i == k)
-        {
+	{
             is_prime = false;
             break;
-        }
+	}
     }   
     mpz_clears(nm1, x, y, q, NULL);
 
@@ -119,15 +123,15 @@ bool miller_rabin(const mpz_t n, int rounds)
 
 void powers_of_two()
 {
-	mpz_t a, b, c;
-	unsigned long start, stop, i;
-	unsigned int expos[6] = {0x1000, 9689L, 110503L, 216091L, 756839L, 1257787L};
+    mpz_t a, b, c;
+    long start, stop;
+    unsigned int expos[6] = {0x1000, 9689L, 110503L, 216091L, 756839L, 1257787L};
 
-	mpz_init(a);
-	mpz_init(b);
-	mpz_init(c);
+    mpz_init(a);
+    mpz_init(b);
+    mpz_init(c);
 
-    for (i=0; i<6; i++)
+    for (int i=0; i<6; i++)
     {
         mpz_set_ui(a, 1);
     	mpz_mul_2exp(a, a, expos[i]);           // a = 2^4096
@@ -135,7 +139,7 @@ void powers_of_two()
         mpz_sub_ui(b, b, 1L);                   // b = 2^4096-2
     	
     	start = clock();
-    	printf("\nmpz_sizeinbase(2^%d-1, 10) = %d \t\t", expos[i], (int32_t)mpz_sizeinbase(a, 10));
+    	printf("\nmpz_sizeinbase(2^%d-1, 10) = %d\t\t", expos[i], mpz_sizeinbase(a, 10));
     	stop = clock();
     	printf("time: %.0f ms\n", (float)(stop-start)/CLOCKS_PER_SEC*1000.0f);
     	//printf("mpz_sizeinbase(2^1048576, 10) = %lu\n", mpz_sizeinbase(a, 10));
@@ -146,47 +150,37 @@ void powers_of_two()
         stop = clock();
         
         if (mpz_cmp_ui(c, 1L) == 0)
-            printf("\npowm time: %ld ms\n\n", (stop-start)/CLOCKS_PER_SEC*1000);
+            printf("\npowm time: %ld ms\n\n", (stop-start)/CLOCKS_PER_SEC);
     }
     mpz_clears(a, b, c, NULL);
 }
 
 void print_time(FILE *F)
 {
-    char str_tm[30];
-    struct tm *tm;
-
-    tm = malloc(sizeof (struct tm));
-    // https://en.cppreference.com/w/c/chrono/asctime
-    *tm = *localtime(&(time_t){time(NULL)});
-    asctime_s(str_tm, sizeof str_tm, tm);
-    // remove newline character
-    str_tm[strlen(str_tm)-1] = '\0';
-
-    printf("[%s]\n", str_tm);
-    //strncpy(str_tm, str_tm, strlen(str_tm)-2);
-    fprintf(F, "[%s]\n", str_tm);
+	time_t t = time(NULL);
+        char str_t[30];
+        strcpy(str_t, asctime(localtime(&t)));
+	str_t[24] = 0;
+        //strncpy(str_t, str_t, strlen(str_t)-2);
+        printf("[%s]\n", str_t);
+        fprintf(F, "[%s]\n", str_t);
 }
 
 int main()
 {
 	mpz_t a, b, c, d;
-	long n;
+	//char str_out[262144];
+	//char str_out2[262144];
 	float start, stop;
-	char str_out[1024];
 	
 	mpz_inits(a, b, c, d, NULL);
-	//mpz_set_ui(a, 1);
-	//mpz_set_ui(b, 2);
 	//mpz_set_ui(c, 1000000011L);
-	//mpz_set_str(c, "1237940075278319013244460992103628753054475013", 10);
-	//mpz_set_str(c, "67399868083273799563567977110671938751166936794494779375573996285276182286171", 10);
-	
-	//mpz_set_str(c, "9502f934800000083400000001e0000005cd0000000d4800000080c000000f63", 16);
-	mpz_set_str(c, "308189028181009f2665b909cc0b0d64ac7fe6840ea36e02b0d1b66eb78f9c78696db12031928ba4e5e22704eb79ffc953db182c435044f21c9a6a9ac2d5dceba0a3a638a3fbe10399cf9814f335c9fe6f05e128e110a8486bdeb9ccd186997e765d92f3e92cec3c2b2b3cedb8c2b3fb83af97641f11e024b67973863c67f8eed5e16b4138638b0203010001", 16);
-	//gmp_printf ("mpz %Zd\n", c);
+	//mpz_set_str(c, 111, 10);
+	//mpz_set_str(c, 111, 10);
 	
 	/*
+	mpz_set_str(c, "9502f934800000083400000001e0000005cd0000000d4800000080c000000f63", 16);
+	
 	for (long i=0; i<1; i++)
 	{
 	    start = clock();
@@ -195,8 +189,8 @@ int main()
 	    stop = clock();
 	        
 	    //mpz_get_str(str_out, 16, c);
-	    gmp_printf("%Zd\n%d digits - %d bits - ", c, (int32_t)mpz_sizeinbase(c, 10), (int32_t)mpz_sizeinbase(c, 2));
-	    printf("time: %.0f ms\n\n", (stop-start)/CLOCKS_PER_SEC*1000.0f);
+	    gmp_printf("%Zx\n%d digits - %d bits - ", c, mpz_sizeinbase(c, 10), mpz_sizeinbase(c, 2));
+	    printf("time: %ld ms\n\n", (stop-start)/CLOCKS_PER_SEC);
 	    //mpz_mul_ui(c, c, 262144);
 	    mpz_mul_2exp(c, c, 256);
 	    mpz_add_ui(c, c, 1);
@@ -205,39 +199,41 @@ int main()
 	mpz_set_ui(a, 2L);
 	mpz_pow_ui(a, a, 63);                   // 2^63
 	mpz_sub_ui(a, a, 1);                    // 2^63-1
+	mpz_get_str(str_out, 16, a);
 	
-	gmp_printf("2^63-1 = 0x%Zx\n\n", a);
+	printf("2^63-1 = 0x%s\n\n", str_out);
 	*/
 
-	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b2cdbb133", 16);
+	mpz_set_str(c, "70075197985927611076971005579058636974570607864407988181158931334268315880905650934137357364743068772075658810649075047312082034642592490448418403770075197985927611076971005579058636974570607878461545179",   10);
 
-	start = (float)clock()/CLOCKS_PER_SEC;
-	printf("clock() = %.0f ms\n\n", start*1000.0f);
-    stop = (float)clock()/CLOCKS_PER_SEC;
-    
+	start = (float)clock() / CLOCKS_PER_SEC;
+	printf("clock() = %.0f ms\n\n", start*1000.f);
+	stop = (float)clock() / CLOCKS_PER_SEC;
+
 	FILE *F_TP = fopen("./twin_primes.txt", "a+");
 	if(!F_TP) {
 		printf("File opening failed.\n");
 		return EXIT_FAILURE;
 	}
 
-	while (start+14400L > stop)
+	start = (float)time(NULL);	// number of seconds elapsed since epoch
+	while (start+28800.0f > stop)
 	{
-        int f = 0;
+		int f = 0;
 		while (!miller_rabin(c, 23))
 		{
+			stop = (float)time(NULL);
 			mpz_add_ui(c, c, 2);
 
-            stop = (float)clock()/CLOCKS_PER_SEC;
 			switch(f)
 			{	
-				case 0: printf("[|] %8.3f\r", stop);
+				case 0: printf("[|]\r");	// %8.3f\r", fabsf((float)clock() / CLOCKS_PER_SEC));
 					break;
-				case 1: printf("[/] %8.3f\r", stop);
+				case 1: printf("[/]\r");
 					break;
-				case 2: printf("[-] %8.3f\r", stop);
+				case 2: printf("[-]\r");
 					break;
-				case 3: printf("[\\] %8.3f\r", stop);
+				case 3: printf("[\\]\r");
 					break;
 			}
 			fflush(stdout);
@@ -259,32 +255,26 @@ int main()
 		if (miller_rabin(d, 23))
 		{
 			print_time(F_TP);
-			gmp_sprintf(str_out, "%Zx\n%Zx\n\n", c, d);
-			//gmp_fprintf(F_TP, "%Zx\n%Zx\n\n", c, d);                  // seg faults when using mpir.dll!  Fix function prototype in fprintf.c
-			
-			printf("%s", str_out);
-			fprintf(F_TP, "%s", str_out);
-			
+			gmp_printf("\n%Zd\n%Zd\n\n", c, d);
+			gmp_fprintf(F_TP, "\n%Zd\n%Zd\n\n", c, d);
 			fflush(F_TP);
 		}
 		mpz_add_ui(c, d, 2);
 	}  // while 
-	
 	fclose(F_TP);
-    mpz_clears(a, b, c, d, NULL);
+	mpz_clears(a, b, c, d, NULL);
 
-    return EXIT_SUCCESS;
-	
-	// UNREACHABLE CODE!
+	return EXIT_SUCCESS;
 	//powers_of_two();
     
+	long n;
 	printf("\nEnter n: ");
 	scanf("%ld", &n);
 
 	mpz_fac_ui(b, n);
 	//mpz_sub_ui(b, b, 1);
 	
-	gmp_printf("\nfact(%ld) = %Zd\nfact(%ld).length = %d\n", n, b, n, (int32_t)mpz_sizeinbase(b, 10));
+	gmp_printf("\nfact(%ld) = %Zd\nfact(%ld).length = %d\n", n, b, n, mpz_sizeinbase(b, 10));
 	
 	mpz_set_ui(a, 2);
 
@@ -295,8 +285,9 @@ int main()
 	
 	gmp_printf("\nsqrt(%Zd) =\n", a);
 	gmp_printf("%Zd\n", b);
-	
-    mpz_clears(a, b, c, d, NULL);
 
-    return EXIT_SUCCESS;	
+	mpz_clears(a, b, c, d, NULL);
+	
+	return EXIT_SUCCESS;	
 }
+

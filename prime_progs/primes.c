@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
-#define SIZE 20017
+#include <unistd.h>
+
+#define SIZE 32768
 
 uint32_t *primes, k = 1;
 
@@ -18,7 +22,7 @@ void sieve(uint32_t S)
 			primes[j] = 1;
 	}
 	
-    for (j=3; j<=S; j++)
+	for (j=3; j<=S; j++)
     	if (primes[j]==0)
 		{
 		    primes[k++] = j;
@@ -234,7 +238,7 @@ int main()
     //for (int i=0; primes[i]<=SIZE && i<k; i++) 
     //    printf("%10d%s", primes[i], (i+1)%18==0?"\n":"");
 	t0 = clock();
-    twin_primes(SIZE);
+	twin_primes(SIZE);
 	t1 = clock();
 	printf("twin_primes time: %d ms\n\n", (t1-t0)/1000);
     //return;
@@ -261,7 +265,7 @@ int main()
 	//smooth_num(n); return;
 
 	printf("\nEnter a: ");
-	scanf("%s", strInt);
+	int len = scanf("%s", strInt);
 	unsigned a = strtoul(strInt, NULL, 0);
 
 	srand(1);

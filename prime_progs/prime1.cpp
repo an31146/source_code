@@ -30,18 +30,16 @@ int main() {
 
     for (unsigned c=0; c<cases; c++)
     {
-        int s = 0;
         getline (cin, input);
-        i = strtoul(input.c_str(), &st, 0);
-        j = strtoul(st, NULL, 0);
+        i = strtol(input.c_str(), &st, 0);
+        j = strtol(st, NULL, 0);
         
         if (j>0)
             for (n=i; n<=j; n++)
 	            if (isprime(n))
-	                s++;
-                    //cout << n << endl;
+                    cout << n << endl;
                 
-        cout << s << endl;
+        cout << endl;
     }
     return 0;
 }

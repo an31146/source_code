@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
         printf("\n");
     }
     printf("---------------------------------\n");
+
+    printf("\nPress Enter: ");
+    getchar();
         
     return 0;
 }

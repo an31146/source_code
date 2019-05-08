@@ -18,7 +18,7 @@ $ ./mergesort [1000000]
 #include <sys/time.h>
 #include <string.h>
 
-#define DNUM 1000000
+#define DNUM 20000000
 #define THREAD_LEVEL 3
 
 //for sequential and parallel implementation
