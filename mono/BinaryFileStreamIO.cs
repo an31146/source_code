@@ -1,12 +1,16 @@
 ﻿// #!/usr/bin/mcs
 using System;
-using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.Diagnostics;
 
-#pragma warning disable CS0219
+#pragma warning disable CS0219,CS0162
+// CS0219: The variable 'xxx' is assigned but its value is never used.
+// CS0162: Unreachable code detected
 class MyStream
 {
     private const string FILE_NAME = "Test.data";
+    private const bool bDeleteFile = false;
 
     public static void Main(String[] args)
     {
@@ -26,6 +30,12 @@ class MyStream
 
         FileStream fs = new FileStream(FILE_NAME, FileMode.CreateNew);
         Stopwatch sw = new Stopwatch();
+        Encoding ascii = Encoding.ASCII;
+        Encoding utf8 = Encoding.UTF8;
+
+        // Write Byte-order mark preamble to file
+        Byte[] bom = utf8.GetPreamble();
+        fs.Write(bom, 0, bom.Length);
 
         // Create the writer for data.
         BinaryWriter w = new BinaryWriter(fs);
@@ -36,23 +46,25 @@ class MyStream
         {
             strAscii += (char)i;
         }
-        // Multiply and concatenate
+        // Multiply and concatenate - becomes 8 times the original length
         strAscii += strAscii;
         strAscii += strAscii;
         strAscii += strAscii;
 
-        Console.WriteLine("Writing {0} bytes to file...", strAscii.Length * REPETITIONS / 8);
+        Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / 8 * utf8.GetBytes(strAscii).Length + bom.Length);
+        
         sw.Start();
         // Write the string for COUNT times to Test.data
         for (int j = 0; j < REPETITIONS / 8; j++)
         {
-            w.Write(strAscii.ToCharArray());
+            w.Write(utf8.GetBytes(strAscii));
             Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / 800.0f));
         }
+        sw.Stop();
+        Console.WriteLine("Wrote {0} bytes to file...", fs.Length);
+        
         w.Close();
         fs.Close();
-
-        sw.Stop();
         
         Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
 
@@ -83,7 +95,8 @@ class MyStream
         r.Close();
         fs.Close();
 
-        File.Delete("Test.data");
-    }
-}
-#pragma warning restore CS0219
+        if (bDeleteFile)
+            File.Delete("Test.data");
+            
+    }   // void Main
+}   // class MyStream
