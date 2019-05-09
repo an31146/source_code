@@ -1,4 +1,5 @@
 *.exe
+*.dll
 *.txt
 *.bak
 *.elf
