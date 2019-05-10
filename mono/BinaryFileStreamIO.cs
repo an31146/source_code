@@ -33,6 +33,7 @@ class MyStream
                 return;
             }
         }
+#endif
         int REPETITIONS = 1048576;
         int READ_BLOCK_SIZE = 1024;
         
