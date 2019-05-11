@@ -1,0 +1,6 @@
+.vs/
+*.bak
+*.txt
+*.elf
+*.gz
+bin/
