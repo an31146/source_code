@@ -1,7 +1,7 @@
 ﻿/*
  gmp_pi.cpp - calculate pi with arbitrary precision using binomial coefficients (Machin-like formula)
  
- g++ -o gmp_pi.exe gmp_pi.cpp -fopenmp -l pthread -l gmp
+ g++ -Wall -O2 std=c++11 -o gmp_pi gmp_pi.cpp -fopenmp -lpthread -lgmp
  
  pi = -2 + sum(2^(n+1) / nCr(2n, n))
  */

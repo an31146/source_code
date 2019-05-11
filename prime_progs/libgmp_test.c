@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  *  gcc -Wall -O2 -std=c99 -o libgmp_test libgmp_test.c -lm -lgmp
+=======
+ *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lmpir
+>>>>>>> 5038afffe6ec5c04fb81aff43def55bfdbfbecd5
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -160,6 +164,7 @@ void print_time(FILE *F)
 
 int main()
 {
+<<<<<<< .merge_file_vmOKPW
     mpz_t a, b, c, d;
     float start, stop;
     
@@ -199,6 +204,62 @@ int main()
     mpz_set_str(c, "67399868083273799563567977110671938751166936794494779375573996285276248860913", 10);
 
     printf("CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC);
+=======
+	mpz_t a, b, c, d;
+	//char str_out[262144];
+	//char str_out2[262144];
+	float start, stop;
+	
+	mpz_inits(a, b, c, d, NULL);
+	//mpz_set_ui(c, 1000000011L);
+<<<<<<< HEAD
+	//mpz_set_str(c, 111, 10);
+	//mpz_set_str(c, 111, 10);
+=======
+	//mpz_set_str(c, "1237940075278319013244460992103628753054475013", 10);
+	//mpz_set_str(c, "67399868083273799563567977110671938751166936794494779375573996285276182286171", 10);
+	
+	//mpz_set_str(c, "9502f934800000083400000001e0000005cd0000000d4800000080c000000f63", 16);
+	//mpz_set_str(c, "308189028181009f2665b909cc0b0d64ac7fe6840ea36e02b0d1b66eb78f9c78696db12031928ba4e5e22704eb79ffc953db182c435044f21c9a6a9ac2d5dceba0a3a638a3fbe10399cf9814f335c9fe6f05e128e110a8486bdeb9ccd186997e765d92f3e92cec3c2b2b3cedb8c2b3fb83af97641f11e024b67973863c67f8eed5e16b4138638b0203010001", 16);
+	//gmp_printf ("mpz %Zd\n", c);
+>>>>>>> 5038afffe6ec5c04fb81aff43def55bfdbfbecd5
+	
+	/*
+	mpz_set_str(c, "9502f934800000083400000001e0000005cd0000000d4800000080c000000f63", 16);
+	
+	for (long i=0; i<1; i++)
+	{
+	    start = clock();
+	    while (!miller_rabin(c, 3))
+	        mpz_add_ui(c, c, 2);
+	    stop = clock();
+	        
+	    //mpz_get_str(str_out, 16, c);
+	    gmp_printf("%Zx\n%d digits - %d bits - ", c, mpz_sizeinbase(c, 10), mpz_sizeinbase(c, 2));
+	    printf("time: %ld ms\n\n", (stop-start)/CLOCKS_PER_SEC);
+	    //mpz_mul_ui(c, c, 262144);
+	    mpz_mul_2exp(c, c, 256);
+	    mpz_add_ui(c, c, 1);
+	}
+	
+	mpz_set_ui(a, 2L);
+	mpz_pow_ui(a, a, 63);                   // 2^63
+	mpz_sub_ui(a, a, 1);                    // 2^63-1
+	mpz_get_str(str_out, 16, a);
+	
+	printf("2^63-1 = 0x%s\n\n", str_out);
+	*/
+
+<<<<<<< HEAD
+	mpz_set_str(c, "70075197985927611076971005579058636974570607864407988181158931334268315880905650934137357364743068772075658810649075047312082034642592490448418403770075197985927611076971005579058636974570607878656722431",   10);
+
+	start = (float)clock() / CLOCKS_PER_SEC;
+	printf("clock() = %.0f ms\n\n", start*1000.f);
+	stop = (float)clock() / CLOCKS_PER_SEC;
+=======
+	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b96835a99", 16);
+>>>>>>> 5038afffe6ec5c04fb81aff43def55bfdbfbecd5
+>>>>>>> .merge_file_2QevcV
 
     start = clock() / (float)CLOCKS_PER_SEC;
     printf("clock() = %0f ms\n\n", start*1000.0f);

@@ -19,19 +19,34 @@ int main(int argc, char** argv)
     using namespace boost::multiprecision;
 
     typedef mpz_int int_type;
+<<<<<<< .merge_file_tzLOF0
     mt11213b base_gen(clock());
     independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
+=======
+    time_t time_seed = time(NULL);
+    boost::random::mt11213b base_gen(time_seed);
+    boost::random::independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
+>>>>>>> .merge_file_kyurI3
 
     // We must use a different generator for the tests and number generation, otherwise
     // we get false positives.
     //
+<<<<<<< .merge_file_tzLOF0
     mt19937 gen2(clock());
+=======
+    boost::random::mt19937 gen2(time_seed);
+>>>>>>> .merge_file_kyurI3
     int_type n = gen();
 
     uint32_t limit = 1000000;
     if (argc == 2)
+<<<<<<< .merge_file_tzLOF0
 	limit = atol(argv[1]);
 
+=======
+        limit = atol(argv[1]);
+        
+>>>>>>> .merge_file_kyurI3
     for(uint32_t i = 0; i < limit; ++i)
     {
         if(miller_rabin_test(n, 23, gen2))

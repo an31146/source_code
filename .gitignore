@@ -1,0 +1,13 @@
+<<<<<<< HEAD
+.exe
+.gz
+.txt
+.bak
+=======
+*.exe
+*.dll
+*.txt
+*.bak
+*.elf
+.vs/
+>>>>>>> 5038afffe6ec5c04fb81aff43def55bfdbfbecd5
