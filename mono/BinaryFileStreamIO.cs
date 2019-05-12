@@ -21,8 +21,17 @@ class MyStream
 #if TEST_FILE_EXISTS
         if (File.Exists(FILE_NAME))
         {
-            Console.WriteLine("{0} already exists!", FILE_NAME);
-            return;
+            Console.WriteLine("{0} already exists!  Deleting it...\n", FILE_NAME);
+            
+            try
+            {
+                File.Delete(FILE_NAME);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine("Exception: {0}", ex.Message);
+                return;
+            }
         }
 #endif
         long REPETITIONS = 1048576;
@@ -62,19 +71,18 @@ class MyStream
             {
                 strAscii += (char)i;
             }
-            // Multiply and concatenate - becomes 8 times the original length
-            strAscii += strAscii;
-            strAscii += strAscii;
-            strAscii += strAscii;
+            // Multiply and concatenate - becomes 16 times the original length
+            for (int i = 0; i < 8; i++)
+                strAscii += strAscii;
 
-            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / 8 * utf8.GetBytes(strAscii).Length + bom.Length);
+            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / 64 * utf8.GetBytes(strAscii).Length + bom.Length);
             
             sw.Start();
             // Write the string for COUNT times to Test.data
-            for (int j = 0; j < REPETITIONS / 8; j++)
+            for (int j = 0; j < REPETITIONS / 64; j++)
             {
                 w.Write(utf8.GetBytes(strAscii));
-                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / 800.0f));
+                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / 6400.0f));
             }
             sw.Stop();
             Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
@@ -122,8 +130,14 @@ class MyStream
             r.Close();
             fs.Close();
 
-        if (bDeleteFile)
-            File.Delete("Test.data");
+            if (bDeleteFile)
+                File.Delete(FILE_NAME);
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine("Exception: {0}", ex.Message);
+            return;
+        }
             
     }   // void Main
 }   // class MyStream
