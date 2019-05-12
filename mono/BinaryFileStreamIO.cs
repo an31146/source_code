@@ -13,7 +13,7 @@ using System.Diagnostics;
 class MyStream
 {
     private const string FILE_NAME = "Test.data";
-    private const bool bDeleteFile = false;
+    private const bool bDeleteFile = true;
     static private long REPETITIONS = 1048576;
     static private int READ_BLOCK_SIZE = 4096;
     static private long DIVISOR = 1;
@@ -136,7 +136,10 @@ class MyStream
             fs.Close();
 
             if (bDeleteFile)
+            {
+                Console.WriteLine("Deleting {0}...", FILE_NAME);
                 File.Delete(FILE_NAME);
+            }
         }
         catch (IOException ex)
         {

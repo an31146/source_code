@@ -4,3 +4,4 @@
 *.bak
 *.elf
 .vs/
+*.gz
