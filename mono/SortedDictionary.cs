@@ -16,6 +16,7 @@ public class Example
         openWith.Add("bmp", "paint.exe");
         openWith.Add("dib", "paint.exe");
         openWith.Add("rtf", "wordpad.exe");
+        openWith.Add("jpg", "PhotoViewer.dll")
 
         // The Add method throws an exception if the new key is 
         // already in the dictionary.
