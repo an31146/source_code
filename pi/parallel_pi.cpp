@@ -55,8 +55,7 @@ int inv_mod(int x,int y) {
     v=t;
   } while (u!=0);
   a=a%y;
-  if (a<0)
-    a=y+a;
+  if (a<0) a=y+a;
   return a;
 }
 
@@ -117,11 +116,9 @@ int pow_mod(int a,int b,int m)
   r=1;
   aa=a;
   while (1) {
-    if (b&1)
-      r=mul_mod(r,aa,m);
+    if (b&1) r=mul_mod(r,aa,m);
     b=b>>1;
-    if (b == 0)
-      break;
+    if (b == 0) break;
     aa=mul_mod(aa,aa,m);
   }
   return r;
@@ -131,12 +128,10 @@ int pow_mod(int a,int b,int m)
 int is_prime(int n)
 {
    int r,i;
-   if ((n % 2) == 0)
-      return 0;
+   if ((n % 2) == 0) return 0;
+
    r=(int)(sqrt((float)n));
-   for (i=3;i<=r;i+=2) 
-      if ((n % i) == 0)
-         return 0;
+   for(i=3;i<=r;i+=2) if ((n % i) == 0) return 0;
    return 1;
 }
 

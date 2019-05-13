@@ -59,6 +59,7 @@ class MyStream
             Encoding ascii = Encoding.ASCII;
             Encoding utf8 = Encoding.UTF8;
 
+            // Write Byte-order mark preamble to file
             Byte[] bom = utf8.GetPreamble();
             fs.Write(bom, 0, bom.Length);
 

@@ -41,10 +41,10 @@ char **argv;
     MPI_Type_commit( &mystruct );
 
     do {
+        printf("rank: %d\n", rank);
         if (rank == 0) 
 	{
-	    printf( "Input {integer} {double}: ");
-	    fflush(stdout);
+            printf( "Input {integer} {double}: ");
             scanf( "%u %lf", &value.a, &value.b );
 	}
 
