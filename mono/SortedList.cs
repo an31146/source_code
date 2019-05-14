@@ -5,21 +5,20 @@ public class Example
 {
     public static void Main()
     {
-        // Create a new sorted dictionary of strings, with string
+        // Create a new sorted list of strings, with string
         // keys.
-        SortedDictionary<string, string> openWith = 
-            new SortedDictionary<string, string>();
+        SortedList<string, string> openWith = 
+            new SortedList<string, string>();
 
-        // Add some elements to the dictionary. There are no 
+        // Add some elements to the list. There are no 
         // duplicate keys, but some of the values are duplicates.
         openWith.Add("txt", "notepad.exe");
         openWith.Add("bmp", "paint.exe");
         openWith.Add("dib", "paint.exe");
         openWith.Add("rtf", "wordpad.exe");
-        openWith.Add("jpg", "PhotoViewer.dll");
 
         // The Add method throws an exception if the new key is 
-        // already in the dictionary.
+        // already in the list.
         try
         {
             openWith.Add("txt", "winword.exe");
@@ -45,7 +44,7 @@ public class Example
         openWith["doc"] = "winword.exe";
 
         // The indexer throws an exception if the requested key is
-        // not in the dictionary.
+        // not in the list.
         try
         {
             Console.WriteLine("For key = \"tif\", value = {0}.", 
@@ -57,7 +56,7 @@ public class Example
         }
 
         // When a program often has to try keys that turn out not to
-        // be in the dictionary, TryGetValue can be a more efficient 
+        // be in the list, TryGetValue can be a more efficient 
         // way to retrieve values.
         string value = "";
         if (openWith.TryGetValue("tif", out value))
@@ -78,7 +77,7 @@ public class Example
                 openWith["ht"]);
         }
 
-        // When you use foreach to enumerate dictionary elements,
+        // When you use foreach to enumerate list elements,
         // the elements are retrieved as KeyValuePair objects.
         Console.WriteLine();
         foreach( KeyValuePair<string, string> kvp in openWith )
@@ -88,28 +87,36 @@ public class Example
         }
 
         // To get the values alone, use the Values property.
-        SortedDictionary<string, string>.ValueCollection valueColl = 
-            openWith.Values;
+        IList<string> ilistValues = openWith.Values;
 
-        // The elements of the ValueCollection are strongly typed
-        // with the type that was specified for dictionary values.
+        // The elements of the list are strongly typed with the 
+        // type that was specified for the SorteList values.
         Console.WriteLine();
-        foreach( string s in valueColl )
+        foreach( string s in ilistValues )
         {
             Console.WriteLine("Value = {0}", s);
         }
 
-        // To get the keys alone, use the Keys property.
-        SortedDictionary<string, string>.KeyCollection keyColl = 
-            openWith.Keys;
+        // The Values property is an efficient way to retrieve
+        // values by index.
+        Console.WriteLine("\nIndexed retrieval using the Values " +
+            "property: Values[2] = {0}", openWith.Values[2]);
 
-        // The elements of the KeyCollection are strongly typed
-        // with the type that was specified for dictionary keys.
+        // To get the keys alone, use the Keys property.
+        IList<string> ilistKeys = openWith.Keys;
+
+        // The elements of the list are strongly typed with the 
+        // type that was specified for the SortedList keys.
         Console.WriteLine();
-        foreach( string s in keyColl )
+        foreach( string s in ilistKeys )
         {
             Console.WriteLine("Key = {0}", s);
         }
+
+        // The Keys property is an efficient way to retrieve
+        // keys by index.
+        Console.WriteLine("\nIndexed retrieval using the Keys " +
+            "property: Keys[2] = {0}", openWith.Keys[2]);
 
         // Use the Remove method to remove a key/value pair.
         Console.WriteLine("\nRemove(\"doc\")");
@@ -145,12 +152,16 @@ Value = hypertrm.exe
 Value = winword.exe
 Value = notepad.exe
 
+Indexed retrieval using the Values property: Values[2] = winword.exe
+
 Key = bmp
 Key = dib
 Key = doc
 Key = ht
 Key = rtf
 Key = txt
+
+Indexed retrieval using the Keys property: Keys[2] = doc
 
 Remove("doc")
 Key "doc" is not found.
