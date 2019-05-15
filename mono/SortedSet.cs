@@ -12,7 +12,8 @@ class Program
         {
             // Get a list of the files to use for the sorted set.
             IEnumerable<string> files1 = Directory.EnumerateFiles(@"C:\Users\rhammond\Documents", 
-                                                                   "*", SearchOption.AllDirectories);
+                                                                   "*", SearchOption.TopDirectoryOnly);
+                                                                   //"*", SearchOption.AllDirectories);
 
             // Create a sorted set using the ByFileExtension comparer.
             SortedSet<string> mediaFiles1 = new SortedSet<string>(new ByFileExtension());
@@ -34,20 +35,30 @@ class Program
 
             Console.WriteLine();
 
-            // List all the avi files.
-            SortedSet<string> aviFiles = mediaFiles1.GetViewBetween("avi", "avj");
-
-            Console.WriteLine("AVI files:");
-            foreach (string avi in aviFiles)
+            Console.WriteLine("List of mediaFiles1:");
+            foreach (string f in mediaFiles1)
             {
-                Console.WriteLine("\t{0}", avi);
+                Console.WriteLine("\t{0}",f);
             }
+
+
+            Console.WriteLine();
+
+            // List all the bas files.
+            SortedSet<string> basFiles = mediaFiles1.GetViewBetween("bas", "bmp");
+
+            Console.WriteLine("BAS files:");
+            foreach (string bas in basFiles)
+            {
+                Console.WriteLine("\t{0}", bas);
+            }
+
 
             Console.WriteLine();
 
             // Create another sorted set.
-            IEnumerable<string> files2 = Directory.EnumerateFiles(@"C:\Users\rhammond\Documents", 
-                                                                   "*", SearchOption.AllDirectories);
+            IEnumerable<string> files2 = Directory.EnumerateFiles(@"C:\Users\rhammond\Documents", "*");
+                                                                   //"*", SearchOption.AllDirectories);
 
             SortedSet<string> mediaFiles2 = new SortedSet<string>(new ByFileExtension());
 
@@ -73,7 +84,8 @@ class Program
             // Create a set of the sets.
             IEqualityComparer<SortedSet<string>> comparer = SortedSet<string>.CreateSetComparer();
 
-            Console.WriteLine();
+            Console.Write("Press Enter: ");
+            Console.ReadLine();
 
             Console.WriteLine("List of mediaFiles1 & mediaFiles2:");
 
@@ -83,6 +95,8 @@ class Program
 
             foreach (SortedSet<string> s in allMedia)
             {
+                Console.WriteLine("{0} contains {1} items.", s, s.Count);
+                
                 foreach (string f in s)
                 {
                     Console.WriteLine("\t{0}",f);
@@ -105,10 +119,16 @@ class Program
     {
         if (s.ToLower().EndsWith(".txt") ||
             s.ToLower().EndsWith(".doc") ||
+            s.ToLower().EndsWith(".dot") ||
             s.ToLower().EndsWith(".xls") ||
+            s.ToLower().EndsWith(".xlsm") ||
             s.ToLower().EndsWith(".xlsx") ||
+            s.ToLower().EndsWith(".xps") ||
             s.ToLower().EndsWith(".pdf") ||
+            s.ToLower().EndsWith(".ppt") ||
+            s.ToLower().EndsWith(".pptx") ||
             s.ToLower().EndsWith(".doc") ||
+            s.ToLower().EndsWith(".docm") ||
             s.ToLower().EndsWith(".docx"))
         {
             return true;

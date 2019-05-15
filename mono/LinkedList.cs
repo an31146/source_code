@@ -1,88 +1,106 @@
 ﻿using System;
+using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 
-public class BinaryTree<T> : LinkedList<T>
+public class Tree<T> : List<T>
 {
-    private LinkedListNode<T> Node;
-    private LinkedListNode<T> Left;
-    private LinkedListNode<T> Right;
+    //private Tree<T> Node;
+    private T Value;
+    private Comparer<T> defComp;
+    private Tree<T> Left;
+    private Tree<T> Right;
     
-    public BinaryTree(LinkedListNode<T> _node)
+    public Tree(T _value)
     {
-        Node = _node;
+        defComp = Comparer<T>.Default;
+        Value = _value;
         Left = null;
         Right = null;
     }
-    
-    public void AddLeft(LinkedListNode<T> _node)
+       
+    public Tree<T> GetNode()
     {
-        if (Left != null)
-            AddLeft(_node);
-        else
-            Left = _node;
-    }
-
-    public void AddRight(LinkedListNode<T> _node)
-    {
-        if (Right != null)
-            AddRight(_node);
-        else
-            Right = _node;
+        return this;
     }
     
-    public LinkedListNode<T> GetNode()
-    {
-        return Node;
-    }
-    
-    public LinkedListNode<T> GetLeft()
+    public Tree<T> GetLeft()
     {
         return Left;
     }
     
-    public LinkedListNode<T> GetRight()
+    public Tree<T> GetRight()
     {
         return Right;
     }
-
-    public void AddNode(LinkedListNode<T> _node, bool _bAddToLeftNode)
+    
+    public T GetValue()
     {
-        if (_bAddToLeftNode)
+        return (T)Value;
+    }
+
+    public int CompareTo(T y)
+    {
+        return defComp.Compare(Value, y);
+    }
+
+    public Tree<T> AddNode(ref Tree<T> _thisNode, T _value)
+    {
+        if (_thisNode == null)
         {
-            if (Left != null)
-                AddNode(_node, true);
-            else
-                AddLeft(_node);
+            //Node = new Tree<T>(_value);
+            _thisNode = new Tree<T>(_value);
+            //Node = _thisNode;
+            //if (_thisNode == null)
+            //    _thisNode = Node;
+            Console.WriteLine("added node: {0}", _thisNode.GetValue());
+            return _thisNode;
+        }
+            
+        if (this.CompareTo(_value) > 0)
+        {
+            Console.WriteLine("add \"{0}\" to left node.", _value);
+            //if (_thisNode.Left == null)
+                this.Left = AddNode(ref _thisNode.Left, _value);
+                Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
+                return this.Left;
+            //else
+            //    _thisNode.Left = new Tree<T>(_value);
+            
         }
         else
         {
-            if (Right != null)
-                AddNode(_node, false);
-            else
-                AddRight(_node);
+            Console.WriteLine("add \"{0}\" to right node.", _value);
+            //if (_thisNode.Right != null)
+                this.Right = AddNode(ref _thisNode.Right, _value);
+                Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
+                return this.Right;
+            //else
+            //    _thisNode.Right = new Tree<T>(_value);
+            
         }
     }
     
-    public LinkedList<T> Traverse(LinkedListNode<T> _node)
+    public List<T> Traverse(Tree<T> _node, List<T> _listOfT = null)
     {
-        LinkedList<T> _listOfLinkedNodes = new LinkedList<T>();
-        
-        _listOfLinkedNodes.AddFirst(_node);
-        
-        if (this.Left != null)
-        {
-            _listOfLinkedNodes.AddLast(this.Left);   
-        }
-        
-        if (this.Right != null)
-        {
-            _listOfLinkedNodes.AddLast(this.Right);
-        }
+        if (_listOfT == null)
+            _listOfT = new List<T>();
             
-        return _listOfLinkedNodes;
+        //Console.WriteLine("_listOfT.Count = {0}", _listOfT.Count);
+        
+        //if (this.CompareTo(_node.GetValue()) <= 0)
+        if (_node != null)
+        {
+            //_listOfT.Add(_node.Left.GetValue());
+            Traverse(_node.Left, _listOfT);
+            _listOfT.Add(_node.GetValue());
+            Console.WriteLine(_node.GetValue());
+            Traverse(_node.Right, _listOfT);
+        }
+        
+        return _listOfT;
     }
-}
+} // Tree
 
 public class Example
 {
@@ -93,27 +111,32 @@ public class Example
             { "the", "fox", "jumps", "over", "the", "dog" };
         LinkedList<string> sentence = new LinkedList<string>(words);
         
-        /*
-        BinaryTree<string> tree = new BinaryTree<string>(new LinkedListNode<string>(words[0]));
+        
+        Tree<string> tree = new Tree<string>("root");
         foreach (string str in words)
         {
-            if (words[0].Equals(str))
-                continue;
-            else 
-                if (tree.GetNode().Value.CompareTo(str) < 0)
-                {
-                    tree.AddNode(new LinkedListNode<string>(str), true);
-                }
-                else 
-                {
-                    tree.AddNode(new LinkedListNode<string>(str), false);
-                }
+            //if (words[0].Equals(str))
+            //    continue;
+            //else 
+             
+            //Console.WriteLine(str);
+            tree.AddNode(ref tree, str);
         }
         
-        LinkedList<string> sorted_words = tree.Traverse(tree.GetNode());
+        Console.WriteLine("\ntree != null is {0}\ntree.GetLeft() != null is {1}\ntree.GetRight() != null is {2}\n", tree != null, tree.GetLeft() != null, tree.GetRight() != null);
+        
+        List<string> sorted_words = null;
+        
+        sorted_words = tree.Traverse(tree, sorted_words);
+        Console.WriteLine("sorted_words.Count = {0}", sorted_words.Count);
+        
         foreach (string str in sorted_words)
             Console.WriteLine(str);
-        */
+
+        Console.Write("Press Enter: ");
+        Console.ReadLine();
+
+        return;
         
         Display(sentence, "The linked list values:");
         Console.WriteLine("sentence.Contains(\"jumps\") = {0}",
