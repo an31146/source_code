@@ -14,7 +14,7 @@ char **argv;
     struct { 
         unsigned int a; 
         double b; 
-    } value;
+    } struct2;
     MPI_Datatype mystruct;
     int          blocklens[2];
     MPI_Aint     indices[2];
@@ -33,8 +33,8 @@ char **argv;
     old_types[1] = MPI_DOUBLE;
     
     /* The locations of each element */
-    MPI_Get_address( &value.a, &indices[0] );
-    MPI_Get_address( &value.b, &indices[1] );
+    MPI_Get_address( &struct2.a, &indices[0] );
+    MPI_Get_address( &struct2.b, &indices[1] );
     
     /* Make relative */
     indices[1] = indices[1] - indices[0];
@@ -47,14 +47,14 @@ char **argv;
         {
             printf("Enter <integer> <double>: ");
             fflush(stdout);
-            scanf( "%d %lf", &value.a, &value.b );
+            scanf( "%d %lf", &struct2.a, &struct2.b );
         }
 
 //  int MPI_Bcast( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm )    
-        MPI_Bcast( &value, 1, mystruct, 0, MPI_COMM_WORLD );
+        MPI_Bcast( &struct2, 1, mystruct, 0, MPI_COMM_WORLD );
     	
-        printf( "Process %d got %2d and %0.10lf\n", rank, value.a, value.b );
-    } while (value.a != UINT32_MAX);
+        printf( "Process %d got %2d and %0.10lf\n", rank, struct2.a, struct2.b );
+    } while (struct2.a != UINT32_MAX);
 
     /* Clean up the type */
     MPI_Type_free( &mystruct );

@@ -27,9 +27,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#define LOWER         14.134728277614L     /* lower bound of t domain              */
-#define UPPER         14.134728277622L     /* upper bound of t domain              */
-#define NUMSAMPLES    50                   /* number of samples to compute         */
+#define LOWER         14.134728277619551020L    /* lower bound of t domain              */
+#define UPPER         14.134728277622L          /* upper bound of t domain              */
+#define NUMSAMPLES    50                        /* number of samples to compute         */
 
 /**************************************************************************/
 
@@ -60,7 +60,7 @@ int main()
       rezeta = Z(t,4)*cos(theta(t));
       imzeta = -1.0*Z(t,4)*sin(theta(t));
 
-      printf("t = %16.12Lf\t zeta(1/2+it)\t=\t%16.12Lf\t+ \ti %14.12Lf\n", t, rezeta, imzeta); 
+      printf("t = %16.18Lf\t zeta(1/2+it)\t=\t%16.18Lf\t+ \ti %14.18Lf\n", t, rezeta, imzeta); 
  
       ++sampleindex;
 
