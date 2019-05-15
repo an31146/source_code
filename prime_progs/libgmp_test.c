@@ -166,15 +166,11 @@ int main()
     float start, stop;
 	
     mpz_inits(a, b, c, d, NULL);
-    mpz_set_str(c, "70075197985927611076971005579058636974570607864407988181158931334268315880905650934137357364743068772075658810649075047312082034642592490448418403770075197985927611076971005579058636974570607878621117549",        10);
+    mpz_set_str(c, "70075197985927611076971005579058636974570607864407988181158931334268315880905650934137357364743068772075658810649075047312082034642592490448418403770075197985927611076971005579058636974570607878790824303",  10);
 
     start = (float)clock() / CLOCKS_PER_SEC;
     printf("clock() = %.0f ms\n\n", start*1000.f);
     stop = (float)clock() / CLOCKS_PER_SEC;
-
-    start = clock() / (float)CLOCKS_PER_SEC;
-    printf("clock() = %0f ms\n\n", start*1000.0f);
-    stop = clock() / (float)CLOCKS_PER_SEC;
 
     FILE *F_TP = fopen("./twin_primes.txt", "a+");
     if(!F_TP) {
@@ -182,12 +178,13 @@ int main()
         return EXIT_FAILURE;
     }
 
-    while (start+3600.0f > stop)
+    start = (float)time(NULL);
+    while (start+28800.0f > stop)
     {
         int f = 0;
         while (!miller_rabin(c, 23))
         {
-            start = clock() / 1000.f;
+            stop = (float)time(NULL);
             mpz_add_ui(c, c, 2);
 
             switch(f)
