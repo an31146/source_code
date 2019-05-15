@@ -27,17 +27,17 @@
 #include <stdio.h>
 #include <math.h>
 
-#define LOWER         14.134L     /* lower bound of t domain              */
-#define UPPER         14.135L     /* upper bound of t domain              */
-#define NUMSAMPLES         100       /* number of samples to compute         */
+#define LOWER         14.134728277614L     /* lower bound of t domain              */
+#define UPPER         14.134728277622L     /* upper bound of t domain              */
+#define NUMSAMPLES    50                   /* number of samples to compute         */
 
 /**************************************************************************/
 
 int main()
 {
-  long double t1   ;              /* start of plotted interval            */
-  long double t2   ;              /* end of plotted interval              */
-  long double t    ;              /* sample to compute                    */
+  long double t1;                 /* start of plotted interval            */
+  long double t2;                 /* end of plotted interval              */
+  long double t;                  /* sample to compute                    */
   long double rezeta;             /* real part of zeta(1/2+it)           */
   long double imzeta;             /* imaginary part of zeta(1/2+it)      */
 
@@ -45,13 +45,13 @@ int main()
   long double theta(long double); /* theta function                       */
 
 
-  int samples    ;                /* number samples to compute            */
+  int samples;                    /* number samples to compute            */
   int sampleindex;                /* index of sample being computed       */ 
 
-  t1          = LOWER         ;       
-  t2          = UPPER         ;           
+  t1          = LOWER;       
+  t2          = UPPER;           
   samples     = NUMSAMPLES - 1;
-  sampleindex = 0             ;
+  sampleindex = 0;
   
   while (sampleindex <= samples)
     { 
@@ -60,7 +60,7 @@ int main()
       rezeta = Z(t,4)*cos(theta(t));
       imzeta = -1.0*Z(t,4)*sin(theta(t));
 
-      printf("t = %16.12Lf\t zeta(1/2+it) = %16.12Lf + i %16.12Lf\n", t, rezeta, imzeta); 
+      printf("t = %16.12Lf\t zeta(1/2+it)\t=\t%16.12Lf\t+ \ti %14.12Lf\n", t, rezeta, imzeta); 
  
       ++sampleindex;
 

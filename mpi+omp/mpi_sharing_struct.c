@@ -1,6 +1,7 @@
 // gcc -Wall -O2 -std=c99 -o mpi_sharing_struct.exe mpi_sharing_struct.c -lmsmpi
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "mpi.h"
 
 #define MSMPI_NO_DEPRECATE_20 1
@@ -26,12 +27,15 @@ char **argv;
     /* One value of each type */
     blocklens[0] = 1;
     blocklens[1] = 1;
+    
     /* The base types */
     old_types[0] = MPI_UNSIGNED;
     old_types[1] = MPI_DOUBLE;
+    
     /* The locations of each element */
     MPI_Get_address( &value.a, &indices[0] );
     MPI_Get_address( &value.b, &indices[1] );
+    
     /* Make relative */
     indices[1] = indices[1] - indices[0];
     indices[0] = 0;
@@ -42,6 +46,7 @@ char **argv;
         if (rank == 0) 
         {
             printf("Enter <integer> <double>: ");
+            fflush(stdout);
             scanf( "%d %lf", &value.a, &value.b );
         }
 
@@ -54,5 +59,6 @@ char **argv;
     /* Clean up the type */
     MPI_Type_free( &mystruct );
     MPI_Finalize( );
-    return 0;
+    
+    return EXIT_SUCCESS;
 }
