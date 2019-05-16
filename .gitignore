@@ -5,3 +5,4 @@
 *.elf
 .vs/
 *.gz
+*.data
