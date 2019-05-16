@@ -6,3 +6,5 @@
 .vs/
 *.gz
 *.data
+/mono/BinaryFileStreamIO.cs.orig
+/mono/BinaryFileStreamIO.cs.patchfile
