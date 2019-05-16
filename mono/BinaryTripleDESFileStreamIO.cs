@@ -225,9 +225,9 @@ class MyStream
                     //foreach (byte b in byteArray)
                     //    Console.Write("{0:X2} ", b);
                     
-                    Console.WriteLine("{0:X2}", tripleDESalg.Key.Length);
-                    tripleDESalg.Key[0] = 0xee;
-                    Console.WriteLine("{0:X2}", tripleDESalg.Key[0]);
+                    //Console.WriteLine("{0:X2}", tripleDESalg.Key.Length);
+                    //tripleDESalg.Key[0] = 0xee;
+                    //*/Console.WriteLine("{0:X2}", tripleDESalg.Key[0]);
                     charArray = DecryptStringFromBytes(byteArray, tripleDESalg.Key, tripleDESalg.IV);
                     
                     Console.Write("{0:F1} %\r", (float)fs.Position / fs.Length * 100.0f);
