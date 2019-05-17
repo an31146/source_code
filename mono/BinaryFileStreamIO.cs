@@ -72,7 +72,8 @@ class MyStream
             {
                 strAscii += (char)i;
             }
-            // Multiply and concatenate - becomes 16 times the original length
+            
+            // Multiply and concatenate - becomes 256 times the original length
             for (int i = 0; i < 8; i++)
             {
                 strAscii += strAscii;

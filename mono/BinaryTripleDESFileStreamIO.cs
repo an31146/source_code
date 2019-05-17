@@ -252,21 +252,24 @@ class MyStream
 
                 } // using
 
-                //r.Close();
-                //fs.Close();
-
-                // Write Byte-order mark preamble to file
-                //UTF8Encoding utf8 = new UTF8Encoding();
-                //Byte[] bom = utf8.GetPreamble();
-                //sWriter.Write(bom, 0, bom.Length);
-
                 // Write the string to FILE_NAME.
-                using (FileStream fs = new FileStream(FILE_NAME, FileMode.Truncate))
-                    using (StreamWriter sWriter = new StreamWriter(fs, Encoding.UTF8))
+                using (FileStream fs = new FileStream(FILE_NAME, FileMode.Create))
+                {
+                    //Write Byte-order mark preamble to file
+                    UTF8Encoding utf8 = new UTF8Encoding(true);
+                    Byte[] bom = utf8.GetPreamble();
+                    fs.Write(bom, 0, bom.Length);
+                }
+                using (FileStream fs = new FileStream(FILE_NAME, FileMode.Append))
+                {
+                    using (BinaryWriter binWriter = new BinaryWriter(fs))
                     {
-                        sWriter.Write(plain_text);
+                        UTF8Encoding utf8 = new UTF8Encoding(true);
+                        binWriter.Write(utf8.GetBytes(plain_text));
                         Console.WriteLine("Wrote {0} bytes of plain-text to {1}", fs.Length, FILE_NAME);
                     }
+                }
+                
             } // try
             catch (ObjectDisposedException ex)
             {
