@@ -19,22 +19,27 @@ class MyStream
     static private int READ_BLOCK_SIZE = 4096;
     static private long DIVISOR = 1;
 
+    static void ExceptionAndStackTrace(Exception ex)
+    {
+        Console.WriteLine("Exception: {0}\n{1}", ex.Message, ex.StackTrace);
+        Environment.Exit(ex.HResult);           // Lazy-coding - should return to perform finally section
+    }
     
-    static char[] DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
+    static string DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
     {
         // Check arguments.
         if (cipherText == null || cipherText.Length <= 0)
-            throw new ArgumentNullException("cipherText");
+            throw new ArgumentNullException("cipherText is null");
         if (Key == null || Key.Length <= 0)
-            throw new ArgumentNullException("Key");
+            throw new ArgumentNullException("Key is null");
         if (IV == null || IV.Length <= 0)
-            throw new ArgumentNullException("IV");
+            throw new ArgumentNullException("IV is null");
 
         // Declare the string used to hold
         // the decrypted text.
         string plaintext = null;
 
-        // Create an RijndaelManaged object
+        // Create an TripleDES object
         // with the specified key and IV.
         using (TripleDES tripleDESalg = TripleDESCng.Create())
         {
@@ -59,19 +64,19 @@ class MyStream
             }
 
         }
-
-        return plaintext.ToCharArray();
+        return plaintext;
     }
 
     private static byte[] EncryptStringToBytes(string plainText, byte[] Key, byte[] IV)
     {
         // Check arguments.
         if (plainText == null || plainText.Length <= 0)
-            throw new ArgumentNullException("plainText");
+            throw new ArgumentNullException("plainText is null");
         if (Key == null || Key.Length <= 0)
-            throw new ArgumentNullException("Key");
+            throw new ArgumentNullException("Key is null");
         if (IV == null || IV.Length <= 0)
-            throw new ArgumentNullException("IV");
+            throw new ArgumentNullException("IV is null");
+
         byte[] encrypted;
         // Create an Rijndael object
         // with the specified key and IV.
@@ -117,8 +122,7 @@ class MyStream
             }
             catch (UnauthorizedAccessException ex)
             {
-                Console.WriteLine("Exception: {0}", ex.Message);
-                return;
+                ExceptionAndStackTrace(ex);
             }
         }
 #endif
@@ -132,12 +136,19 @@ class MyStream
         }
         catch (FormatException ex)
         {
-            Console.WriteLine("Exception: {0}", ex.Message);
-            return;
+            ExceptionAndStackTrace(ex);
         }
 
         // Need to retain the key and IV        
         TripleDESCryptoServiceProvider tripleDESalg = new TripleDESCryptoServiceProvider();
+
+                    /*
+                    Console.WriteLine("tripleDESalg.Key.Length {0} bytes", tripleDESalg.Key.Length);
+                    foreach (byte b in tripleDESalg.Key)
+                        Console.Write("{0:X2} ", b);
+                    tripleDESalg.Key[0] = 0x55;
+                    Console.WriteLine("{0:X2}", tripleDESalg.Key[0]);
+                    */
 
         // Writing
         try
@@ -146,10 +157,6 @@ class MyStream
             Stopwatch sw = new Stopwatch();
             Encoding ascii = Encoding.ASCII;
             Encoding utf8 = Encoding.UTF8;
-
-            // Write Byte-order mark preamble to file
-            //Byte[] bom = utf8.GetPreamble();
-            //fs.Write(bom, 0, bom.Length);
 
             // Create the writer for data.
             BinaryWriter w = new BinaryWriter(fs);
@@ -172,7 +179,7 @@ class MyStream
                 encBytes = EncryptStringToBytes(strAscii, tripleDESalg.Key, tripleDESalg.IV);
             }
 
-            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / DIVISOR * utf8.GetBytes(strAscii).Length); // + bom.Length);
+            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / DIVISOR * encBytes.Length); // + bom.Length);
             //Console.WriteLine("DIVISOR = {0}", DIVISOR);
             
             sw.Start();
@@ -194,52 +201,81 @@ class MyStream
         catch (IOException ex)
         {
             // error handling
-            Console.WriteLine("Exception: {0}", ex.Message);
-            return;
+            ExceptionAndStackTrace(ex);
         }
 
         // Reading
         try
         {
-            // Create the reader for data.  
-            FileStream fs = new FileStream(FILE_NAME, FileMode.Open, FileAccess.Read);
+            //using (MemoryStream memStream = new MemoryStream())
             Stopwatch sw = new Stopwatch();
-
-            BinaryReader r = new BinaryReader(fs);
-            char[] charArray = new char[READ_BLOCK_SIZE];
-            byte[] byteArray =  new byte[fs.Length];
-
-            Console.WriteLine("Reading from file in {0}-byte chunks...", READ_BLOCK_SIZE);
-
-            sw.Restart();
-            while (fs.Position < fs.Length)
-            {
-                // Read data from Test.data.
-                //for (int i = 32; i < 255; i++)
-                //{
-                    //Console.Write(r.ReadChar());
-                    //r.ReadChar();			// Elapsed time: 115080 ms
-                    byteArray = r.ReadBytes((int)fs.Length);
-
-                    Console.WriteLine("byteArray.Length: {0}", byteArray.Length);
-                    //foreach (byte b in byteArray)
-                    //    Console.Write("{0:X2} ", b);
-                    
-                    //Console.WriteLine("{0:X2}", tripleDESalg.Key.Length);
-                    //tripleDESalg.Key[0] = 0xee;
-                    //*/Console.WriteLine("{0:X2}", tripleDESalg.Key[0]);
-                    charArray = DecryptStringFromBytes(byteArray, tripleDESalg.Key, tripleDESalg.IV);
-                    
-                    Console.Write("{0:F1} %\r", (float)fs.Position / fs.Length * 100.0f);
-                //}
-            }
-            sw.Stop();
+            string plain_text = "";
             
-            //Console.WriteLine("{0}", new string(charArray));
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+            try
+            {
+            // Create the reader for data.  
+                using (FileStream fs = new FileStream(FILE_NAME, FileMode.Open, FileAccess.Read))
+                {
+                    byte[] byteArray =  new byte[fs.Length];
+                    byte[] buffer = new byte[READ_BLOCK_SIZE];
+                    int offset = 0;
 
-            r.Close();
-            fs.Close();
+                    Console.WriteLine("Reading from file in {0}-byte chunks...", READ_BLOCK_SIZE);
+                    sw.Restart();
+                    //fs.Seek(0, SeekOrigin.Begin);
+                    using (BinaryReader r = new BinaryReader(fs))
+                    {
+                        while (fs.Position < fs.Length)
+                        {
+                            buffer = r.ReadBytes(READ_BLOCK_SIZE);
+                            //Console.WriteLine("offset = {1}\nbuffer.Length = {0} bytes, byteArray.Length = {2}", buffer.Length, offset, byteArray.Length);
+                            Buffer.BlockCopy( buffer, 0, byteArray, offset, buffer.Length );
+                            //memStream.Write(buffer, 0, buffer.Length);
+                            offset += buffer.Length;
+                            
+                            Console.Write("{0:F1} %\r", (float)offset / fs.Length * 100.0f);
+                        }
+                        //}
+                        sw.Stop();
+
+                        Console.WriteLine("\nRead {0} bytes from {1}", fs.Length, FILE_NAME);
+                        //Console.WriteLine("\nmemStream.Length: {0} bytes", memStream.Length);
+                        Console.WriteLine("\nbyteArray.Length: {0} bytes", byteArray.Length);
+                        Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+                    } // the problem with using using ...
+
+                    sw.Restart();
+                    Console.WriteLine("Decrypting... ");
+                    plain_text = DecryptStringFromBytes(byteArray, tripleDESalg.Key, tripleDESalg.IV);
+                    sw.Stop();
+                    Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+
+                } // using
+
+                //r.Close();
+                //fs.Close();
+
+                // Write Byte-order mark preamble to file
+                //UTF8Encoding utf8 = new UTF8Encoding();
+                //Byte[] bom = utf8.GetPreamble();
+                //sWriter.Write(bom, 0, bom.Length);
+
+                // Write the string to FILE_NAME.
+                using (FileStream fs = new FileStream(FILE_NAME, FileMode.Truncate))
+                    using (StreamWriter sWriter = new StreamWriter(fs, Encoding.UTF8))
+                    {
+                        sWriter.Write(plain_text);
+                        Console.WriteLine("Wrote {0} bytes of plain-text to {1}", fs.Length, FILE_NAME);
+                    }
+            } // try
+            catch (ObjectDisposedException ex)
+            {
+                ExceptionAndStackTrace(ex);
+            }
+            catch (CryptographicException ex)
+            {
+                ExceptionAndStackTrace(ex);
+            }
 
             if (bDeleteFile)
             {
@@ -249,8 +285,7 @@ class MyStream
         }
         catch (IOException ex)
         {
-            Console.WriteLine("Exception: {0}", ex.Message);
-            return;
+            ExceptionAndStackTrace(ex);
         }
             
     }   // void Main

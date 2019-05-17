@@ -120,13 +120,13 @@ class MyStream
             while (fs.Position < fs.Length)
             {
                 // Read data from Test.data.
-                for (int i = 32; i < 255; i++)
-                {
+                //for (int i = 32; i < 255; i++)
+                //{
                     //Console.Write(r.ReadChar());
                     //r.ReadChar();			// Elapsed time: 115080 ms
                     charArray = r.ReadChars(READ_BLOCK_SIZE);
                     Console.Write("{0:F1} %\r", (float)fs.Position / fs.Length * 100.0f);
-                }
+                //}
             }
             sw.Stop();
 
