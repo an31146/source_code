@@ -142,6 +142,15 @@ class MyStream
         // Need to retain the key and IV        
         TripleDESCryptoServiceProvider tripleDESalg = new TripleDESCryptoServiceProvider();
 
+        Console.Write("tripleDESalg.Key: ");
+        foreach (byte b in tripleDESalg.Key)
+            Console.Write("{0:X2} ", b);
+
+        Console.Write("\ntripleDESalg.IV:  ");
+        foreach (byte b in tripleDESalg.IV)
+            Console.Write("{0:X2} ", b);
+            
+        Console.WriteLine("\n");
                     /*
                     Console.WriteLine("tripleDESalg.Key.Length {0} bytes", tripleDESalg.Key.Length);
                     foreach (byte b in tripleDESalg.Key)
@@ -246,7 +255,17 @@ class MyStream
 
                     sw.Restart();
                     Console.WriteLine("Decrypting... ");
-                    plain_text = DecryptStringFromBytes(byteArray, tripleDESalg.Key, tripleDESalg.IV);
+                    
+                    {
+                        byte[] keyBytes = new byte[tripleDESalg.Key.Length];
+                        for (int i = 0; i < keyBytes.Length; i++)
+                            keyBytes[i] = (byte)(tripleDESalg.Key[i] ^ 0xff);
+                        //Buffer.BlockCopy(keyBytes, 0, tripleDESalg.Key, 0, keyBytes.Length);
+                            
+                        Console.WriteLine();
+                        plain_text = DecryptStringFromBytes(byteArray, tripleDESalg.Key, tripleDESalg.IV);
+                    }
+                        
                     sw.Stop();
                     Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
 
