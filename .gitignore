@@ -8,3 +8,6 @@
 *.data
 /mono/BinaryFileStreamIO.cs.orig
 /mono/BinaryFileStreamIO.cs.patchfile
+*.obj
+*.pdb
+*.ini
