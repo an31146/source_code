@@ -1,6 +1,6 @@
 ﻿//
 //
-// gcc -O2 -Wall -std=c99 -o mpi_prime_v3 mpi_prime_v3.c -lmsmpi
+// gcc -O2 -Wall -std=c99 -o mpi_prime_v4 mpi_prime_v4.c -lmpi
 //
 /******************************************************************************
 * FILE: mpi_prime.c
@@ -18,7 +18,7 @@
 *   Richard Ng &  Wong Sze Cheong during MHPCC Singapore Workshop (8/22/95).
 * LAST REVISED: 04/13/05
 ******************************************************************************/
-#include "mpi.h"
+#include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

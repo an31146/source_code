@@ -37,6 +37,11 @@ class MyStream
             }
         }
 #endif
+<<<<<<< HEAD
+=======
+        int REPETITIONS = 1048576;
+        int READ_BLOCK_SIZE = 1024;
+>>>>>>> 6a88b176cb2cd905dfbcc2aaf006f067de49e791
         
         try
         {
