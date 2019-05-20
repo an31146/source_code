@@ -91,12 +91,15 @@ class MyStream
                 Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
             }
             sw.Stop();
-            Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
             
+            Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
+            Console.WriteLine("\nElapsed time: {0} ms", sw.ElapsedMilliseconds);
+
+            double writeSpeed = (double)fs.Length / 1048576.0d / sw.Elapsed.TotalSeconds;
+            Console.WriteLine("Approximate write speed: {0:F1} MB/s\n", writeSpeed);
+
             w.Close();
             fs.Close();
-            
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
         }
         catch (IOException ex)
         {
@@ -131,7 +134,10 @@ class MyStream
             }
             sw.Stop();
 
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+            Console.WriteLine("\nElapsed time: {0} ms", sw.ElapsedMilliseconds);
+
+            double readSpeed = (double)fs.Length / 1048576.0d / sw.Elapsed.TotalSeconds;
+            Console.WriteLine("Approximate read speed: {0:F1} MB/s\n", readSpeed);
 
             r.Close();
             fs.Close();
