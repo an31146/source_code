@@ -14,6 +14,9 @@ class MyStream
 {
     private const string FILE_NAME = "Test.data";
     private const bool bDeleteFile = false;
+    static private long REPETITIONS = 1048576;
+    static private int READ_BLOCK_SIZE = 4096;
+    static private long DIVISOR = 1;
 
     public static void Main(String[] args)
     {
@@ -34,8 +37,11 @@ class MyStream
             }
         }
 #endif
+<<<<<<< HEAD
+=======
         int REPETITIONS = 1048576;
         int READ_BLOCK_SIZE = 1024;
+>>>>>>> 6a88b176cb2cd905dfbcc2aaf006f067de49e791
         
         try
         {
@@ -58,6 +64,7 @@ class MyStream
             Encoding ascii = Encoding.ASCII;
             Encoding utf8 = Encoding.UTF8;
 
+            // Write Byte-order mark preamble to file
             Byte[] bom = utf8.GetPreamble();
             fs.Write(bom, 0, bom.Length);
 
@@ -71,17 +78,21 @@ class MyStream
                 strAscii += (char)i;
             }
             // Multiply and concatenate - becomes 16 times the original length
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 8; i++)
+            {
                 strAscii += strAscii;
+                DIVISOR *= 2;
+            }
 
-            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / 16 * utf8.GetBytes(strAscii).Length + bom.Length);
+            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / DIVISOR * utf8.GetBytes(strAscii).Length + bom.Length);
+            //Console.WriteLine("DIVISOR = {0}", DIVISOR);
             
             sw.Start();
             // Write the string for COUNT times to Test.data
-            for (int j = 0; j < REPETITIONS / 16; j++)
+            for (int j = 0; j < REPETITIONS / DIVISOR; j++)
             {
                 w.Write(utf8.GetBytes(strAscii));
-                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / 1600.0f));
+                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
             }
             sw.Stop();
             Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
@@ -108,7 +119,7 @@ class MyStream
             BinaryReader r = new BinaryReader(fs);
             char[] charArray = new char[READ_BLOCK_SIZE];
 
-            Console.WriteLine("Reading from file...");
+            Console.WriteLine("Reading from file in {0}-byte chunks...", READ_BLOCK_SIZE);
 
             sw.Restart();
             while (fs.Position < fs.Length)

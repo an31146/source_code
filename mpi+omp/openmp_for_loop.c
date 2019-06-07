@@ -2,22 +2,18 @@
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define SIZE 10000
+#define N       1000
 
 int main (int argc, char *argv[]) 
 {
 
     int nthreads, tid, i;
-    float a[SIZE], b[SIZE], c[SIZE];
+    float a[N], b[N], c[N];
     
     /* Some initializations */
-    for (i=0; i<SIZE; i++)
-    {
-        a[i] = b[i] = i*0.01f;
-	c[i] = 0.0f;
-    }
+    for (i=0; i < N; i++)
+        a[i] = b[i] = i;
     
-    printf("");
     
     #pragma omp parallel shared(a,b,c,nthreads) private(i,tid)
     {
@@ -28,15 +24,15 @@ int main (int argc, char *argv[])
             printf("Number of threads = %d\n", nthreads);
         }
     
-        printf("\033[%d;0H Thread %d starting...", tid+2, tid);
+        printf("Thread %d starting...\n\n",tid);
         
         #pragma omp for 
-        for (i=0; i<SIZE*100; i++)
+        for (i=0; i<N; i++)
         {
-            c[i%SIZE] += a[i%SIZE] + b[i%SIZE];
-            printf("\033[%d;0H Thread %d: c[%6d]= %f\r", tid+10, tid, i%SIZE, c[i%SIZE]);
+            c[i] = a[i] + b[i];
+            printf("Thread %d: c[%d]= %f\n",tid,i,c[i]);
         }
     
     }  /* end of parallel section */
-    printf("\n\n");
+
 }

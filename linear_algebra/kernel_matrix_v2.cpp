@@ -1,5 +1,5 @@
 ﻿
-// g++.exe -Wall -O2 -std=c++11 kernel_matrix_v2.cpp -o kernel_matrix_v2.exe
+// g++ -Wall -O2 -std=c++11 kernel_matrix_v2.cpp -o kernel_matrix_v2
 
 #include <iostream>
 #include <cmath>
