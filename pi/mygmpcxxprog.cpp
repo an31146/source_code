@@ -11,7 +11,7 @@ int main (void)
 {
     mpz_class a, b, c, p;
 
-    mpf_set_default_prec(255);
+    mpf_set_default_prec(16383);
     cout << "mpf_get_default_prec() is " << mpf_get_default_prec() << endl << endl;
 
     a = 1234;
@@ -38,7 +38,13 @@ int main (void)
     
     d /= e;
     //cout << "1.0/" << n << "! is " << setw(20) << d << endl;
-    gmp_printf("1.0/%d! is %0.Ff\n", n, d.get_mpf_t());
+    gmp_printf("1.0/%d! is %0.Ff\n\n", n, d.get_mpf_t());
+
+    mpf_class s(2);
+    mpf_sqrt(s.get_mpf_t(), s.get_mpf_t());
+
+    gmp_printf("mpf_sqrt(2):\n%0.Ff\n", s.get_mpf_t());
+
 
     return 0;
 }
