@@ -12,8 +12,7 @@ class OrderableListPartitioner<TSource> : OrderablePartitioner<TSource>
 {
     private readonly IList<TSource> m_input;
   
-    public OrderableListPartitioner(IList<TSource> input)
-        : base(true, false, true)
+    public OrderableListPartitioner(IList<TSource> input) : base(true, false, true)
     {
         m_input = input;
     }
@@ -27,12 +26,10 @@ class OrderableListPartitioner<TSource> : OrderablePartitioner<TSource>
         }
     }
 
-    public override IList<IEnumerator<KeyValuePair<long, TSource>>>
-        GetOrderablePartitions(int partitionCount)
+    public override IList<IEnumerator<KeyValuePair<long, TSource>>>GetOrderablePartitions(int partitionCount)
     {
         var dynamicPartitions = GetOrderableDynamicPartitions();
-        var partitions =
-            new IEnumerator<KeyValuePair<long, TSource>>[partitionCount];
+        var partitions = new IEnumerator<KeyValuePair<long, TSource>>[partitionCount];
 
         for (int i = 0; i < partitionCount; i++)
         {
@@ -41,14 +38,12 @@ class OrderableListPartitioner<TSource> : OrderablePartitioner<TSource>
         return partitions;
     }
 
-    public override IEnumerable<KeyValuePair<long, TSource>>
-        GetOrderableDynamicPartitions()
+    public override IEnumerable<KeyValuePair<long, TSource>>GetOrderableDynamicPartitions()
     {
         return new ListDynamicPartitions(m_input);
     }
 
-    private class ListDynamicPartitions
-        : IEnumerable<KeyValuePair<long, TSource>>
+    private class ListDynamicPartitions : IEnumerable<KeyValuePair<long, TSource>>
     {
         private IList<TSource> m_input;
         private int m_pos = 0;
@@ -71,16 +66,13 @@ class OrderableListPartitioner<TSource> : OrderablePartitioner<TSource>
                     yield break;
                 }
 
-                yield return new KeyValuePair<long, TSource>(
-                    elemIndex, m_input[elemIndex]);
+                yield return new KeyValuePair<long, TSource>( elemIndex, m_input[elemIndex] );
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return
-               ((IEnumerable<KeyValuePair<long, TSource>>)this)
-               .GetEnumerator();
+            return ( (IEnumerable<KeyValuePair<long, TSource>>)this ).GetEnumerator();
         }
     }
 }
