@@ -10,7 +10,7 @@ class Program
     {
 
         // Source must be array or IList.
-        var source = Enumerable.Range(0, 1000).ToArray();
+        var source = Enumerable.Range(1, 10000).ToArray();
 
         // Partition the entire source array.
         var rangePartitioner = Partitioner.Create(0, source.Length);
@@ -29,9 +29,10 @@ class Program
 
         Console.Write("Operation complete.  Print results?  Y/n: ");
         char input = Console.ReadKey(false).KeyChar;
-        Console.WriteLine();
+        //Console.WriteLine();
         if (input == 'y' || input == 'Y' || input == 0xd)
         {
+            Console.WriteLine();
             foreach(double d in results)
             {
                 Console.Write("{0,12:F6}", d);

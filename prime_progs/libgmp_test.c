@@ -209,7 +209,7 @@ int main()
 	gmp_printf("2^63-1 = 0x%Zx\n\n", a);
 	*/
 
-	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7b96835a99", 16);
+	mpz_set_str(c, "2f478f5daf038b6471e79c49d193786042392e30013036855b0c7c08426cbbcda0b38276675cff7e1a774dc3a4803cf0726cc641b1feef7bafcc977b", 16);
 
 	start = (float)clock()/CLOCKS_PER_SEC;
 	printf("clock() = %.0f ms\n\n", start*1000.0f);
