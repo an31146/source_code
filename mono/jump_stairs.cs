@@ -22,8 +22,11 @@ public class Challenge {
         return jumps;
     }
 
-    public static void Main()
+    public static void Main(String[] args)
     {
-        Console.WriteLine(Solution(22L));
+        if (args.Length == 1)
+            Console.WriteLine(Solution(Int64.Parse(args[0])));
+        else
+            Console.WriteLine(Solution(22L));
     }
 }

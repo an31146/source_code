@@ -15,12 +15,12 @@ public class Challenge {
         {
             if (parentheses[i].Equals('('))
             {
-                Console.Write("+");
+                //Console.Write("+");
                 p++;
             }
             else if (parentheses[i].Equals(')'))
             {
-                Console.Write('-');
+                //Console.Write('-');
                 p--;
             }
             if (p == 0 && i > index)
@@ -30,8 +30,11 @@ public class Challenge {
         return res;
     }
 
-    public static void Main()
+    public static void Main(String[] args)
     {
-        Console.WriteLine(Solution("((()())())", 0L));
+        if (args.Length == 2)
+            Console.WriteLine(Solution( args[0], Int64.Parse(args[1]) ));
+        else
+            Console.WriteLine(Solution( "((((()())())))", 1L ));
     }
 }
