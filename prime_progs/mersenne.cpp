@@ -16,7 +16,6 @@ using namespace std;
 #define L1D_CACHE_SIZE 32768
 #define LIMIT 1000000
 //array<unsigned long, LIMIT> primes;
-vector<unsigned> primes;
 
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
@@ -117,7 +116,7 @@ unsigned sieve(array<unsigned long, LIMIT> &pr)
 /// @param limit         Sieve primes <= limit.
 /// @param segment_size  Size of the sieve array in bytes.
 ///
-int64_t segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACHE_SIZE)
+vector<unsigned> segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACHE_SIZE)
 {
     unsigned _sqrt = (unsigned) sqrt((double) limit);
     int64_t count = (limit < 2) ? 0 : 1;
@@ -135,6 +134,7 @@ int64_t segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACHE_SIZE)
                 is_prime[j] = 0;
 
     vector<unsigned> next;
+    vector<unsigned> primes;
 
     for (int64_t low = 0; low <= limit; low += segment_size)
     {
@@ -164,17 +164,17 @@ int64_t segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACHE_SIZE)
     }
     cout << endl << count << " primes found." << endl << endl;
 
-    return count;
+    return primes;
 }
 
 int main(int argc, char** argv)
 {
     //
-    unsigned n;
+    vector<unsigned> _primes;
     chrono::duration<double> elapsed_seconds;
     auto start = chrono::system_clock::now();
     {
-        n = segmented_sieve(LIMIT);
+        _primes = segmented_sieve(LIMIT);
     }
     auto end = chrono::system_clock::now();
     elapsed_seconds = end - start;
@@ -187,7 +187,7 @@ int main(int argc, char** argv)
     
     if (c == 'Y' || c == 'y' || c == 0xd)
     {
-        for (auto p : primes)
+        for (auto p : _primes)
             if (p > 1)
                 cout << setw(8) << p;
             else
