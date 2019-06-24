@@ -45,7 +45,7 @@ int main(int argc, char** argv)
                 return 0;
             }
         }
-	n += 2;
+        n += 2;
     }
     cout << "Awwww, no safe primes were found." << endl;
 

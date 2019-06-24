@@ -56,6 +56,7 @@ void Mersenne(unsigned n, vector<unsigned> &pr)
 {
     mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
+    char *strPtr1 = malloc(16777216);
     string strPowerOf2_Minus1;
 
     //chrono::duration<double> elapsed_seconds;
@@ -80,7 +81,6 @@ void Mersenne(unsigned n, vector<unsigned> &pr)
             mpz_mul_2exp(PowerOf2_Minus1, UNITY, pr[i]);
             mpz_sub_ui(PowerOf2_Minus1, PowerOf2_Minus1, 1);
 
-            char *strPtr1 = malloc(16777216);
             mpz_get_str(strPtr1, 10, PowerOf2_Minus1);
             strPowerOf2_Minus1.assign(strPtr1);
             
@@ -91,16 +91,18 @@ void Mersenne(unsigned n, vector<unsigned> &pr)
             else
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1.substr(0, 12) << "..." << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << endl;
 
-            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " ms." << endl << endl;
+            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
         }   // if (isMprime)
     }   // for
     mpz_clears(PowerOf2_Minus1, UNITY, NULL);
+    free(strPtr1);
 }   // Mersenne
 
 void MersenneDeux(unsigned n, vector<unsigned> &pr)
 {
     mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
+    char *strPtr1 = malloc(16777216);
     string strPowerOf2_Minus1;
     
     mpz_inits(PowerOf2_Minus1, UNITY, NULL);
@@ -121,7 +123,6 @@ void MersenneDeux(unsigned n, vector<unsigned> &pr)
 
         if (isMprime)        
         {
-            char *strPtr1 = malloc(16777216);
             mpz_get_str(strPtr1, 10, PowerOf2_Minus1);
             strPowerOf2_Minus1.assign(strPtr1);
             
@@ -130,10 +131,12 @@ void MersenneDeux(unsigned n, vector<unsigned> &pr)
             else
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1.substr(0, 12) << "..." << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << endl;
             
-            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " s" << endl << endl;
+            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
         }
-    }
-}
+    }   // for
+    mpz_clears(PowerOf2_Minus1, UNITY, NULL);
+    free(strPtr1);
+}   // MersenneDeux
 
 /*
 unsigned sieve(array<unsigned long, LIMIT> &pr)
@@ -209,7 +212,7 @@ vector<unsigned> segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACH
         {
             //count += segment[n - low] ? 1 : 0;
             
-            if (segment[n - low] == 1)
+            if (segment[n - low])
             {
                 count++;
                 final_primes.push_back(n);
