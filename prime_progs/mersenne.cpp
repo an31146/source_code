@@ -4,9 +4,11 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <cassert>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <string>
 #include <vector>
 #include <conio.h>
 #include <mpir.h>
@@ -20,75 +22,118 @@ using namespace std;
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
 {
-    mpz_t seed, div, i, ONE;
+    mpz_t seed, div, ONE;
     
-    mpz_inits(seed, div, i, ONE, NULL);
+    mpz_inits(seed, div, ONE, NULL);
     mpz_set_ui(seed, 4);
     mpz_set_ui(ONE, 1);
 
     mpz_mul_2exp(div, ONE, n);          // div = 2^n
     mpz_sub_ui(div, div, 1L);           // div = 2^n - 1
-
-    mpz_set_ui(i, 3);
-    while (mpz_cmp_si(i, n) == -1)
-    {
+    
+    //mpz_set_ui(i, 3);
+    //cout << mpz_cmp_si(i, n);
+    //while (mpz_cmp_si(i, n) < 0)
+	for (unsigned i = 3; i <= n; i++)
+	{
         mpz_mul(seed, seed, seed);
         mpz_sub_ui(seed, seed, 2);
         mpz_mod(seed, seed, div);
         
-        mpz_add_ui(i, i, 1);
+        //mpz_add_ui(i, i, 1);
     }
     
-    bool bSeedIsZero = (seed == 0);
-    mpz_clears(seed, div, i, ONE, NULL);
+    bool bSeedIsZero = (mpz_cmp_ui(seed, 0) == 0);
+    //if (bSeedIsZero)
+    //    gmp_printf("%Zd\n", div);
+
+    mpz_clears(seed, div, ONE, NULL);
     
     return bSeedIsZero;
 }   // LucasLehmer
 
 void Mersenne(unsigned n, vector<unsigned> &pr)
 {
-    mpz_t PowerOf2Sub1, TWO;
+    mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
-    string strPowerOf2Sub1;
+    string strPowerOf2_Minus1;
 
-    chrono::duration<double> elapsed_seconds;
+    //chrono::duration<double> elapsed_seconds;
     //chrono::duration start, end;
     //cout << "f(42) = " << fibonacci(42) << '\n';
     
-    mpz_inits(PowerOf2Sub1, TWO, NULL);
+    mpz_inits(PowerOf2_Minus1, UNITY, NULL);
+    mpz_set_ui(UNITY, 1);
     
-    for (unsigned i = 0, x = 1; i < pr.size(); i++)
+    for (unsigned i = 0; i < pr.size(); i++)
     {
         auto start = chrono::system_clock::now();
         {
             isMprime = LucasLehmer(pr[i]);
         }
         auto end = chrono::system_clock::now();
-        elapsed_seconds = end - start;
+        chrono::duration<double> elapsed_seconds = end - start;
 
         if (isMprime)
         {
             //mpz_mul_2exp (mpz t rop, const mpz t op1, mp bitcnt t op2)
-            mpz_mul_2exp(PowerOf2Sub1, TWO, pr[i]);
-            mpz_sub_ui(PowerOf2Sub1, PowerOf2Sub1, 1);
+            mpz_mul_2exp(PowerOf2_Minus1, UNITY, pr[i]);
+            mpz_sub_ui(PowerOf2_Minus1, PowerOf2_Minus1, 1);
 
-            auto strPtr1 = (char *)strPowerOf2Sub1.c_str();
-            mpz_get_str(strPtr1, 10, PowerOf2Sub1);
+            char *strPtr1 = malloc(16777216);
+            mpz_get_str(strPtr1, 10, PowerOf2_Minus1);
+            strPowerOf2_Minus1.assign(strPtr1);
             
-            if (x < 10)
-                cout << "M[" << primes[i] << "] = " << strPowerOf2Sub1;
+            //cout << strPowerOf2_Minus1.size() << endl;
+            
+            if (strPowerOf2_Minus1.size() < 24)
+                cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
             else
-                cout << "M[" << primes[i] << "] = " << strPowerOf2Sub1.substr(0, 12) << "..." << strPowerOf2Sub1.substr(strPowerOf2Sub1.size() - 12, 12) << endl;
-            x++;
-            cout << "elapsed time: " << elapsed_seconds.count() << " s" << endl;
+                cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1.substr(0, 12) << "..." << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << endl;
+
+            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " ms." << endl << endl;
         }   // if (isMprime)
-        if (n < x)
-        {
-            break;
-        }
     }   // for
-    mpz_clears(PowerOf2Sub1, TWO, NULL);
+    mpz_clears(PowerOf2_Minus1, UNITY, NULL);
 }   // Mersenne
+
+void MersenneDeux(unsigned n, vector<unsigned> &pr)
+{
+    mpz_t PowerOf2_Minus1, UNITY;
+    bool isMprime;
+    string strPowerOf2_Minus1;
+    
+    mpz_inits(PowerOf2_Minus1, UNITY, NULL);
+    mpz_set_ui(UNITY, 1);
+    
+    for (unsigned i = 0; i < pr.size(); i++)
+    {
+        auto start = chrono::system_clock::now();
+        {
+            mpz_mul_2exp(PowerOf2_Minus1, UNITY, pr[i]);
+            mpz_sub_ui(PowerOf2_Minus1, PowerOf2_Minus1, 1);
+            
+            //int mpz_probab_prime_p (const mpz t n, int reps)
+            isMprime = mpz_probab_prime_p(PowerOf2_Minus1, 23);
+        }
+        auto end = chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds = end - start;
+
+        if (isMprime)        
+        {
+            char *strPtr1 = malloc(16777216);
+            mpz_get_str(strPtr1, 10, PowerOf2_Minus1);
+            strPowerOf2_Minus1.assign(strPtr1);
+            
+            if (strPowerOf2_Minus.size() < 24)
+                cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
+            else
+                cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1.substr(0, 12) << "..." << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << endl;
+            
+            cout << "elapsed time: " << elapsed_seconds.count() * 1000.0f << " s" << endl << endl;
+        }
+    }
+}
 
 /*
 unsigned sieve(array<unsigned long, LIMIT> &pr)
@@ -124,21 +169,22 @@ vector<unsigned> segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACH
     int64_t n = 3;
 
     // vector used for sieving
-    vector<char> segment(segment_size);
+    vector<bool> segment(segment_size);
 
     // generate small primes <= sqrt
-    vector<char> is_prime(_sqrt + 1, 1);
+    vector<bool> is_prime(_sqrt + 1, true);
     for (unsigned i = 2; i * i <= _sqrt; i++)
         if (is_prime[i])
             for (unsigned j = i * i; j <= _sqrt; j += i)
-                is_prime[j] = 0;
+                is_prime[j] = true;
 
     vector<unsigned> next;
     vector<unsigned> primes;
+    vector<unsigned> final_primes;
 
     for (int64_t low = 0; low <= limit; low += segment_size)
     {
-        fill(segment.begin(), segment.end(), 1);
+        fill(segment.begin(), segment.end(), true);
 
         // current segment = interval [low, high]
         int64_t high = min(low + segment_size - 1, limit);
@@ -156,15 +202,32 @@ vector<unsigned> segmented_sieve(int64_t limit, unsigned segment_size = L1D_CACH
         {
             unsigned j = next[i];
             for (unsigned k = primes[i] * 2; j < segment_size; j += k)
-                segment[j] = 0;
+                segment[j] = false;
             next[i] = j - segment_size;
         }
         for (; n <= high; n += 2)
-            count += segment[n - low];
+        {
+            //count += segment[n - low] ? 1 : 0;
+            
+            if (segment[n - low] == 1)
+            {
+                count++;
+                final_primes.push_back(n);
+            }
+            //if (segment[n - low])
+            //    cout << setw(8) << segment[n - low];
+                
+            /* uncommenting the following will cause heap corruption!
+            primes.push_back(n - low);
+            */
+        }
     }
+    auto it = final_primes.begin();
+    final_primes.insert(it, 2);
+
     cout << endl << count << " primes found." << endl << endl;
 
-    return primes;
+    return final_primes;
 }
 
 int main(int argc, char** argv)
@@ -194,9 +257,12 @@ int main(int argc, char** argv)
                 break;
     }
             
-    cout << endl << "Vector contains " << n << " primes." << endl << endl;
+    cout << endl << "Vector contains " << _primes.size() << " primes." << endl << endl;
     
-    Mersenne(29, primes);
+    Mersenne(29, _primes);
     
+	cout << "Press Enter: ";
+	getchar();
+
     return EXIT_SUCCESS;
 }
