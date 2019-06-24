@@ -47,6 +47,7 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
 
     vector<int> primes;
     vector<int> next;
+    vector<int> final_primes;
 
     for (int64_t low = 0; low <= limit; low += segment_size)
     {
@@ -60,7 +61,9 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
             if (is_prime[s])
             {
                 primes.push_back((int) s);
+                //cout << setw(8) << s;
                 next.push_back((int)(s * s - low));
+                //cout << setw(8) << (s * s - low);
             }
 
         // segmented sieve of Eratosthenes
@@ -71,10 +74,15 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
                 segment[j] = 0;
             next[i] = j - segment_size;
         }
+        
         for (; n <= high; n += 2)
         {
-            count += segment[n - low];
-            //primes.push_back(n - low);
+            //count += segment[n - low];
+            if (segment[n - low] == 1)
+            {
+                count++;
+                final_primes.push_back(n);
+            }
         }
             
 //      if (segment[n - low])
@@ -84,22 +92,24 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
 //          twin_prime_const *= 1.0d - 1.0d / (double)((n-1) * (n-1));
 //      }  
     }
+    auto it = final_primes.begin();
+    final_primes.insert(it, 2);
 
     cout << endl << count << " primes found." << endl;
 
     //DebugBreak();
     //cout << "twin prime constant: " << twin_prime_const << endl;
-    return primes;
+    return final_primes;
 }
 
 int main(int argc, char** argv)
 {
     // generate the primes below this number
-    int64_t limit = 100000000;
+    int64_t LIMIT = 100000000;
     vector<int> _primes;
 
     if (argc >= 2)
-        limit = atoll(argv[1]);
+        LIMIT = atoll(argv[1]);
 
     int size = L1D_CACHE_SIZE;
     if (argc >= 3)
@@ -107,11 +117,11 @@ int main(int argc, char** argv)
 
     auto start = clock();
     {        
-        primes = segmented_sieve(limit, size);
+        _primes = segmented_sieve(LIMIT, size);
     }
     auto stop = clock();
 
-    cout << "vector size() = " << primes.size() << endl;
+    cout << "vector size() = " << _primes.size() << endl;
     cout << "sieve time: " << (stop-start) << " ms." << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
