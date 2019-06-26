@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     auto stop = clock();
 
     cout << "vector size() = " << _primes.size() << endl;
-    cout << "sieve time: " << (stop-start) << " ms." << endl << endl;
+    cout << "sieve time: " << (stop - start) << " ms" << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
     char c = _getch();
