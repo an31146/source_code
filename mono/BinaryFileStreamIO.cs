@@ -1,4 +1,9 @@
-﻿// #!/usr/bin/mcs
+﻿/*
+ * #!/usr/bin/mcs
+ *
+ * SharedInterestsGraphTheory.cs
+ * "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\Roslyn\csc.exe" /target:exe /out:SharedInterestsGraphTheory.exe SharedInterestsGraphTheory.cs
+ */
 #define TEST_FILE_EXISTS
 
 using System;
@@ -37,11 +42,6 @@ class MyStream
             }
         }
 #endif
-<<<<<<< HEAD
-=======
-        int REPETITIONS = 1048576;
-        int READ_BLOCK_SIZE = 1024;
->>>>>>> 6a88b176cb2cd905dfbcc2aaf006f067de49e791
         
         try
         {
@@ -77,7 +77,8 @@ class MyStream
             {
                 strAscii += (char)i;
             }
-            // Multiply and concatenate - becomes 16 times the original length
+            
+            // Multiply and concatenate - becomes 256 times the original length
             for (int i = 0; i < 8; i++)
             {
                 strAscii += strAscii;
@@ -95,12 +96,15 @@ class MyStream
                 Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
             }
             sw.Stop();
-            Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
             
+            Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
+            Console.WriteLine("\nElapsed time: {0} ms", sw.ElapsedMilliseconds);
+
+            double writeSpeed = (double)fs.Length / 1048576.0d / sw.Elapsed.TotalSeconds;
+            Console.WriteLine("Approximate write speed: {0:F1} MB/s\n", writeSpeed);
+
             w.Close();
             fs.Close();
-            
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
         }
         catch (IOException ex)
         {
@@ -125,17 +129,20 @@ class MyStream
             while (fs.Position < fs.Length)
             {
                 // Read data from Test.data.
-                for (int i = 32; i < 255; i++)
-                {
+                //for (int i = 32; i < 255; i++)
+                //{
                     //Console.Write(r.ReadChar());
                     //r.ReadChar();			// Elapsed time: 115080 ms
                     charArray = r.ReadChars(READ_BLOCK_SIZE);
                     Console.Write("{0:F1} %\r", (float)fs.Position / fs.Length * 100.0f);
-                }
+                //}
             }
             sw.Stop();
 
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+            Console.WriteLine("\nElapsed time: {0} ms", sw.ElapsedMilliseconds);
+
+            double readSpeed = (double)fs.Length / 1048576.0d / sw.Elapsed.TotalSeconds;
+            Console.WriteLine("Approximate read speed: {0:F1} MB/s\n", readSpeed);
 
             r.Close();
             fs.Close();
