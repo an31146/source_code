@@ -1,4 +1,4 @@
-/// @file   segmented_sieve.cpp
+﻿/// @file   segmented_sieve.cpp
 /// @author Kim Walisch, <kim.walisch@gmail.com> 
 /// @brief  This is a simple implementation of the segmented sieve of
 ///         Eratosthenes with a few optimizations. It generates the
