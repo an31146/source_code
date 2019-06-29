@@ -1,4 +1,4 @@
-/*
+﻿/*
  * g++ -Wall -O2 -std=c++11 -o thread_example.exe thread_example.cpp -lpthread
  */
 #include <iomanip>
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	for (int t = 0; t < 100; t++)
 	{
         arr[t] = 0;
-	    threads.push_back(thread(worker, t));
+	    threads.emplace_back(thread(worker, t));
 	}
     mutex1.unlock();
 	//threads.push_back(thread(worker, 1));

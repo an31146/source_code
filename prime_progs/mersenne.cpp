@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <thread> // std::thread 
 #include <vector>
 
 #include <conio.h>
@@ -58,7 +59,7 @@ bool LucasLehmer(unsigned n)
     return bSeedIsZero;
 }   // LucasLehmer
 
-void Mersenne(unsigned n, const vector<unsigned> &pr, unsigned primeOffset)
+void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOffset)
 {
     mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
@@ -90,6 +91,7 @@ void Mersenne(unsigned n, const vector<unsigned> &pr, unsigned primeOffset)
             strPowerOf2_Minus1.assign(strPtr1);
             
             //cout << strPowerOf2_Minus1.size() << endl;
+            cout << "Thread core {" << setfill('0') << setw(2) << this_thread::get_id() << "}" << endl;
             
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
@@ -258,7 +260,9 @@ int main(int argc, char** argv)
 {
     //
     vector<unsigned> _primes;
+    vector<thread> _threads;
     chrono::duration<double> elapsed_seconds;
+    
     auto start = chrono::system_clock::now();
     {
         _primes = segmented_sieve(LIMIT);
@@ -284,9 +288,18 @@ int main(int argc, char** argv)
     cout << endl << "Vector contains " << _primes.size() << " primes." << endl << endl;
 
     N_CORES = GetNumberOfProcessorCores();
-    cout << "System consists of " << N_CORES << " logical processors." << endl;
-    Mersenne(23, _primes, 0);
+    cout << "System consists of " << N_CORES << " logical processors." << endl << endl;
+
+    for (unsigned i = 0; i < N_CORES; i++)
+    {
+        _threads.emplace_back(thread(Mersenne, 23, _primes, i));
+    }
     
+    for (auto& t : _threads)
+    {
+        t.join();
+    }
+        
 	cout << "Press Enter: ";
 	getchar();
 

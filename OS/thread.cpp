@@ -26,13 +26,14 @@ void foo()
     mutey.unlock();
 } 
 
-void bar(int x) 
+void bar(int x, int y) 
 {
     // do stuff...
     
     mutey.try_lock();
     this_thread::sleep_for(chrono::seconds(1));
     cout << endl << "bar's thread id:  " << this_thread::get_id() << endl;
+    cout << "bar's parameters, x: " << x << ", y: " << y << endl;
     this_thread::sleep_for(chrono::seconds(2));
     cout << "bar thread exit." << endl;
     // unlock mutey!
@@ -43,9 +44,9 @@ int main()
 { 
     lock_guard<mutex> lock(mutey);
     thread first (foo);         // spawn new thread that calls foo() 
-    thread second (bar, 0);      // spawn new thread that calls bar(0) 
-    std::thread::id t1_id = first.get_id();
-    std::thread::id t2_id = second.get_id();
+    thread second (bar, 271828, 314159);      // spawn new thread that calls bar(0) 
+    thread::id t1_id = first.get_id();
+    thread::id t2_id = second.get_id();
     
     cout << "first's thread id: " << t1_id << endl;
     cout << "second's thread id: " << t2_id << endl;
