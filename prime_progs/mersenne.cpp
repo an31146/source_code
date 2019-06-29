@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <mutex>
 #include <thread> // std::thread 
 #include <vector>
 
@@ -26,6 +27,8 @@ using namespace std;
 //array<unsigned long, LIMIT> primes;
 
 static unsigned N_CORES;
+
+mutex g_i_mutex;
 
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
@@ -91,7 +94,8 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             strPowerOf2_Minus1.assign(strPtr1);
             
             //cout << strPowerOf2_Minus1.size() << endl;
-            cout << "Thread core {" << setfill('0') << setw(2) << this_thread::get_id() << "}" << endl;
+            lock_guard<mutex> lock(g_i_mutex);
+            cout << "core #" << setfill('0') << setw(2) << this_thread::get_id() << endl << "--------" << endl;
             
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
@@ -105,6 +109,7 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             else
                 cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
             
+            g_i_mutex.unlock();            
             start = chrono::system_clock::now();
         }   // if (isMprime)
     }   // for
