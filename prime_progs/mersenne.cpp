@@ -12,6 +12,7 @@
 #include <vector>
 
 #include <conio.h>
+#include <windows.h>
 #include <mpir.h>
 
 using namespace std;
@@ -22,6 +23,8 @@ using namespace std;
 #define L1D_CACHE_SIZE 32768
 #define LIMIT 1000000
 //array<unsigned long, LIMIT> primes;
+
+static unsigned N_CORES;
 
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
@@ -55,7 +58,7 @@ bool LucasLehmer(unsigned n)
     return bSeedIsZero;
 }   // LucasLehmer
 
-void Mersenne(unsigned n, const vector<unsigned> &pr)
+void Mersenne(unsigned n, const vector<unsigned> &pr, unsigned primeOffset)
 {
     mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
@@ -70,7 +73,7 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
     mpz_set_ui(UNITY, 1);
     
     auto start = chrono::system_clock::now();
-    for (unsigned i = 0; i < pr.size(); i++)
+    for (unsigned i = primeOffset; i < pr.size(); i += N_CORES)
     {
         isMprime = LucasLehmer(pr[i]);
 
@@ -244,6 +247,13 @@ vector<unsigned> segmented_sieve(int64_t limit, const unsigned segment_size = L1
     return final_primes;
 }
 
+int GetNumberOfProcessorCores()
+{
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}
+
 int main(int argc, char** argv)
 {
     //
@@ -272,8 +282,10 @@ int main(int argc, char** argv)
     }
             
     cout << endl << "Vector contains " << _primes.size() << " primes." << endl << endl;
-    
-    Mersenne(23, _primes);
+
+    N_CORES = GetNumberOfProcessorCores();
+    cout << "System consists of " << N_CORES << " logical processors." << endl;
+    Mersenne(23, _primes, 0);
     
 	cout << "Press Enter: ";
 	getchar();
