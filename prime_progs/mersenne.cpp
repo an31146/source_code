@@ -16,6 +16,9 @@
 
 using namespace std;
 
+#define MILLIS(x) setprecision(0) << fixed << x * 1000.0f
+#define SECONDS(x) setprecision(1) << fixed << x
+
 #define L1D_CACHE_SIZE 32768
 #define LIMIT 1000000
 //array<unsigned long, LIMIT> primes;
@@ -66,12 +69,11 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
     mpz_inits(PowerOf2_Minus1, UNITY, NULL);
     mpz_set_ui(UNITY, 1);
     
+    auto start = chrono::system_clock::now();
     for (unsigned i = 0; i < pr.size(); i++)
     {
-        auto start = chrono::system_clock::now();
-        {
-            isMprime = LucasLehmer(pr[i]);
-        }
+        isMprime = LucasLehmer(pr[i]);
+
         auto end = chrono::system_clock::now();
         chrono::duration<double> elapsed_seconds = end - start;
 
@@ -93,7 +95,12 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
                      << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << "\t (" 
                      << strPowerOf2_Minus1.size() << " digits)" << endl;
 
-            cout << "elapsed time: " << fixed << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
+            if (elapsed_seconds.count() >= 1.0f)
+                cout << "elapsed time: " << SECONDS(elapsed_seconds.count()) << " s" << endl << endl;
+            else
+                cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
+            
+            start = chrono::system_clock::now();
         }   // if (isMprime)
     }   // for
     mpz_clears(PowerOf2_Minus1, UNITY, NULL);

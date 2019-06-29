@@ -20,7 +20,8 @@
 
 #define NUM_THREADS     100
 
-pthread_mutex_t lock;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 int rand_array[NUM_THREADS];
 
 void *PrintHello(void *threadid)
@@ -29,22 +30,23 @@ void *PrintHello(void *threadid)
 
     int tid = (int)threadid;
     int random_variable = rand_array[tid];
+    
+    pthread_mutex_lock(&lock);
     printf("Hello World!  It's me, thread #%d!\trand_array = %d\n", tid, random_variable);
-    //pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(&lock);
 
-    //pthread_mutex_lock(&lock);
-    Sleep((random_variable % 100) * 500 + 100);
-    //Sleep(5000);
+    int delay_ms = (random_variable % 100) * 500 + 500;
+    Sleep(delay_ms);
 
-    printf("Goodbye World!  Thread #%d is exiting!\n", tid);
+    pthread_mutex_lock(&lock);
+    printf("Goodbye Cruel World!  Thread #%02d is exiting after %d ms!\n", tid, delay_ms);
+    pthread_mutex_unlock(&lock);
     pthread_exit(NULL);
 }
 
 int main (int argc, char *argv[])
 {
     pthread_t threads[NUM_THREADS];
-    int rc;
-    int t;
 
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
@@ -54,17 +56,21 @@ int main (int argc, char *argv[])
 
     srand(time(NULL)); // use current time as seed for random generator
 
-    for(t=0; t<NUM_THREADS; t++) {
+    for(int t = 0; t < NUM_THREADS; t++) {
         rand_array[t] = rand();
+        
+        pthread_mutex_lock(&lock);
         printf("In main: creating thread %d\n", t);
-        rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);
+        pthread_mutex_unlock(&lock);
+        
+        int rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);
         if (rc) {
             printf("ERROR; return code from pthread_create() is %d\n", rc);
             exit(-1);
         }
     }
     
-    for(t=0; t<NUM_THREADS; t++) {
+    for(int t = 0; t < NUM_THREADS; t++) {
         pthread_join(threads[t], NULL);
     }
 
