@@ -1,4 +1,4 @@
-/// @file   segmented_sieve.cpp
+﻿/// @file   segmented_sieve.cpp
 /// @author Kim Walisch, <kim.walisch@gmail.com> 
 /// @brief  This is a simple implementation of the segmented sieve of
 ///         Eratosthenes with a few optimizations. It generates the
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     auto stop = clock();
 
     cout << "vector size() = " << _primes.size() << endl;
-    cout << "sieve time: " << (stop-start) << " ms." << endl << endl;
+    cout << "sieve time: " << (stop - start) << " ms" << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
     char c = _getch();

@@ -11,3 +11,5 @@
 *.obj
 *.pdb
 *.ini
+*.dmp
+*.log
