@@ -9,3 +9,5 @@
 *.elf
 .vs/
 ./prime_progs/libgmptest
+./prime_progs/libgmptest.c
+./pi/mygmpcxxprog
