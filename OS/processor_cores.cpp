@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <tchar.h>
 #include <process.h>
 #include <iostream>
 
@@ -29,7 +30,7 @@ static void startMonitoringCoreSpeeds(void *param)
 
 int GetNumberOfProcessorCores()
 {
-    DWORD process, system;
+    DWORDLONG process, system;
     if (GetProcessAffinityMask(GetCurrentProcess(), &process, &system))
     {
         int count = 0;

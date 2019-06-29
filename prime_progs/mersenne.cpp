@@ -273,7 +273,7 @@ int main(int argc, char** argv)
             
     cout << endl << "Vector contains " << _primes.size() << " primes." << endl << endl;
     
-    Mersenne(29, _primes);
+    Mersenne(23, _primes);
     
 	cout << "Press Enter: ";
 	getchar();

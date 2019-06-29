@@ -29,17 +29,17 @@ int main(int argc, char** argv)
     boost::random::mt19937 gen2(time_seed);
     int_type n = gen();
 
-    uint32_t limit = 1000000;
+    uint32_t LIMIT = 1000000;
     if (argc == 2)
-        limit = atol(argv[1]);
+        LIMIT = atol(argv[1]);
         
-    for(uint32_t i = 0; i < limit; ++i)
+    for (uint32_t i = 0; i < LIMIT; ++i)
     {
-        if(miller_rabin_test(n, 23, gen2))
+        if (miller_rabin_test(n, 23, gen2))
         {
             // Value n is probably prime, see if (n-1)/2 is also prime:
             cout << "probable prime: " << endl << hex << showbase << n << endl;
-            if(miller_rabin_test((n-1)/2, 25, gen2))
+            if (miller_rabin_test((n-1)/2, 25, gen2))
             {
                 cout << "safe prime: " << endl << hex << showbase << n << endl;
                 return 0;
