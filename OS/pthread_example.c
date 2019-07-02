@@ -18,7 +18,7 @@
 
 #define __USE_MINGW_ANSI_STDIO 1
 
-#define NUM_THREADS     100
+#define NUM_THREADS     50
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -32,7 +32,7 @@ void *PrintHello(void *threadid)
     int random_variable = rand_array[tid];
     
     pthread_mutex_lock(&lock);
-    printf("Hello World!  It's me, thread #%d!\trand_array = %d\n", tid, random_variable);
+    printf("Hello World!  It's me, thread #%d!\nrand_array[%d] = %d\n", tid, tid, random_variable);
     pthread_mutex_unlock(&lock);
 
     int delay_ms = (random_variable % 100) * 500 + 500;
@@ -60,7 +60,7 @@ int main (int argc, char *argv[])
         rand_array[t] = rand();
         
         pthread_mutex_lock(&lock);
-        printf("In main: creating thread %d\n", t);
+        printf("In main: creating thread %d\n\n", t);
         pthread_mutex_unlock(&lock);
         
         int rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);

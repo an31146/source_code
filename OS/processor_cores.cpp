@@ -1,14 +1,26 @@
+#include <iostream>
+#include <thread>
+#include <mutex>
+
 #include <windows.h>
 #include <tchar.h>
 #include <process.h>
+<<<<<<< HEAD
+=======
 #include <iostream>
+#include <mutex>
+>>>>>>> refs/rewritten/onto
 
 using namespace std;
+
+mutex g_io_mutex;
 
 struct Core
 {
     int CoreNumber;
 };
+
+mutex g_i_mutex;
 
 static void startMonitoringCoreSpeeds(void *param)
 {
@@ -22,9 +34,18 @@ static void startMonitoringCoreSpeeds(void *param)
         LARGE_INTEGER first;
         LARGE_INTEGER second;
         QueryPerformanceCounter(&first);
-        Sleep(1000);
+        Sleep(1666);
         QueryPerformanceCounter(&second);
-        cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
+<<<<<<< HEAD
+        
+        lock_guard<mutex> lock(g_i_mutex);
+            cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
+        g_i_mutex.unlock();
+=======
+        lock_guard<mutex> lock(g_io_mutex);
+        cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart) / frequency.QuadPart) << " GHz" << endl;
+        g_io_mutex.unlock();
+>>>>>>> refs/rewritten/onto
     }
 }
 
@@ -57,4 +78,6 @@ int main(int argc, _TCHAR* argv[])
         _beginthread(startMonitoringCoreSpeeds, 0, core);
     }
     cin.get();
+
+    return EXIT_SUCCESS;
 }
