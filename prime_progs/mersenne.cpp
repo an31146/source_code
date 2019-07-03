@@ -15,9 +15,11 @@
 
 using namespace std;
 
+#define MILLI(x) setprecision(0) << fixed << 1000.0f * x
+#define SECONDS(x) setprecision(1) << fixed << x
+
 #define L1D_CACHE_SIZE 32768
 #define LIMIT 1000000
-//array<unsigned long, LIMIT> primes;
 
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
@@ -92,7 +94,10 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
                      << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << "\t (" 
                      << strPowerOf2_Minus1.size() << " digits)" << endl;
 
-            cout << "elapsed time: " << fixed << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
+	    if (elapsed_seconds.count() >= 1.0f)
+                cout << "elapsed time: " << SECONDS(elapsed_seconds.count()) << " s" << endl << endl;
+	    else
+                cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
         
 	    start = chrono::system_clock::now();
         }   // if (isMprime)

@@ -1,5 +1,5 @@
 /*
- * mpicc -Wall -O2 -std=c99 -o mpi_broadcast_ring mpi_broadcast_ring.c -lmpi -lm
+ * mpicc -Wall -O2 -std=c99 -o mpi_broadcast_ring mpi_broadcast_ring.c -lm
  */
 #include <stdio.h>
 #include <stdlib.h>

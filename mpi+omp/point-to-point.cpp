@@ -5,14 +5,14 @@
 #include <iostream>
 #include <string>
 #include <boost/serialization/string.hpp>
-namespace mpi = boost::mpi;
 
+using namespace boost::mpi;
 using namespace std;
 
 int main()
 {
-    mpi::environment env;
-    mpi::communicator world;
+    environment env;
+    communicator world;
 
     if (world.rank() == 0) {
         cout << "world.size(): " << world.size() << endl;
