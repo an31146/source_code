@@ -63,25 +63,17 @@ int main(int argc, char *argv[]) {
     for (int n = 1; n < argc; n++)
     {
         cout << setw( 2 ) << n << ": " << argv[ n ] << '\n';
-<<<<<<< HEAD
-<<<<<<< HEAD
     }	
- 	mutex1.lock();
-=======
- 	
->>>>>>> refs/rewritten/onto
-=======
- 	
->>>>>>> 159d585d04a2939e4f0ab1e0dbed8921af17ed9f
-	for (int t = 0; t < 100; t++)
-	{
+    mutex1.lock();
+    for (int t = 0; t < 100; t++)
+    {
         arr[t] = 0;
         lock_guard<mutex> lock(g_io_mutex);
-	    threads.emplace_back(thread(worker, t));
-	    cout << "Thread ID: " << setfill('0') << setw(2) << threads.back().get_id() << endl;
-	}
-	cout << string(40, '-') << endl;
-	//threads.push_back(thread(worker, 1));
+        threads.emplace_back(thread(worker, t));
+        cout << "Thread ID: " << setfill('0') << setw(2) << threads.back().get_id() << endl;
+    }
+    cout << string(40, '-') << endl;
+    //threads.push_back(thread(worker, 1));
 	
     //lock_guard<mutex> lock(g_io_mutex);
     for (auto& th : threads)
@@ -91,5 +83,5 @@ int main(int argc, char *argv[]) {
     //g_io_mutex.unlock();
     //cout << "i: " << i << endl;
 
-	return 0;
+    return EXIT_SUCCESS;
 }
