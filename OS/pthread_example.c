@@ -19,10 +19,14 @@
 #define __USE_MINGW_ANSI_STDIO 1
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define NUM_THREADS     50
 =======
 #define NUM_THREADS     64
 >>>>>>> refs/rewritten/onto
+=======
+#define NUM_THREADS     64
+>>>>>>> 159d585d04a2939e4f0ab1e0dbed8921af17ed9f
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 

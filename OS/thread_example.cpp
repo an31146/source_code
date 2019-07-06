@@ -64,11 +64,15 @@ int main(int argc, char *argv[]) {
     {
         cout << setw( 2 ) << n << ": " << argv[ n ] << '\n';
 <<<<<<< HEAD
+<<<<<<< HEAD
     }	
  	mutex1.lock();
 =======
  	
 >>>>>>> refs/rewritten/onto
+=======
+ 	
+>>>>>>> 159d585d04a2939e4f0ab1e0dbed8921af17ed9f
 	for (int t = 0; t < 100; t++)
 	{
         arr[t] = 0;

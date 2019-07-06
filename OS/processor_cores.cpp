@@ -5,11 +5,9 @@
 #include <windows.h>
 #include <tchar.h>
 #include <process.h>
-<<<<<<< HEAD
-=======
+
 #include <iostream>
 #include <mutex>
->>>>>>> refs/rewritten/onto
 
 using namespace std;
 
@@ -36,16 +34,10 @@ static void startMonitoringCoreSpeeds(void *param)
         QueryPerformanceCounter(&first);
         Sleep(1666);
         QueryPerformanceCounter(&second);
-<<<<<<< HEAD
-        
-        lock_guard<mutex> lock(g_i_mutex);
-            cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
-        g_i_mutex.unlock();
-=======
+
         lock_guard<mutex> lock(g_io_mutex);
         cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart) / frequency.QuadPart) << " GHz" << endl;
         g_io_mutex.unlock();
->>>>>>> refs/rewritten/onto
     }
 }
 
