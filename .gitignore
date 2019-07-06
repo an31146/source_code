@@ -10,4 +10,5 @@
 .vs/
 ./prime_progs/libgmptest
 ./prime_progs/libgmptest.c
+./prime_progs/mersenne
 ./pi/mygmpcxxprog
