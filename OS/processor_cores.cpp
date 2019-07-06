@@ -45,7 +45,7 @@ static void startMonitoringCoreSpeeds(void *param)
         lock_guard<mutex_type> lock(g_io_mutex);
 	// C++17 scoped_lock lock(g_io_mutex);
         cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
-        //g_io_mutex.unlock();
+        g_io_mutex.unlock();
     }
 }
 
@@ -74,7 +74,7 @@ static void *startMonitoringCoreSpeeds(void *param)
     while (true)
     {
         auto t1 = Clock::now();
-	usleep(1000000);
+	usleep(1200000);
         auto t2 = Clock::now();
 	/*
         cout << "Delta t2-t1: " 
@@ -126,3 +126,4 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 #endif
+>>>>>>> a8acee6953cab133dc6a79633b9d8925f4321136
