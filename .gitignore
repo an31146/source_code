@@ -1,5 +1,6 @@
 .exe
 .gz
+.bz2
 .txt
 .bak
 *.exe
@@ -12,3 +13,4 @@
 ./prime_progs/libgmptest.c
 ./prime_progs/mersenne
 ./pi/mygmpcxxprog
+./OS/pthread_example

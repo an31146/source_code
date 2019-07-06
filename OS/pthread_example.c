@@ -1,8 +1,8 @@
 /*
-  Example Code - Pthread Creation and Termination 
-  
-  gcc.exe -Wall -O2 std=gnu99 -o pthread_example.exe pthread_example.c -lpthread
-*/
+ * Example Code - Pthread Creation and Termination 
+ * 
+ * gcc -Wall -O2 std=gnu99 -o pthread_example pthread_example.c -lpthread
+ */
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +14,7 @@
 #define sleep(x) Sleep(1000 * x)
 #endif
 
-#define NUM_THREADS     1000
+#define NUM_THREADS     64
 
 pthread_mutex_t lock;
 
