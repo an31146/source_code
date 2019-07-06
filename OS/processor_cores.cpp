@@ -2,8 +2,11 @@
 #include <tchar.h>
 #include <process.h>
 #include <iostream>
+#include <mutex>
 
 using namespace std;
+
+mutex g_io_mutex;
 
 struct Core
 {
@@ -24,7 +27,9 @@ static void startMonitoringCoreSpeeds(void *param)
         QueryPerformanceCounter(&first);
         Sleep(1000);
         QueryPerformanceCounter(&second);
-        cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
+        lock_guard<mutex> lock(g_io_mutex);
+        cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart) / frequency.QuadPart) << " GHz" << endl;
+        g_io_mutex.unlock();
     }
 }
 
@@ -57,4 +62,6 @@ int main(int argc, _TCHAR* argv[])
         _beginthread(startMonitoringCoreSpeeds, 0, core);
     }
     cin.get();
+
+    return EXIT_SUCCESS;
 }

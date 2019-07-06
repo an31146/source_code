@@ -1,4 +1,6 @@
-// g++ -O2 -Wall -std=c++11 -o parallel.exe parallel.cpp -fopenmp
+/*
+ * g++ -O2 -Wall -std=c++11 -o parallel.exe parallel.cpp -fopenmp
+ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
