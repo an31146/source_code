@@ -10,6 +10,8 @@
 #include <vector>
 #include <array>
 
+#define NUM_THREADS 32
+
 using namespace std;
 
 vector<thread> threads;
@@ -20,7 +22,7 @@ mutex g_io_mutex;
     random_device rd;  //Will be used to obtain a seed for the random number engine
     mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     uniform_int_distribution<> dis(3, 10);
-    array<int, 100> arr;
+    array<int, NUM_THREADS> arr;
 
 void shared_print(string msg, char delim, int id)
 {
@@ -38,7 +40,7 @@ void worker(int id)
     g_io_mutex.unlock();
 
     auto start = chrono::high_resolution_clock::now();
-    for (int i = 0; i<1000; i++)
+    for (int i = 0; i < 600; i++)
     {
         arr[id]++;
         //cout << arr[id] << " ";
@@ -64,8 +66,8 @@ int main(int argc, char *argv[]) {
     {
         cout << setw( 2 ) << n << ": " << argv[ n ] << '\n';
     }	
-    mutex1.lock();
-    for (int t = 0; t < 100; t++)
+    //mutex1.lock();
+    for (int t = 0; t < NUM_THREADS; t++)
     {
         arr[t] = 0;
         lock_guard<mutex> lock(g_io_mutex);
