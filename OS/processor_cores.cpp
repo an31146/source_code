@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <mutex>
 
 #define MAX_CORES 4
 
@@ -19,6 +20,7 @@ using namespace std;
 
 typedef std::chrono::high_resolution_clock Clock;
 
+mutex g_io_mutex;
 
 #ifdef _WIN32
 struct Core
@@ -40,7 +42,10 @@ static void startMonitoringCoreSpeeds(void *param)
         QueryPerformanceCounter(&first);
         Sleep(1000);
         QueryPerformanceCounter(&second);
+        lock_guard<mutex_type> lock(g_io_mutex);
+	// C++17 scoped_lock lock(g_io_mutex);
         cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;
+        g_io_mutex.unlock();
     }
 }
 
@@ -64,16 +69,22 @@ int GetNumberOfProcessorCores()
     return sysinfo.dwNumberOfProcessors;
 }
 #elif defined __linux__
-static void startMonitoringCoreSpeeds(void *param)
+static void *startMonitoringCoreSpeeds(void *param)
 {
     while (true)
     {
         auto t1 = Clock::now();
 	usleep(1000000);
         auto t2 = Clock::now();
-        std::cout << "Delta t2-t1: " 
-                  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()
+	/*
+        cout << "Delta t2-t1: " 
+                  << chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()
                   << " nanoseconds" << std::endl;
+        */
+	lock_guard<mutex> lock(g_io_mutex);
+        cout << "Core " << (int)param << " has frequency "
+             << ((float)chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() / 1.0e9) << " GHz" << endl;
+        //g_io_mutex.unlock();
     }
 }
 
@@ -107,7 +118,8 @@ int main(int argc, char* argv[])
         CPU_ZERO(&cpuset);
         CPU_SET(t, &cpuset);
         int rc = pthread_create(&threads[t], NULL, startMonitoringCoreSpeeds, (void *)t);
-	rc = pthread_setaffinity_np(threads[t], sizeof(cpu_set_t), &cpuset);
+	if (rc == 0)
+            rc = pthread_setaffinity_np(threads[t], sizeof(cpu_set_t), &cpuset);
     }
     cin.get();
 
