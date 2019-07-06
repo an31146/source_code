@@ -74,7 +74,7 @@ static void *startMonitoringCoreSpeeds(void *param)
     while (true)
     {
         auto t1 = Clock::now();
-	usleep(1000000);
+	usleep(1200000);
         auto t2 = Clock::now();
 	/*
         cout << "Delta t2-t1: " 
