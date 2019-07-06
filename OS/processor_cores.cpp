@@ -1,9 +1,26 @@
+/*
+ * g++ -Wall -O2 -std=c++11 -o processor_cores processor_cores.cpp -lpthread
+ */
+#ifdef _WIN32
 #include <windows.h>
 #include <process.h>
+#elif defined __linux__
+#include <pthread.h>
+#include <unistd.h>
+#include <sys/sysinfo.h>
+#endif
+
 #include <iostream>
+#include <chrono>
+
+#define MAX_CORES 4
 
 using namespace std;
 
+typedef std::chrono::high_resolution_clock Clock;
+
+
+#ifdef _WIN32
 struct Core
 {
     int CoreNumber;
@@ -46,7 +63,27 @@ int GetNumberOfProcessorCores()
     GetSystemInfo(&sysinfo);
     return sysinfo.dwNumberOfProcessors;
 }
+#elif defined __linux__
+static void startMonitoringCoreSpeeds(void *param)
+{
+    while (true)
+    {
+        auto t1 = Clock::now();
+	usleep(1000000);
+        auto t2 = Clock::now();
+        std::cout << "Delta t2-t1: " 
+                  << std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count()
+                  << " nanoseconds" << std::endl;
+    }
+}
 
+int GetNumberOfProcessorCores()
+{
+    return get_nprocs();
+}
+#endif
+
+#ifdef _WIN32
 int main(int argc, _TCHAR* argv[])
 {
     for (int i = 0; i < GetNumberOfProcessorCores(); i++)
@@ -56,4 +93,24 @@ int main(int argc, _TCHAR* argv[])
         _beginthread(startMonitoringCoreSpeeds, 0, core);
     }
     cin.get();
+
+    return EXIT_SUCCESS;
 }
+#elif defined __linux__
+int main(int argc, char* argv[])
+{
+    cpu_set_t cpuset;
+    pthread_t threads[MAX_CORES];
+
+    for (int t = 0; t < GetNumberOfProcessorCores(); t++)
+    {
+        CPU_ZERO(&cpuset);
+        CPU_SET(t, &cpuset);
+        int rc = pthread_create(&threads[t], NULL, startMonitoringCoreSpeeds, (void *)t);
+	rc = pthread_setaffinity_np(threads[t], sizeof(cpu_set_t), &cpuset);
+    }
+    cin.get();
+
+    return EXIT_SUCCESS;
+}
+#endif
