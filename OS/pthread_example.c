@@ -1,8 +1,8 @@
 /*
-  Example Code - Pthread Creation and Termination 
-  
-  gcc.exe -Wall -O2 -o pthread_example.exe pthread_example.c -lpthread
-*/
+ * Example Code - Pthread Creation and Termination 
+ * 
+ * gcc.exe -Wall -O2 -o pthread_example.exe pthread_example.c -lpthread
+ */
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,11 @@
 
 #define __USE_MINGW_ANSI_STDIO 1
 
+<<<<<<< HEAD
 #define NUM_THREADS     50
+=======
+#define NUM_THREADS     64
+>>>>>>> refs/rewritten/onto
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
