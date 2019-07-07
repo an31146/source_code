@@ -33,14 +33,14 @@ void shared_print(string msg, char delim, int id)
 void worker(int id)
 {
     //srand(time(nullptr));
-    chrono::milliseconds delay{dis(gen)};
+    chrono::seconds delay{dis(gen)};
 
     lock_guard<mutex> guard(g_io_mutex);
-	cout << "thread #" << setfill('0') << setw(2) << id << ", distribution: " << dis(gen) << endl;
+	cout << "thread #" << setfill('0') << setw(2) << id << ", distribution: " << delay.count() << endl;
     g_io_mutex.unlock();
 
     auto start = chrono::high_resolution_clock::now();
-    for (int i = 0; i < 600; i++)
+    //for (int i = 0; i < 1000; i++)
     {
         arr[id]++;
         //cout << arr[id] << " ";
@@ -58,7 +58,7 @@ void worker(int id)
 }
 
 int main(int argc, char *argv[]) {
-	// your code goes here
+    // your code goes here
 
     cout << "The name used to start the program: " << argv[ 0 ]
          << "\nArguments are:\n";
