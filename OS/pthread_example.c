@@ -35,12 +35,13 @@ void *PrintHello(void *threadid)
     printf("Hello World!  It's me, thread #%d!\nrand_array[%d] = %d\n", tid, tid, random_variable);
     pthread_mutex_unlock(&lock);
 
-    int delay_ms = (random_variable % 100) * 500 + 500;
+    int delay_ms = (random_variable % 100) * 200 + 500;
     Sleep(delay_ms);
 
     pthread_mutex_lock(&lock);
     printf("Goodbye Cruel World!  Thread #%02d is exiting after %d ms!\n", tid, delay_ms);
     pthread_mutex_unlock(&lock);
+    
     pthread_exit(NULL);
 }
 
