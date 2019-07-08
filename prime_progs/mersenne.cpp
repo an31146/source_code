@@ -1,25 +1,33 @@
 /*
- * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir
+ * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir -lpthread
  */
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <mpir.h>
+#include <sys/sysinfo.h>
 
 using namespace std;
 
-#define MILLI(x) setprecision(0) << fixed << 1000.0f * x
+#define MILLIS(x) setprecision(0) << fixed << 1000.0f * x
 #define SECONDS(x) setprecision(1) << fixed << x
 
 #define L1D_CACHE_SIZE 32768
 #define LIMIT 1000000
+
+static unsigned N_CORES;
+
+mutex g_i_mutex;
 
 // Use LucasLehmer to determine if 2^n-1 is prime
 bool LucasLehmer(unsigned n)
@@ -36,8 +44,8 @@ bool LucasLehmer(unsigned n)
     //mpz_set_ui(i, 3);
     //cout << mpz_cmp_si(i, n);
     //while (mpz_cmp_si(i, n) < 0)
-	for (unsigned i = 3; i <= n; i++)
-	{
+    for (unsigned i = 3; i <= n; i++)
+    {
         mpz_mul(seed, seed, seed);
         mpz_sub_ui(seed, seed, 2);
         mpz_mod(seed, seed, div);
@@ -53,23 +61,21 @@ bool LucasLehmer(unsigned n)
     return bSeedIsZero;
 }   // LucasLehmer
 
-void Mersenne(unsigned n, const vector<unsigned> &pr)
+void Mersenne(unsigned n, const vector<unsigned> &pr, unsigned primeOffset)
 {
     mpz_t PowerOf2_Minus1, UNITY;
     bool isMprime;
     char *strPtr1 = (char *) malloc(16777216);
     string strPowerOf2_Minus1;
 
-    //chrono::duration<double> elapsed_seconds;
-    //chrono::duration start, end;
-    //cout << "f(42) = " << fibonacci(42) << '\n';
-    
     mpz_inits(PowerOf2_Minus1, UNITY, NULL);
     mpz_set_ui(UNITY, 1);
     
     auto start = chrono::system_clock::now();
-    for (unsigned i = 0; i < pr.size(); i++)
+    for (unsigned i = primeOffset; i < pr.size(); i += N_CORES)
     {
+        cout << "testing M[" << pr[i] << "]\r";
+        cout.flush();
         isMprime = LucasLehmer(pr[i]);
 
 
@@ -86,7 +92,10 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
             strPowerOf2_Minus1.assign(strPtr1);
             
             //cout << strPowerOf2_Minus1.size() << endl;
-            
+            lock_guard<mutex> lock(g_i_mutex);
+            cout << "core #" << hex << this_thread::get_id() << ' ' << endl << "--------" << endl;
+
+	    cout << dec;
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
             else
@@ -99,6 +108,7 @@ void Mersenne(unsigned n, const vector<unsigned> &pr)
 	    else
                 cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
         
+            g_i_mutex.unlock();            
 	    start = chrono::system_clock::now();
         }   // if (isMprime)
     }   // for
@@ -116,24 +126,28 @@ void MersenneDeux(unsigned n, const vector<unsigned> &pr)
     mpz_inits(PowerOf2_Minus1, UNITY, NULL);
     mpz_set_ui(UNITY, 1);
     
+    auto start = chrono::system_clock::now();
     for (unsigned i = 0; i < pr.size(); i++)
     {
-        auto start = chrono::system_clock::now();
+	cout << "testing M[" << pr[i] << "]\r";
+	cout.flush();
         {
             mpz_mul_2exp(PowerOf2_Minus1, UNITY, pr[i]);
             mpz_sub_ui(PowerOf2_Minus1, PowerOf2_Minus1, 1);
             
             //int mpz_probab_prime_p (const mpz t n, int reps)
-            isMprime = mpz_probab_prime_p(PowerOf2_Minus1, 23);
+            isMprime = mpz_probab_prime_p(PowerOf2_Minus1, 7);
         }
-        auto end = chrono::system_clock::now();
-        chrono::duration<double> elapsed_seconds = end - start;
 
         if (isMprime)        
         {
+            auto end = chrono::system_clock::now();
+            chrono::duration<double> elapsed_seconds = end - start;
+
             mpz_get_str(strPtr1, 10, PowerOf2_Minus1);
             strPowerOf2_Minus1.assign(strPtr1);
             
+	    cout << endl;
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
             else
@@ -141,7 +155,12 @@ void MersenneDeux(unsigned n, const vector<unsigned> &pr)
                      << strPowerOf2_Minus1.substr(strPowerOf2_Minus1.size() - 12, 12) << "\t (" 
                      << strPowerOf2_Minus1.size() << " digits)" << endl;
 
-            cout << "elapsed time: " << fixed << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
+	    if (elapsed_seconds.count() >= 1.0f)
+                cout << "elapsed time: " << SECONDS(elapsed_seconds.count()) << " s" << endl << endl;
+	    else
+                cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
+
+            start = chrono::system_clock::now();
         }
     }   // for
     mpz_clears(PowerOf2_Minus1, UNITY, NULL);
@@ -243,10 +262,16 @@ vector<unsigned> segmented_sieve(int64_t limit, const unsigned segment_size = L1
     return final_primes;
 }
 
+int GetNumberOfProcessorCores()
+{
+    return get_nprocs();
+}
+
 int main(int argc, char** argv)
 {
     //
     vector<unsigned> _primes;
+    vector<thread> _threads;
     chrono::duration<double> elapsed_seconds;
     auto start = chrono::system_clock::now();
     {
@@ -272,10 +297,22 @@ int main(int argc, char** argv)
             
     cout << endl << "Vector contains " << _primes.size() << " primes." << endl << endl;
     
-    Mersenne(29, _primes);
+    N_CORES = GetNumberOfProcessorCores();
+    cout << "System consists of " << N_CORES << " logical processors." << endl << endl;
+
+    for (unsigned i = 0; i < N_CORES; i++)
+    {
+        _threads.emplace_back(thread(Mersenne, 23, _primes, i));
+    }
     
-	cout << "Press Enter: ";
-	getchar();
+    for (auto& t : _threads)
+    {
+        t.join();
+    }
+
+    
+    cout << "Press Enter: ";
+    getchar();
 
     return EXIT_SUCCESS;
 }
