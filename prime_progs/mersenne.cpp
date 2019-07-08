@@ -13,8 +13,11 @@
 #include <thread> // std::thread 
 #include <vector>
 
-#include <conio.h>
-#include <windows.h>
+#ifdef _WIN32
+    #include <conio.h>
+    #include <windows.h>
+#endif
+
 #include <mpir.h>
 
 using namespace std;
@@ -109,7 +112,7 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             else
                 cout << "elapsed time: " << MILLIS(elapsed_seconds.count()) << " ms" << endl << endl;
             
-            g_i_mutex.unlock();            
+            //g_i_mutex.unlock();            
             start = chrono::system_clock::now();
         }   // if (isMprime)
     }   // for
