@@ -15,7 +15,7 @@ void shared_print(string msg, char delim, int id)
 
 void function_1(int t)
 {
-    for (int i = 0; i >= -1000; i--)
+    for (int i = 0; i >= -100; i--)
         shared_print(string("From t") + to_string(t) + string(": "), '\t', i);
 }
 

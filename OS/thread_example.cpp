@@ -10,6 +10,8 @@
 #include <vector>
 #include <array>
 
+#define NUM_THREADS 32
+
 using namespace std;
 
 vector<thread> threads;
@@ -20,7 +22,7 @@ mutex g_io_mutex;
     random_device rd;  //Will be used to obtain a seed for the random number engine
     mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     uniform_int_distribution<> dis(3, 10);
-    array<int, 100> arr;
+    array<int, NUM_THREADS> arr;
 
 void shared_print(string msg, char delim, int id)
 {
@@ -31,14 +33,14 @@ void shared_print(string msg, char delim, int id)
 void worker(int id)
 {
     //srand(time(nullptr));
-    chrono::milliseconds delay{dis(gen)};
+    chrono::seconds delay{dis(gen)};
 
     lock_guard<mutex> guard(g_io_mutex);
-	cout << "thread #" << setfill('0') << setw(2) << id << ", distribution: " << dis(gen) << endl;
+	cout << "thread #" << setfill('0') << setw(2) << id << ", distribution: " << delay.count() << endl;
     g_io_mutex.unlock();
 
     auto start = chrono::high_resolution_clock::now();
-    for (int i = 0; i<1000; i++)
+    //for (int i = 0; i < 1000; i++)
     {
         arr[id]++;
         //cout << arr[id] << " ";
@@ -56,22 +58,24 @@ void worker(int id)
 }
 
 int main(int argc, char *argv[]) {
-	// your code goes here
+    // your code goes here
 
     cout << "The name used to start the program: " << argv[ 0 ]
          << "\nArguments are:\n";
     for (int n = 1; n < argc; n++)
+    {
         cout << setw( 2 ) << n << ": " << argv[ n ] << '\n';
- 	
-	for (int t = 0; t < 100; t++)
-	{
+    }	
+    //mutex1.lock();
+    for (int t = 0; t < NUM_THREADS; t++)
+    {
         arr[t] = 0;
         lock_guard<mutex> lock(g_io_mutex);
-	    threads.emplace_back(thread(worker, t));
-	    cout << "Thread ID: " << setfill('0') << setw(2) << threads.back().get_id() << endl;
-	}
-	cout << string(40, '-') << endl;
-	//threads.push_back(thread(worker, 1));
+        threads.emplace_back(thread(worker, t));
+        cout << "Thread ID: " << setfill('0') << setw(2) << threads.back().get_id() << endl;
+    }
+    cout << string(40, '-') << endl;
+    //threads.push_back(thread(worker, 1));
 	
     //lock_guard<mutex> lock(g_io_mutex);
     for (auto& th : threads)
@@ -81,5 +85,5 @@ int main(int argc, char *argv[]) {
     //g_io_mutex.unlock();
     //cout << "i: " << i << endl;
 
-	return 0;
+    return EXIT_SUCCESS;
 }

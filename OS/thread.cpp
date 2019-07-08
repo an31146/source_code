@@ -12,9 +12,12 @@ void foo()
     // do stuff... 
     //mutey.lock();
     //lock_guard<mutex> lock(mutey);
+    //
     mutey.try_lock();
     this_thread::sleep_for(chrono::seconds(1));
     cout << endl << "foo's thread id: " << this_thread::get_id() << endl;
+    mutey.unlock();
+    //
     //cout << thread::get_id() << endl;
     for (int i=0; i<100; i++)
     {
@@ -22,6 +25,7 @@ void foo()
         //cout.flush();
         this_thread::sleep_for(chrono::milliseconds(20));
     }
+    mutey.try_lock();
     cout << endl;
     mutey.unlock();
 } 
@@ -60,3 +64,4 @@ int main()
     cout << "foo and bar completed.\n"; 
     return 0; 
 }
+

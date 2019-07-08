@@ -32,15 +32,16 @@ void *PrintHello(void *threadid)
     int random_variable = rand_array[tid];
     
     pthread_mutex_lock(&lock);
-    printf("Hello World!  It's me, thread #%d!\trand_array = %d\n", tid, random_variable);
+    printf("Hello World!  It's me, thread #%d!\nrand_array[%d] = %d\n", tid, tid, random_variable);
     pthread_mutex_unlock(&lock);
 
-    int delay_ms = (random_variable % 100) * 500 + 500;
+    int delay_ms = (random_variable % 100) * 200 + 500;
     Sleep(delay_ms);
 
     pthread_mutex_lock(&lock);
     printf("Goodbye Cruel World!  Thread #%02d is exiting after %d ms!\n", tid, delay_ms);
     pthread_mutex_unlock(&lock);
+    
     pthread_exit(NULL);
 }
 
@@ -60,7 +61,7 @@ int main (int argc, char *argv[])
         rand_array[t] = rand();
         
         pthread_mutex_lock(&lock);
-        printf("In main: creating thread %d\n", t);
+        printf("In main: creating thread %d\n\n", t);
         pthread_mutex_unlock(&lock);
         
         int rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);

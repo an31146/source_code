@@ -12,7 +12,7 @@
 #endif
 
 #include <iostream>
-#include <chrono>
+#include <thread>
 #include <mutex>
 
 #define MAX_CORES 4
@@ -29,6 +29,8 @@ struct Core
     int CoreNumber;
 };
 
+mutex g_i_mutex;
+
 static void startMonitoringCoreSpeeds(void *param)
 {
     Core core = *((Core *)param);
@@ -41,8 +43,9 @@ static void startMonitoringCoreSpeeds(void *param)
         LARGE_INTEGER first;
         LARGE_INTEGER second;
         QueryPerformanceCounter(&first);
-        Sleep(1000);
+        Sleep(1666);
         QueryPerformanceCounter(&second);
+
         lock_guard<mutex> lock(g_io_mutex);
 	// C++17 scoped_lock lock(g_io_mutex);
         cout << "Core " << core.CoreNumber << " has frequency " << ((float)(second.QuadPart - first.QuadPart)/frequency.QuadPart) << " GHz" << endl;

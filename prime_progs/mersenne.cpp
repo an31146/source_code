@@ -1,11 +1,12 @@
 ﻿/*
- * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir
+ * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir -lpthread
  */
 #include <cassert>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -82,6 +83,13 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
     auto start = chrono::system_clock::now();
     for (unsigned i = primeOffset; i < pr.size(); i += N_CORES)
     {
+        /*
+        lock_guard<mutex> lock(g_i_mutex);
+        cout << "testing M[" << pr[i] << "]       \r";
+        cout.flush();
+        g_i_mutex.unlock();
+        */
+        
         isMprime = LucasLehmer(pr[i]);
 
         auto end = chrono::system_clock::now();
@@ -98,7 +106,7 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             
             //cout << strPowerOf2_Minus1.size() << endl;
             lock_guard<mutex> lock(g_i_mutex);
-            cout << "core #" << setfill('0') << setw(2) << this_thread::get_id() << endl << "--------" << endl;
+            cout << "core #" << setfill('0') << setw(4) << this_thread::get_id() << "    " << endl << "--------" << endl << endl;
             
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
@@ -115,7 +123,9 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             //g_i_mutex.unlock();            
             start = chrono::system_clock::now();
         }   // if (isMprime)
+
     }   // for
+
     mpz_clears(PowerOf2_Minus1, UNITY, NULL);
     free(strPtr1);
 }   // Mersenne
