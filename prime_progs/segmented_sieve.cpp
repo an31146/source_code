@@ -7,6 +7,7 @@
 ///         This is free software released into the public domain.
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -14,9 +15,11 @@
 #include <iomanip>
 #include <vector>
 //
-#include <conio.h>
 #include <time.h>
+#ifdef _WIN32
+#include <conio.h>
 #include <windows.h>
+#endif
 
 const int L1D_CACHE_SIZE = 32768;
 
@@ -115,25 +118,31 @@ int main(int argc, char** argv)
     if (argc >= 3)
         size = atoi(argv[2]);
 
-    auto start = clock();
+    auto start = chrono::system_clock::now();
     {        
         _primes = segmented_sieve(LIMIT, size);
     }
-    auto stop = clock();
+    auto stop = chrono::system_clock::now();
 
     cout << "vector size() = " << _primes.size() << endl;
-    cout << "sieve time: " << (stop-start) << " ms." << endl << endl;
+
+    chrono::duration<float, milli> elapsed_ms = stop - start;
+    cout << "sieve time: " << setprecision(0) << fixed << elapsed_ms.count() << " ms" << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
+#ifdef _WIN32
     char c = _getch();
+#elif defined __linux__
+    char c = getchar();
+#endif
     //cout << (int)c << endl;
     
     if (c == 'Y' || c == 'y' || c == 0xd)
     {
-        cout.precision(18);
+        cout.precision(18);		// for twin prime constant
         for (auto p : _primes)
             //if (p > 1)
-            cout << setw(8) << p;
+            cout << setw(10) << p;
             //else
             //    break;
     }

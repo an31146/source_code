@@ -272,15 +272,17 @@ int main(int argc, char** argv)
     //
     vector<unsigned> _primes;
     vector<thread> _threads;
-    chrono::duration<double> elapsed_seconds;
+    chrono::duration<double, milli> elapsed_seconds;
+
     auto start = chrono::system_clock::now();
     {
         _primes = segmented_sieve(LIMIT);
     }
     auto end = chrono::system_clock::now();
+    
     elapsed_seconds = end - start;
 
-    cout << "sieve time: " << setprecision(0) << fixed << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
+    cout << "sieve time: " << setprecision(0) << fixed << elapsed_seconds.count() << " ms" << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
     char c = getchar();
