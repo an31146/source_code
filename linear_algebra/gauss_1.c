@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     
     for (i=0; i<N; i++)
         printf("%5.1f ", x[i]);
-    printf("\n");
+    printf("\n\nPress Enter: ");
     getchar();
     
     return 0;

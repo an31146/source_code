@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 # Import library files
 import argparse
 import json
@@ -6,6 +7,31 @@ import time
 import requests
 import requests.packages.urllib3
 
+
+def oauth2_login(server, userid, password, grant_type, scope, client_id, client_secret):
+    picture = "https://{0}/auth/oauth2/token"
+    url = picture.format(server)
+    
+    login = dict()
+    login["username"] = userid
+    login["password"] = password
+    login["grant_type"] = grant_type
+    login["scope"] = scope
+    login["client_id"] = client_id
+    login["client_secret"] = client_secret
+
+    # Convert the dictionary into JSON to send it only in one call.
+    payload = json.dumps(login).encode('UTF-8')
+
+    headers = dict()
+    headers["Content-Type"] = "application/x-www-form-urlencoded"
+
+    response = requests.post(url, data=login, headers=headers, verify=False)
+    dictionary = response.json()
+    
+    x_auth_token = dictionary["access_token"]
+    return x_auth_token
+    
 
 def login(server, userid, domain, password):
     '''
@@ -67,11 +93,15 @@ def parse_arguments():
 
     # Specify the command-line arguments that can be used with this script.
     parser.add_argument("server", help="the server name of the Work server")
-    parser.add_argument("userid", help="the user ID to use to log in")
-    parser.add_argument("domain", help="the domain to use to log in")
-    parser.add_argument("password", help="the password to use to log in")
+    parser.add_argument("userid", help="the user ID to use")
+    parser.add_argument("domain", help="the domain to use")
+    parser.add_argument("password", help="the password to use")
+    parser.add_argument("scope", help="<user|admin>")
+    parser.add_argument("client_id", help="the client guid to use")
+    parser.add_argument("client_secret", help="the password to use")
+    parser.add_argument("grant_type", help="the grant type to use")
 
-    # Parameters for target workspace and folder
+    # Parameter for reserve_doc_num count
     parser.add_argument("count", help="loop for <count> times")
 
     # Parse the arguments according to the given configuration.
@@ -99,9 +129,9 @@ if __name__ == '__main__':
     requests.packages.urllib3.disable_warnings()
 
     #x_auth_token, database = login(args.server, args.userid, args.domain, args.password)
-    x_auth_token = 'wPOo4B+87VkhIJA07ygAzJVdTmZ4ezKDvcoyTJHw6fZkQ0w4Qj31HZQ/Iec615F1'
-    database = 'Active'
-
+    x_auth_token = 'VsCG+fjK3rzHg7LgEN4IVQ4tQfmebqBu1FMMa4dCxa9o8mFMj32PMNC3UhHcWGIF'
+    #x_auth_token = oauth2_login(args.server, args.userid, args.password, args.grant_type, args.scope, args.client_id, args.client_secret)
+    database = 'ACTIVE'
 
     t0 = time.clock()
     for n in range(0, int(args.count)):

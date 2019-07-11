@@ -1,0 +1,67 @@
+/*
+ * g++ -Wall -O2 -std=c++11 -o multiprecision multiprecision.cpp -lboost_multiprecision -lgmp
+ */
+#include <boost/integer/integer_log2.hpp>
+#include <boost/multiprecision/gmp.hpp>
+#include <boost/multiprecision/miller_rabin.hpp>
+#include <boost/random/independent_bits.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <iostream>
+#include <iomanip>
+#include <cstring>
+#include <cstdint>
+
+using namespace std;
+
+int main(int argc, char** argv)
+{
+    using namespace boost::random;
+    using namespace boost::multiprecision;
+
+    typedef mpz_int int_type;
+<<<<<<< .merge_file_tzLOF0
+    mt11213b base_gen(clock());
+    independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
+=======
+    time_t time_seed = time(NULL);
+    boost::random::mt11213b base_gen(time_seed);
+    boost::random::independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
+>>>>>>> .merge_file_kyurI3
+
+    // We must use a different generator for the tests and number generation, otherwise
+    // we get false positives.
+    //
+<<<<<<< .merge_file_tzLOF0
+    mt19937 gen2(clock());
+=======
+    boost::random::mt19937 gen2(time_seed);
+>>>>>>> .merge_file_kyurI3
+    int_type n = gen();
+
+    uint32_t limit = 1000000;
+    if (argc == 2)
+<<<<<<< .merge_file_tzLOF0
+	limit = atol(argv[1]);
+
+=======
+        limit = atol(argv[1]);
+        
+>>>>>>> .merge_file_kyurI3
+    for(uint32_t i = 0; i < limit; ++i)
+    {
+        if(miller_rabin_test(n, 23, gen2))
+        {
+            // Value n is probably prime, see if (n-1)/2 is also prime:
+            cout << "probable prime: " << endl << hex << showbase << n << endl;
+            if(miller_rabin_test((n-1)/2, 23, gen2))
+            {
+                cout << "safe prime: " << endl << hex << showbase << n << endl;
+                return 0;
+            }
+        }
+	n += 2;
+    }
+    cout << "Awwww, no safe primes were found." << endl;
+
+    return 1;
+}

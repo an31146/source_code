@@ -1,11 +1,12 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <cstdlib>
 #include <math.h>
 
 using namespace std;
 
-unsigned isprime(unsigned n) {
+unsigned isprime(unsigned long n) {
     if (n<2 || ((n != 2) && (n&1) == 0) )
         return 0;
     else 
@@ -22,24 +23,27 @@ unsigned isprime(unsigned n) {
 
 int main() {
     string input;
-    unsigned cases, i, j, n;
+    unsigned long cases, i, j, n, count = 0;
     char *st;
 
     getline (cin, input);
-    cases = strtol(input.c_str(), NULL, 0);
+    cases = strtoul(input.c_str(), NULL, 0);
 
     for (unsigned c=0; c<cases; c++)
     {
         getline (cin, input);
-        i = strtol(input.c_str(), &st, 0);
-        j = strtol(st, NULL, 0);
+        i = strtoul(input.c_str(), &st, 0);
+        j = strtoul(st, NULL, 0);
         
-        if (j>0)
+        if (j>0 && j>i)
             for (n=i; n<=j; n++)
-	            if (isprime(n))
-                    cout << n << endl;
+	        if (isprime(n))
+		{
+                    cout << setw(12) << n;
+		    count++;
+		}
                 
-        cout << endl;
+        cout << endl << count << endl;
     }
     return 0;
 }

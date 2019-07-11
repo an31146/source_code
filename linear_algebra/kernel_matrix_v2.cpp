@@ -1,5 +1,9 @@
 ﻿
+<<<<<<< HEAD
 // g++.exe -Wall -O2 -std=c++11 kernel_matrix_v2.cpp -o kernel_matrix_v2.exe
+=======
+// g++ -Wall -O2 -std=c++11 kernel_matrix_v2.cpp -o kernel_matrix_v2
+>>>>>>> c9927b723f2cb399085be2360f2ae56e793e3691
 
 #include <iostream>
 #include <cmath>

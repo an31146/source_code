@@ -1,5 +1,5 @@
 //
-// gcc -O2 -Wall -std=c99 -o mpi_prime mpi_prime.c -lmpich -lm
+// gcc -O2 -Wall -std=c99 -o mpi_prime mpi_prime.c -lmpi -lm
 //
 /******************************************************************************
 * FILE: mpi_prime.c
@@ -17,12 +17,12 @@
 *   Richard Ng &  Wong Sze Cheong during MHPCC Singapore Workshop (8/22/95).
 * LAST REVISED: 04/13/05
 ******************************************************************************/
-#include "mpi.h"
+#include <mpi/mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#define LIMIT     1000000000     /* Increase this to find more primes */
+#define LIMIT     1200000000     /* Increase this to find more primes */
 #define FIRST     0             /* Rank of first task */
 
 int isprime(int n) {
@@ -57,6 +57,8 @@ int main (int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &ntasks);
+    printf("ntasks%%2: %d\nLIMIT%%ntasks: %d\n", ntasks%2, LIMIT%ntasks);
+    printf("LIMIT: %d\n", LIMIT);
     if (((ntasks%2) !=0) || ((LIMIT%ntasks) !=0)) {
         printf("Sorry - this exercise requires an even number of tasks ");
         printf("evenly divisible into %d.  Try 4 or 8.\n", LIMIT);

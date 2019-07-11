@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int Doolittle_LU_Decomposition(double *A, int n);
+int Doolittle_LU_Solve(double *LU, double *B, double *x,  int n);
+
 #define N 4
 double A[N][N] = { {2, 1, -1, 1}, {-3, -1, 2, 2}, {-2, 1, 2, -3}, {1, 2, 1, -1} };
 //double A[N][N] = { {2, 1, -1}, {-3, -1, 2}, {-2, 1, 2} };
@@ -12,7 +15,7 @@ int main(int argc, char *argv[])
     double B[N] = {-1.0, 2.0, -1.0, 1.0};
     double x[N];
     int i, j;
-    int p[N];
+    //int p[N];
 
     Doolittle_LU_Decomposition(&A[0][0], N);
     Doolittle_LU_Solve(&A[0][0], &B[0], &x[0], N);
@@ -23,13 +26,13 @@ int main(int argc, char *argv[])
     for (i=0; i<N; i++)
     {
         for (j=0; j<N; j++)
-            printf("%.1f ", A[i][j]);
+            printf("%4.1f ", A[i][j]);
         printf("\n");
     }
     printf("---------------------------------\n");
     
     for (i=0; i<N; i++)
-        printf("%.1f ", x[i]);
+        printf("%4.1f ", x[i]);
     printf("\n");
     
     return 0;

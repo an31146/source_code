@@ -1,9 +1,9 @@
 ﻿/*
- gmp_pi.c - calculate pi with arbitrary precision using binomial coefficients (Machin-like formula)
- 
- gcc -std=c99 -o gmp_pi.exe gmp_pi.c -fopenmp -l gomp -l gmp
- 
- pi = -2 + sum(2^(n+1) / nCr(2n, n))
+ * gmp_pi.c - calculate pi with arbitrary precision using binomial coefficients (Machin-like formula)
+ *
+ * gcc -Wall -O2 -std=c99 -o gmp_pi gmp_pi.c -fopenmp -lgomp -lgmp
+ *
+ * pi = -2 + sum(2^(n+1) / nCr(2n, n))
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -253,6 +253,7 @@ void gosper_formula(mpf_ptr sum, int N)
         mpf_add(sum, sum, t);                   // sum += t
 
         printf("%8d\r", k);
+	fflush(stdout);
     }
 
     //gmp_printf("%0.Ff\n", sum);
@@ -323,8 +324,8 @@ int main(int argc, char *argv[])
     
     if (argc != 3)
     {
-        prec = 16400;
-        iter = 17001;
+        prec = 164000;
+        iter = 170001;
     }
     else
     {

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <cstdlib>
 #include <stdint.h>
@@ -10,7 +11,7 @@ using namespace std;
 int base_primes[25] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
 
 /* This function calculates (a^b)%c */
-int powmod(int a, int b, int c)
+int64_t powmod(int64_t a, int64_t b, int64_t c)
 {
     int64_t x=1, y=a; // long long is taken to avoid overflow of intermediate results
     while (b > 0)
@@ -102,21 +103,22 @@ bool Miller(int64_t p, int iters)
     return true;
 }
 
-int main() {
+int main()
+{
     string input;
-    int i, j, n, cases, count;
+    int64_t i, j, n, cases, count = 0;
     char *st;
 
     getline (cin, input);
-    cases = strtol(input.c_str(), NULL, 0);
+    cases = strtoll(input.c_str(), NULL, 0);
     
-    for (int c=0; c<cases; c++)
+    for (int64_t c=0; c<cases; c++)
     {
         getline (cin, input);
-        i = strtol(input.c_str(), &st, 0);
-        j = strtol(st, NULL, 0);
+        i = strtoll(input.c_str(), &st, 0);
+        j = strtoll(st, NULL, 0);
 
-        count = 0;
+	//cout << i << '\t' << j << endl;
         if (i==2)
             ;
             // cout << 2 << endl;
@@ -128,6 +130,7 @@ int main() {
             }
                 
         cout << count << endl;
+        cout << setw(12) << n;
     }
     return 0;
 }
