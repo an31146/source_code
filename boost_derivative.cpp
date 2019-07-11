@@ -1,3 +1,7 @@
+/*
+ *
+ */ 
+
 #include <iostream>
 #include <iomanip>
 #include <boost/multiprecision/cpp_dec_float.hpp>
@@ -63,21 +67,18 @@ int main(int, char**)
     );
 
     // 5.000029e-001
-    cout
-        << scientific
-        << setprecision(numeric_limits<float>::digits10)
-        << d_f
-        << endl;
+    cout << scientific
+         << setprecision(numeric_limits<float>::digits10)
+         << d_f
+         << endl;
 
     // 4.999999999998876e-001
-    cout
-        << setprecision(numeric_limits<double>::digits10)
-        << d_d
-        << endl;
+    cout << setprecision(numeric_limits<double>::digits10)
+         << d_d
+         << endl;
 
     // 4.99999999999999999999999999999999999999999999999999e-01
-    cout
-        << setprecision(numeric_limits<cpp_dec_float_50>::max_digits10)
-        << d_mp
-        << endl;
+    cout << setprecision(numeric_limits<cpp_dec_float_50>::max_digits10)
+         << d_mp
+         << endl;
 }
