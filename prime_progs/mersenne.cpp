@@ -106,7 +106,7 @@ void Mersenne(unsigned max_mprimes, const vector<unsigned> &pr, unsigned primeOf
             
             //cout << strPowerOf2_Minus1.size() << endl;
             lock_guard<mutex> lock(g_i_mutex);
-            cout << "core #" << setfill('0') << setw(4) << this_thread::get_id() << "    " << endl << "--------" << endl << endl;
+            cout << "core #" << setfill('0') << setw(2) << this_thread::get_id() << "    " << endl << "--------" << endl << endl;
             
             if (strPowerOf2_Minus1.size() < 24)
                 cout << "M[" << pr[i] << "] = " << strPowerOf2_Minus1 << endl;
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
     //
     vector<unsigned> _primes;
     vector<thread> _threads;
-    chrono::duration<double> elapsed_seconds;
+    chrono::duration<double, milli> elapsed_seconds;
     
     auto start = chrono::system_clock::now();
     {
@@ -288,7 +288,7 @@ int main(int argc, char** argv)
     auto end = chrono::system_clock::now();
     elapsed_seconds = end - start;
 
-    cout << "sieve time: " << setprecision(0) << fixed << elapsed_seconds.count() * 1000.0f << " ms" << endl << endl;
+    cout << "sieve time: " << setprecision(0) << fixed << elapsed_seconds.count() << " ms" << endl << endl;
     
     cout << "Print primes? [Y/n]" << endl;
     char c = _getch();
