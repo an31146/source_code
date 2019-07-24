@@ -57,7 +57,7 @@
 //
 
 #ifndef _implementation_
-# define _implementation_     0
+# define _implementation_     1
 #endif
 #ifndef _sieve_bits_log2_
 # if _implementation_ == 0
@@ -382,7 +382,7 @@ static void test_main_sieve(void)
 {
 #define _test_main_sieve_
 #define _first_   0ull
-#define _last_    4ull
+#define _last_    9ull
 #define _step_    1000000000ull
 #define _init_pi_ 0ull
   u64 pi,i;

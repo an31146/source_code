@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 #endif
     //cout << (int)c << endl;
     
-    if (c == 'Y' || c == 'y' || c == 0xd || c == 0xa)
+    if (c == 'Y' || c == 'y' || c == 0xd)
     {
         cout.precision(18);		// for twin prime constant
         for (auto p : _primes)
