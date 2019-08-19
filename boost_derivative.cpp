@@ -1,5 +1,5 @@
 /*
- *
+ *  g++ -Wall -O2 -std=c++11 -o boost_derivative.exe boost_derivative.cpp
  */ 
 
 #include <iostream>
