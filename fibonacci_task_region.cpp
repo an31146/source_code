@@ -1,8 +1,16 @@
+/*
+ * $ g++ -Wall -O2 -std=c++11 -L/c/Users/rhammond/Documents/boost_1_69_0/stage/lib -o fibonacci_task_region.exe fibonacci_task_region.cpp -llibboost_thread-mgw49-mt-x64-1_69
+ */
 #include <iostream>
+
+#define BOOST_THREAD_PROVIDES_FUTURE
+
+#include <boost/thread.hpp>
 #include <boost/thread/future.hpp>
 #include <boost/thread/csbl/vector.hpp>
-#include <boost/thread/experimental/parallel/v2/task_region.hpp>
+#include <boost/thread/experimental/task_region.hpp>
 
+// Horribly recursive and huge memory consumption!
 int fib_task_region(int n)
 {
     using boost::experimental::parallel::task_region;
@@ -11,8 +19,8 @@ int fib_task_region(int n)
     if (n == 0) return 0;
     if (n == 1) return 1;
 
-    int n1;
-    int n2;
+    int n1 = 0;
+    int n2 = 0;
 
     task_region([&](task_region_handle& trh)
     {
@@ -29,7 +37,7 @@ int fib_task_region(int n)
 
 int main()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         std::cout << fib_task_region(i) << " ";
     }
     std::cout << std::endl;

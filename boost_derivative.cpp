@@ -59,7 +59,7 @@ int main(int, char**)
     //
     const cpp_dec_float_50 d_mp = derivative(
         cpp_dec_float_50(pi<cpp_dec_float_50>() / 3),
-        cpp_dec_float_50(1.0E-12),
+        cpp_dec_float_50(1.0E-24),
         [](const cpp_dec_float_50& x) -> cpp_dec_float_50
         {
             return sin(x);

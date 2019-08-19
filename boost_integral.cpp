@@ -89,7 +89,7 @@ int main(int, char**)
     const mp_type j2_mp =
         integral(mp_type(0),
         pi<mp_type>(),
-        mp_type(1.0E-20),
+        mp_type(1.0E-80),
         cyl_bessel_j_integral_rep<mp_type>(2U, mp_type(123) / 100)) / pi<mp_type>();
 
     // 0.166369
