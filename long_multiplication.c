@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
 
     FILE *f_in = fopen("long_multiplication.txt", "r");
-    FILE *f_out = fopen("long_multiplcation_results.txt", "w");
+    FILE *f_out = fopen("long_multiplication_results.txt", "w");
 
     fscanf(f_in, "%d\n", &num_cases);
         

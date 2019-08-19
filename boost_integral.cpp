@@ -1,5 +1,5 @@
 /*
- *
+ * g++ -Wall -O2 -std=c++11 -o boost_integral.exe boost_integral.cpp
  */ 
 
 #include <iostream>
