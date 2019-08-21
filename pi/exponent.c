@@ -1,6 +1,6 @@
 /*
-  gcc -Wall -O2 -std=c99 -o exponent exponent.c -lgmp -lm
-*/
+ * gcc -Wall -O2 -std=c99 -o exponent exponent.c -lgmp -lm
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
