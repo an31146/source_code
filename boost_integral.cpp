@@ -86,11 +86,13 @@ int main(int, char**)
         0.0001,
         cyl_bessel_j_integral_rep<double>(2U, 1.23)) / pi<double>();
 
+/*
     const mp_type j2_mp =
         integral(mp_type(0),
         pi<mp_type>(),
         mp_type(1.0E-80),
         cyl_bessel_j_integral_rep<mp_type>(2U, mp_type(123) / 100)) / pi<mp_type>();
+*/
 
     // 0.166369
     cout << fixed
@@ -104,12 +106,21 @@ int main(int, char**)
          << endl;
 
     // 0.16636938378681407351267852431513159437103348245333
-    cout << setprecision(numeric_limits<mp_type>::max_digits10)
-         << j2_mp
-         << endl;
+    for (int precision = 10; precision <= 60; precision += 10)
+    {
+        const mp_type j2_mp =
+            integral(mp_type(0),
+            pi<mp_type>(),
+            mp_type(pow(10.0, -precision)),
+            cyl_bessel_j_integral_rep<mp_type>(2U, mp_type(123) / 100)) / pi<mp_type>();
 
+        cout << setprecision(numeric_limits<mp_type>::max_digits10)
+             << j2_mp
+             << endl;
+
+    }
     //
     // Print true value for comparison:
     // 0.166369383786814073512678524315131594371033482453329
-    cout << boost::math::cyl_bessel_j(2, mp_type(123) / 100) << endl;
+    cout << "reference: " << endl << boost::math::cyl_bessel_j(2, mp_type(123) / 100) << endl;
 }
