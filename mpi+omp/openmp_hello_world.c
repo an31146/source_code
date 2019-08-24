@@ -1,4 +1,4 @@
-// gcc -O2 -Wall -std=c99 -o openmp_hello_world openmp_hello_world.c -fopenmp -lgomp
+// gcc -O2 -Wall -std=c99 -o openmp_hello_world.exe openmp_hello_world.c
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
