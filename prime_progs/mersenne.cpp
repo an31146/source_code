@@ -1,6 +1,5 @@
 ﻿/*
  * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir -lpthread
- * g++ -Wall -O2 -std=c++11 -o mersenne.exe mersenne.cpp -lmpir -lpthread
  */
 #include <cassert>
 #include <chrono>

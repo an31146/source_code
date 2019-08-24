@@ -1,5 +1,5 @@
 /*
- *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lmpir
+ *  gcc -Wall -O2 -std=gnu99 -o libgmp_test.exe libgmp_test.c -lm -lgmp
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
-#include <mpir.h>
+#include <gmp.h>
 
 int base_primes[25] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
 
@@ -259,7 +259,8 @@ int main()
 		if (miller_rabin(d, 23))
 		{
 			print_time(F_TP);
-			gmp_sprintf(str_out, "%Zx\n%Zx\n\n", c, d);
+			//gmp_sprintf(str_out, "%Zx\n%Zx\n\n", c, d);
+            gmp_sprintf(str_out, "%Zd\n%Zd\n\n", c, d);
 			//gmp_fprintf(F_TP, "%Zx\n%Zx\n\n", c, d);                  // seg faults when using mpir.dll!  Fix function prototype in fprintf.c
 			
 			printf("%s", str_out);
