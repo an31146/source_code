@@ -3,24 +3,28 @@
  * 
  * gcc.exe -Wall -O2 -o pthread_example.exe pthread_example.c -lpthread
  */
-#include <pthread.h>
+#if defined __linux__
+#include <unistd.h>
+#include <sys/sysinfo.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <pthread.h>
 
-#ifdef __unix__
-#include <unistd.h>
-#elif defined _WIN32
+#ifdef _WIN32
 #include <windows.h>
+#include <process.h>
 #define sleep(x) Sleep(1000 * x)
 #endif
 
 #define __USE_MINGW_ANSI_STDIO 1
 
-#define NUM_THREADS     64
+#define NUM_THREADS     4
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t lock;
 
 int rand_array[NUM_THREADS];
 
@@ -44,6 +48,33 @@ void *PrintHello(void *threadid)
     
     pthread_exit(NULL);
 }
+
+#ifdef _WIN32
+int GetNumberOfProcessorCores()
+{
+    ULONGLONG process, system;
+    if (GetProcessAffinityMask(GetCurrentProcess(), &process, &system))
+    {
+        int count = 0;
+        for (int i = 0; i < 32; i++)
+        {
+            if (system & (1 << i))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}
+#elif defined __linux__
+int GetNumberOfProcessorCores()
+{
+    return get_nprocs();
+}
+#endif
 
 int main (int argc, char *argv[])
 {
