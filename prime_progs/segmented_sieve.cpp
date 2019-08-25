@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <iomanip>
+#include <map>
 #include <vector>
 //
 #include <conio.h>
@@ -48,7 +49,8 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
     vector<int> primes;
     vector<int> next;
     vector<int> final_primes;
-
+    map<char, int> lastDigitCounts;
+            
     for (int64_t low = 0; low <= limit; low += segment_size)
     {
         fill(segment.begin(), segment.end(), 1);
@@ -61,6 +63,7 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
             if (is_prime[s])
             {
                 primes.push_back((int) s);
+                
                 //cout << setw(8) << s;
                 next.push_back((int)(s * s - low));
                 //cout << setw(8) << (s * s - low);
@@ -82,6 +85,12 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
             {
                 count++;
                 final_primes.push_back(n);
+
+                char lastDigit = (char)(n % 10 | 0x30);
+                if (lastDigitCounts.find(lastDigit) == lastDigitCounts.end())
+                    lastDigitCounts.insert({lastDigit, 1});
+                else
+                    lastDigitCounts[lastDigit]++;
             }
         }
             
@@ -95,9 +104,24 @@ vector<int> segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
     auto it = final_primes.begin();
     final_primes.insert(it, 2);
 
+    if (lastDigitCounts.find('2') == lastDigitCounts.end())
+        lastDigitCounts.insert({'2', 1});
+
     cout << endl << count << " primes found." << endl;
 
     //DebugBreak();
+    cout << "Counts / % of last digits in primes:" << endl;
+    int total_primes = 0;
+    //for (const auto& [name, height] : playerHeights)
+    for (const auto& c : lastDigitCounts)
+        total_primes += c.second;
+
+    cout << fixed << setprecision(4);
+    for (const auto& c : lastDigitCounts)
+    {
+        cout << "[" << c.first << "]: " << c.second << "\t" << (float)c.second/total_primes*100.0f << " %" << endl;
+    }
+    cout << endl;
     //cout << "twin prime constant: " << twin_prime_const << endl;
     return final_primes;
 }
@@ -133,7 +157,7 @@ int main(int argc, char** argv)
         cout.precision(18);
         for (auto p : _primes)
             //if (p > 1)
-            cout << setw(8) << p;
+            cout << setw(12) << p;
             //else
             //    break;
     }
