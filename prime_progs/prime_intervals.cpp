@@ -19,7 +19,10 @@ unsigned sieve()
     {
         for (unsigned i = primes[p]*primes[p]; i <= LIMIT; i+=primes[p])
             primes[i] = 1;
-        primes[++p] = primes[p-1] + 1;
+        
+	primes[p+1] = primes[p] + 1;
+	++p;
+
         for (; primes[p] <= LIMIT && primes[primes[p]] == 1; primes[p]++);      //find next prime (where s[p]==0)
     }
     return p;
@@ -55,29 +58,39 @@ unsigned isprimeX(unsigned n) {
 }
 
 int main() {
-    unsigned cases, i, j, n, count = 0;
+    unsigned cases, i, j, m, n, count = 0;
     unsigned start, stop;
-
+ 
     num_primes = sieve();
+
+//    for (unsigned i=0; i<num_primes; i++)
+//	printf("%12d", primes[i]);
+//    printf("\n");
     
     fscanf(stdin, "%d", &cases);
+
+    start = clock();
     for (unsigned c=0; c<cases; c++)
     {
         fscanf(stdin, "%d %d", &i, &j);
         
-        start = clock();
         if (i<=2)
             printf("2\n");
         
-        for (n=i|1; n<=j; n+=2) {
+	m = i|1;
+        for (n=i|1; n<=j; n+=2)
+	{
             if (isprime(n))
             {
                 count++;
-                fprintf(stdout, "%d\n", n);
-            }
+                fprintf(stdout, "%d\n", n-m);
+                m = n;
+	    }
         }
-        stop = clock();
         
     }
+    stop = clock();
+    printf("Elapsed time: %.2fs\n", (float)(stop-start)/CLOCKS_PER_SEC);
+
     return 0;
 }
