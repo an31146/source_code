@@ -1,5 +1,5 @@
 /*
- * g++ -Wall -O2 -std=c++11 -o binomial_distribution.exe binomial_distribution.cpp -lm
+ * g++ -Wall -O2 -std=c++11 -o binomial_distribution.exe binomial_distribution.cpp
  */
  
 #include <iostream> 
@@ -7,6 +7,9 @@
 #include <string> 
 #include <map> 
 #include <random>   
+
+#define STARS 108
+#define REPS 1000000
 
 using namespace std;
 
@@ -17,31 +20,36 @@ int main()
 	minstd_rand lcg;
 	ranlux24_base sub_eng;
 	
-//	lcg.seed((unsigned)time(NULL));
+	lcg.seed((unsigned)time(NULL));
 	//gen.seed((unsigned)time(NULL));
 	sub_eng.seed((unsigned)time(NULL));
 	
-	// perform 4 trials, each succeeds 1 in 2 times 
-	binomial_distribution<> bi(199, 0.5f);
-	negative_binomial_distribution<> neg(17, 0.5f);
+	cout << "Enter probability: ";
+	float success_probability;
+	cin >> success_probability;
+
+	// perform N trials, each succeeds <success_probability> times 
+	binomial_distribution<> bi(199, success_probability);
+	negative_binomial_distribution<> neg(17, success_probability);
 	uniform_int_distribution<> uni(0, 99);
 	normal_distribution<> norm(5, 3);   
 	extreme_value_distribution<> ext;
-	bernoulli_distribution bern(0.5);
-	poisson_distribution<> p_dist(99);
+	bernoulli_distribution bern(success_probability);
+	poisson_distribution<> p_dist(11);
 	map<int, int> hist; 
 	
 	cout << setprecision(10);
+	cout << "Counting integers..." << endl;
 	
-	for (int n = 0; n < 1000000; ++n) 
+	for (int n = 0; n < REPS; ++n) 
 	{ 
 		//int x = lcg() % 100;
 		//int x = sub_eng() % 100;
 		//int x = uni(lcg);
 		// int x = uni(sub_eng);
 		//int x = neg(gen);
-		//int x = p_dist(lcg);
-		int x = bi(gen);
+		int x = p_dist(lcg);
+		//int x = bi(gen);
 		//int x = bi(lcg);
 		//int x = bi(sub_eng);
 		//int x = round(norm(lcg));
@@ -51,8 +59,16 @@ int main()
 		++hist[x]; 
 	}
 	cout << endl; 
-	for (auto p : hist) 
+	int max_value = hist.begin()->second;
+	for (const auto& nvp : hist) 
 	{ 
-		cout << setw(3) << p.first << ' ' << string(p.second/600, '*') << ' ' << p.second << endl; 
+		if (nvp.second > max_value)
+			max_value = nvp.second;
+	}
+	// cout << max_value << endl;
+	float scale = max_value / STARS;
+	for (const auto& nvp : hist) 
+	{ 
+		cout << setw(3) << nvp.first << ' ' << string(nvp.second/scale, '*') << ' ' << nvp.second << endl; 
 	} 
 }
