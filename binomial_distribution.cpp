@@ -38,10 +38,10 @@ int main()
 		//int x = lcg() % 100;
 		//int x = sub_eng() % 100;
 		//int x = uni(lcg);
-		int x = uni(sub_eng);
+		// int x = uni(sub_eng);
 		//int x = neg(gen);
 		//int x = p_dist(lcg);
-//		int x = bi(gen);
+		int x = bi(gen);
 		//int x = bi(lcg);
 		//int x = bi(sub_eng);
 		//int x = round(norm(lcg));
