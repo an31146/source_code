@@ -1,6 +1,4 @@
 @echo off
-set PATH=C:\tools\mingw-w64\x86_64-4.9.2-posix-seh-rt_v3-rev1\mingw64\bin;%PATH%
-rem echo %PATH%
-rem cd "C:\mingw-w64\x86_64-4.9.2-posix-seh-rt_v3-rev1\mingw64\bin"
+set PATH=C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin;%PATH%
 cd %userprofile%\Google Drive\source_code
 C:\Windows\system32\cmd.exe

@@ -1,11 +1,12 @@
 /*
- *  g++ -Wall -O2 -std=c++11 -o boost_derivative.exe boost_derivative.cpp
+ *  g++ -Wall -O2 -std=c++11 -I C:/Tools/boost_1_69_0 -o boost_derivative.exe boost_derivative.cpp
  */ 
 
 #include <iostream>
 #include <iomanip>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 #include <boost/math/constants/constants.hpp>
+
 
 using namespace std;
 
