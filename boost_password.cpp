@@ -1,5 +1,5 @@
 /*
- * g++ -Wall -O2 -std=c++11 -o boost_password.exe boost_password.cpp -lboost_random-mgw49-mt-x64-1_69
+ * g++ -Wall -O2 -std=c++11 -IC:\Tools\boost_1_69_0\ -o boost_password.exe boost_password.cpp -lboost_random-mgw49-mt-x64-1_69
  */
 // password.cpp
 //

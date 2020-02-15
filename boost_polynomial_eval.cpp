@@ -92,9 +92,9 @@ mp_type mysin(const mp_type& x)
 
 int main(int, char**)
 {
-    mp_type pid4 = boost::math::constants::pi<mp_type>() / 4;
+    mp_type pi_div_4 = boost::math::constants::pi<mp_type>() / 4.0f;
     std::cout << std::setprecision(std::numeric_limits< ::mp_type>::digits10) << std::scientific;
-    std::cout << mysin(pid4) << std::endl;
+    std::cout << mysin(pi_div_4) << std::endl;
 }
 /*
  * Yields the expected output:
