@@ -48,6 +48,20 @@ int main()
       u *= i;
 
    cout << "5000! = " << u << endl << endl;
+   
+   cout << "Press Enter: ";
+   cout.flush();
+   getc(stdin);
+
+   u = 1;
+   for(unsigned i = 1; i <= 100000; ++i)
+      u *= i;
+
+   cout << "100000! = " << u << endl << endl;
+
+   cout << "Press Enter: ";
+   cout.flush();
+   getc(stdin);
 
    return 0;
 }
