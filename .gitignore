@@ -4,6 +4,7 @@
 *.bak
 *.elf
 .vs/
+.vscode/
 *.gz
 *.data
 /mono/BinaryFileStreamIO.cs.orig

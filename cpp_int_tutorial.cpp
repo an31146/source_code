@@ -1,31 +1,46 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include <iostream>
-#include <cstring>
+#include <string>
+
+using namespace boost::multiprecision;
+using namespace std;
+
+void do_factorial(unsigned n)
+{
+   // Repeat at arbitrary precision:
+   cpp_int u = 1;
+   for(unsigned i = 1; i <= n; ++i)
+      u *= i;
+
+   ostringstream oss;
+   oss << u;
+   string fact = u.str();
+   if (fact.length() > 205)
+   {
+      cout << n << "! = "  << fact.substr(0, 100)
+                           << "..." << fact.substr(fact.length()-100, 100)
+                           << endl << endl;
+   } else {
+      cout << n << "! = "  << fact << endl << endl;
+   }
+   cout << "Press Enter: ";
+   cout.flush();
+   getc(stdin);
+   cout << endl;
+}
 
 int main()
 {
-   using namespace boost::multiprecision;
-   using namespace std;
-
    int128_t v = 1;
 
    // Do some fixed precision arithmetic:
    for(unsigned i = 1; i <= 20; ++i)
       v *= i;
-
-   cout << "20! = " << v << endl << endl; // prints 2432902008176640000 (i.e. 20!)
-
-   // Repeat at arbitrary precision:
-   cpp_int u = 1;
-   for(unsigned i = 1; i <= 100; ++i)
-      u *= i;
+   // prints 2432902008176640000 (i.e. 20!)
+   cout << "20! = " << v << endl << endl;
 
    // prints 93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000 (i.e. 100!)
-   cout << "100! = " << u << endl << endl;
-
-   u = 1;
-   for(unsigned i = 1; i <= 500; ++i)
-      u *= i;
+   do_factorial(100);
 
    // prints 122013682599111006870123878542304692625357434280319284219241358838584537315388199760549644750220328186301361647714820358
    //        416337872207817720048078520515932928547790757193933060377296085908627042917454788242491272634430567017327076946106280231
@@ -37,31 +52,13 @@ int main()
    //        094288559201872743379517301458635757082835578015873543276888868012039988238470215146760544540766353598417443048012893831
    //        389688163948746965881750450692636533817505547812864000000000000000000000000000000000000000000000000000000000000000000000
    //        0000000000000000000000000000000000000000000000000000000 (i.e. 500!)
-   cout << "500! = " << u << endl << endl;
+   do_factorial(500);
 
-   cout << "Press Enter: ";
-   cout.flush();
-   getc(stdin);
-
-   u = 1;
-   for(unsigned i = 1; i <= 5000; ++i)
-      u *= i;
-
-   cout << "5000! = " << u << endl << endl;
+   do_factorial(5000);
    
-   cout << "Press Enter: ";
-   cout.flush();
-   getc(stdin);
+   do_factorial(100000);
 
-   u = 1;
-   for(unsigned i = 1; i <= 100000; ++i)
-      u *= i;
-
-   cout << "100000! = " << u << endl << endl;
-
-   cout << "Press Enter: ";
-   cout.flush();
-   getc(stdin);
+   do_factorial(200000);
 
    return 0;
 }
