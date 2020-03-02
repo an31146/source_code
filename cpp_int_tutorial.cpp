@@ -1,3 +1,6 @@
+/*
+ * g++ -Wall -O2 -std=c++11 -IC:\Tools\boost_1_69_0 -o cpp_int_tutorial.exe cpp_int_tutorial.cpp
+ */
 #include <boost/multiprecision/cpp_int.hpp>
 #include <iostream>
 #include <string>
@@ -34,7 +37,7 @@ int main()
    int128_t v = 1;
 
    // Do some fixed precision arithmetic:
-   for(unsigned i = 1; i <= 20; ++i)
+   for(unsigned i = 1; i <= 200; ++i)
       v *= i;
    // prints 2432902008176640000 (i.e. 20!)
    cout << "20! = " << v << endl << endl;
