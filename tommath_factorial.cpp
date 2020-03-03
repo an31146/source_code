@@ -1,3 +1,9 @@
+/*
+ * g++ -Wall -O2 -std=c++11 -IC:\Tools\boost_1_69_0
+ *                          -IC:\Tools\libtommath-1.1.0 
+ *                          -o tommath_factorial.exe tommath_factorial.cpp 
+ *                          -ltommath
+ */
 #include <boost/multiprecision/tommath.hpp>
 #include <iostream>
 
