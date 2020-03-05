@@ -18,18 +18,19 @@
 #define PRINT     100000      /* Print a line after this many numbers */
 
 
-int isprime(int n) {
-int i,squareroot;
-if (n>10) {
-    squareroot = (int) sqrt(n);
-    for (i=3; i<=squareroot; i=i+2)
-        if ((n%i)==0)
-            return 0;
-    return 1;
-}
-/* Assume first four primes are counted elsewhere. Forget everything else */
-else
-    return 0;
+int isprime(int n) 
+{
+	int i,squareroot;
+	if (n>10) {
+		squareroot = (int) sqrt(n);
+		for (i=3; i<=squareroot; i=i+2)
+			if ((n%i)==0)
+				return 0;
+		return 1;
+	}
+	/* Assume first four primes are counted elsewhere. Forget everything else */
+	else
+		return 0;
 }
 
 

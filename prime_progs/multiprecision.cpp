@@ -1,5 +1,8 @@
 /*
- * g++ -Wall -O2 -std=c++11 -o multiprecision.exe multiprecision.cpp -lmpir
+ * g++ -Wall -O2 -std=c++11 -I "C:\Users\richa\Google Drive\Projects\gmp-6.1.2" 
+ *                          -L "C:\Users\richa\Google Drive\Documents II\Visual Studio 2017\Projects\mpir-3.0.0\dll\x64\Release" 
+ *                          -o multiprecision.exe multiprecision.cpp 
+ *                          -lmpir
  */
 #include <boost/integer/integer_log2.hpp>
 #include <boost/multiprecision/gmp.hpp>
@@ -29,7 +32,7 @@ int main(int argc, char** argv)
     boost::random::mt19937 gen2(time_seed);
     int_type n = gen();
 
-    uint32_t LIMIT = 1000000;
+    uint32_t LIMIT = 100000000;
     if (argc == 2)
         LIMIT = atol(argv[1]);
         
@@ -38,10 +41,10 @@ int main(int argc, char** argv)
         if (miller_rabin_test(n, 23, gen2))
         {
             // Value n is probably prime, see if (n-1)/2 is also prime:
-            cout << "probable prime: " << endl << hex << showbase << n << endl;
+            cout << "probable prime: " << endl << hex << showbase << n << endl << endl;
             if (miller_rabin_test((n-1)/2, 25, gen2))
             {
-                cout << "safe prime: " << endl << hex << showbase << n << endl;
+                cout << "safe prime: " << endl << hex << showbase << n << endl << endl;
                 return 0;
             }
         }
