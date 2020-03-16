@@ -120,6 +120,7 @@ int main() {
             }
         }
         stop = clock();
+		printf("Elapsed time: %.2fs\n", (float)(stop-start)/CLOCKS_PER_SEC);
         
     }
     return 0;
