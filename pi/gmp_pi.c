@@ -170,9 +170,9 @@ void arctan_of_one(mpf_ptr sum, int N)
 /*
  *   (Lucas formula - doesn't work) 
  *   
-    pi                ∞                 1 
-   ----  =  1 - 16 * SUM  ------------------------------
-     4               k=0  (4k + 1)^2(4k + 3)^2(4k + 5)^2
+    π                ∞                 1 
+   ---  =  1 - 16 * SUM  ------------------------------
+    4               k=0  (4k + 1)^2(4k + 3)^2(4k + 5)^2
  *      
  */ 
 void lucas_formula(mpf_ptr sum, int N)
@@ -220,7 +220,7 @@ void lucas_formula(mpf_ptr sum, int N)
  *          (Gosper formula 1974)
  *
             ∞     (25k - 3)(k!)(2k)!
-     pi =  SUM   --------------------
+      π =  SUM   --------------------
            k=0       2^(k-1)(3k)!
  *
  *      20000 iterations accurate to 22600 d.p.
@@ -266,7 +266,7 @@ void gosper_formula(mpf_ptr sum, int N)
  *                      (BBP Formula)
  *
             ∞     1    ┌    4        2        1        1   ┐
-     pi =  SUM  ---- x | ------ - ------ - ------ - ------ |
+      π =  SUM  ---- x | ------ - ------ - ------ - ------ |
            k=0  16^k   └ (8k+1)   (8k+4)   (8k+5)   (8k+6) ┘
  *
  *         4100 iterations accurate to 4939 d.p. ~0.31 secs
@@ -314,6 +314,21 @@ void bbp_formula(mpf_ptr sum, int N)
     return;
 }
 
+/*
+ *                               (Chudnovsky Formula)
+ * https://en.wikipedia.org/wiki/Approximations_of_%CF%80#20th_and_21st_centuries
+ *
+ *
+ *         1           ∞    (-1)^k(6k)!(13591409 + 545140134k)
+ *       -----  =  12  Σ   ------------------------------------
+ *         π          k=0       (3k)!(k!)^3*640320^(3k+3/2)
+ *
+ */
+ void chudnovsky_formula(mpf_ptr sum, int N)
+ {
+ 
+ }
+ 
 int main(int argc, char *argv[])
 {
     FILE *fs;
