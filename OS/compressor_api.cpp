@@ -1,6 +1,7 @@
 /*
  * g++ -Wall -O2 -std=c++11 -o compressor_api.exe compressor_api.cpp -lcabinet
  */
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -63,7 +64,7 @@ BOOL Compress(
 	do
 	{
 		uncompressed_size = fread((LPVOID)buffer.data(), sizeof buffer[0], buffer.size(), fs1);
-		cout << uncompressed_size << " bytes read." << endl;
+		cout << uncompressed_size << " bytes uncompressed data read." << endl;
 
 		if (uncompressed_size > 0)
 		{
@@ -76,7 +77,7 @@ BOOL Compress(
 			else
 			{	
 				__attribute__((unused)) size_t bytes_written = fwrite((LPVOID)compressed_buffer.data(), sizeof compressed_buffer[0], compressed_data_size, fs2);
-				cout << bytes_written << " bytes written." << endl;
+				cout << setw(5) << bytes_written << " bytes compressed data written." << endl;
 			}
 		}
 	} while (uncompressed_size > 0);
