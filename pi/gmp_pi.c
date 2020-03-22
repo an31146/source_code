@@ -326,8 +326,56 @@ void bbp_formula(mpf_ptr sum, int N)
  */
  void chudnovsky_formula(mpf_ptr sum, int N)
  {
+    mpf_t n, d1, s1, ONE;
+	mpz_t fac, fac2, d2;
+    
+    mpf_inits(n, d1, s1, ONE, NULL);
+	mpz_inits(fac, fac2, d2, NULL);
  
- }
+    for (unsigned int k = 0; k < N; k++)
+    {
+		mpz_fac_ui(fac, 6 * k);									// fac = (6k)!
+		mpz_mul_ui(fac, fac, 13591409UL + 545140134UL * k);		// fac = (6k)! * (13591409 + 545140134*k)
+		mpf_set_z(n, fac);										// n   = fac
+		
+		mpz_fac_ui(fac, 3 * k);									// fac = (3k)!
+		mpz_mfac_uiui(fac2, k, 3);								// fac2 = (k!)^3
+		mpz_mul(d2, fac, fac2);									// d2  = fac * fac2
+		mpf_set_z(d1, d2);										// d1  = d2
+		
+		// re-use denominator mpz_t d2
+		mpz_ui_pow_ui(d2, 640320UL, 6 * k + 3);					// d2 = 640320^(6k+3)
+		gmp_printf("d2 = %Zd\n", d2);							// 
+		mpf_set_z(s1, d2);										// s1 = d2
+		mpf_sqrt(s1, s1);										// s1 = sqrt(s1)
+		mpf_mul(d1, d1, s1);									// d1 = (3k)! (k!)^3 * sqrt(640320^(6k+3))
+		gmp_printf("d1 = %.20Ff\n", d1);
+
+		// divide numerator by denominator
+		mpf_div(n, n, d1);										// n = fac / d1
+		
+		// take into account alternate signs
+		if (k % 2 == 0) 
+			mpf_add(sum, sum, n);
+		else
+			mpf_sub(sum, sum, n);
+			
+		//gmp_printf("%0.Ff\n", sum);
+		//gmp_printf("%0.Fg\n\n", n);
+	}
+	
+	mpf_mul_ui(sum, sum, 12);
+	// reciprocal
+	mpf_set_ui(ONE, 1);
+	mpf_div(sum, ONE, sum);
+	
+	gmp_printf("%0.Ff\n\n", sum);
+	//getchar();
+
+	mpf_clears(n, d1, s1, ONE, NULL);
+	mpz_clears(fac, fac2, d2, NULL);
+	
+}
  
 int main(int argc, char *argv[])
 {
@@ -391,7 +439,8 @@ int main(int argc, char *argv[])
     
     start = clock();
     //bbp_formula(sum, iter);
-    gosper_formula(sum, iter);
+	chudnovsky_formula(sum, iter);
+    //gosper_formula(sum, iter);
     //machin_like(sum, iter);
     //arctan_of_one(sum, iter);
     stop = clock();
@@ -399,10 +448,12 @@ int main(int argc, char *argv[])
     printf("\n\nElapsed time: %6.2f seconds\n",  
             (float)(stop-start)/(float)CLOCKS_PER_SEC ); 
     
-    if ((fs=fopen("pi.txt", "w+t")) != NULL)
+    if ((fs = fopen("pi3.txt", "w+t")) != NULL)
     {
+		char buffer[1048576];
         //mpf_out_str(fs, 10, 0, sum);
-        gmp_fprintf(fs, "%0.Ff", sum);
+        gmp_sprintf(buffer, "%0.Ff", sum);
+		fprintf(fs, "%s", buffer);
         fclose(fs);
     }
     //gmp_printf("%0.Ff\n", sum);
