@@ -1,5 +1,5 @@
 /*
- * $ g++ -Wall -O2 -std=c++11 -L/c/Users/rhammond/Documents/boost_1_69_0/stage/lib -o fibonacci_task_region.exe fibonacci_task_region.cpp -llibboost_thread-mgw49-mt-x64-1_69
+ * $ g++ -Wall -O2 -std=c++11 -LC:\Tools\boost_1_69_0\stage\lib -o fibonacci_task_region.exe fibonacci_task_region.cpp -llibboost_thread-mgw81-mt-x64-1_69
  */
 #include <iostream>
 
@@ -37,7 +37,7 @@ int fib_task_region(int n)
 
 int main()
 {
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 25; i++) {
         std::cout << fib_task_region(i) << " ";
     }
     std::cout << std::endl;

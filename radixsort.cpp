@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -18,8 +19,10 @@ void radix (int byte, long N, long *source, long *dest)
   for ( i=0; i<N; i++ ) count[((source[i])>>(byte*8))&0xff]++;
 
   index[0]=0;
-  for ( i=1; i<1024; i++ ) index[i]=index[i-1]+count[i-1];
-  for ( i=0; i<N; i++ ) dest[index[((source[i])>>(byte*8))&0xff]++] = source[i];
+  for ( i=1; i<1024; i++ ) 
+	  index[i]=index[i-1]+count[i-1];
+  for ( i=0; i<N; i++ ) 
+	  dest[index[((source[i])>>(byte*8))&0xff]++] = source[i];
 }
 
 void radixsort (long *source, long *temp, long N)
@@ -36,8 +39,8 @@ void make_random (long *data, long N)
   for ( int i=0; i<N; i++ ) 
   {
     data[i]=rand() % LIMIT;
-    //cout << data[i] << "   ";
-    printf("%5d", data[i]);
+    cout << setw(5) << data[i] << "   ";
+    //printf("%5d", data[i]);
   }
   cout << "\n\n\n";
 }
@@ -50,8 +53,8 @@ int main (void)
   make_random(data, LIMIT);
   radixsort (data, temp, LIMIT);
   for ( int i=0; i<LIMIT; i++ ) 
-    //cout << data[i] << "   ";
-    printf("%5d", data[i]);
-  cout << "\n";
+    cout << setw(5) << data[i];
+    //printf("%5d", data[i]);
+  cout << endl;
   return 0;
 }

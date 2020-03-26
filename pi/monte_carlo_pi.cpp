@@ -1,27 +1,31 @@
 /* 
-    Calculate pi using Monte-Carlo method
+ *  Calculate pi using Monte-Carlo method
+ *	
+ *	g++ -Wall -O2 -std=c++11 -o monte_carlo_pi.exe monte_carlo_pi.cpp -fopenmp -lgomp
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 int main(void)
 {
     double r1, r2, pi;
     double m, n;
-    long niter;
+    long niter, j;
     
-    m = n = 0;
+    m = n = j = 0;
     
     printf("Enter the number of iterations used to estimate pi: ");
-    scanf("%d",&niter);
-    
-    srand(SEED);
+    scanf("%ld", &niter);
+
+	printf("\nRAND_MAX: %d\m", RAND_MAX);
+    srand(time(NULL ));
 
     while (1)
     {
         #pragma omp parallel for reduction(+:m,n) private(r1,r2)
-        for (long i=0; i<niter; i++)
+        for (long i = 0; i < niter; i++)
         {
             m++;
             r1 = (double)rand() / 16384.0 - 1.0;
@@ -31,7 +35,7 @@ int main(void)
                 n++;
         }
         pi = 4.0 * n / m;
-        printf("%.10f\r", pi);
+        printf("[%10ld] %.14f\r", ++j, pi);
     }
     
     return 0;

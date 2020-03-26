@@ -1,9 +1,9 @@
 /*
  * $ g++ -Wall -O2 -std=c++11 -I C:\Tools\boost_1_69_0 
- *                            -L C:\Tools\boost_1_69_0\stage/lib
+ *                            -L C:\Tools\boost_1_69_0\stage#lib
  *                            -o fibonacci_task_region_handle_gen.exe 
  *                               fibonacci_task_region_handle_gen.cpp 
- *                            -l libboost_thread-mgw49-mt-x64-1_69
+ *                            -l libboost_thread-mgw81-mt-x64-1_69
  */
 #include <iostream>
 
@@ -69,7 +69,7 @@ int fib_task_region_gen( Ex& ex, int n)
 int main()
 {
   boost::basic_thread_pool tp; // (1)
-  for (int i = 0; i < 20; ++i) {
+  for (int i = 0; i < 25; ++i) {
     std::cout << fib_task_region_gen(tp, i) << " ";
   }
   std::cout << std::endl;
