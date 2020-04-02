@@ -19,7 +19,7 @@ int main(void)
     printf("Enter the number of iterations used to estimate pi: ");
     scanf("%ld", &niter);
 
-	printf("\nRAND_MAX: %d\m", RAND_MAX);
+	printf("\nRAND_MAX: %d\n\n", RAND_MAX);
     srand(time(NULL ));
 
     while (1)

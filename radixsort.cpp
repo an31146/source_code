@@ -1,3 +1,6 @@
+/*
+ * g++ -Wall -O2 -std=c++11 -o radixsort.exe radixsort.cpp
+ */
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>

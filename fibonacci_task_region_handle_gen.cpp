@@ -1,6 +1,6 @@
 /*
  * $ g++ -Wall -O2 -std=c++11 -I C:\Tools\boost_1_69_0 
- *                            -L C:\Tools\boost_1_69_0\stage#lib
+ *                            -L C:\Tools\boost_1_69_0\stage\lib
  *                            -o fibonacci_task_region_handle_gen.exe 
  *                               fibonacci_task_region_handle_gen.cpp 
  *                            -l libboost_thread-mgw81-mt-x64-1_69
