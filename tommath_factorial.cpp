@@ -17,8 +17,18 @@ int main()
     for(unsigned i = 1; i <= 1000; ++i)
         v *= i;
 
-    cout << v << endl; // prints 1000!
-    cout << hex << v << endl; // prints 1000! in hex format
+    cout << v << endl << endl; // prints 1000!
+    cout << hex << v << endl << endl; // prints 1000! in hex format
+	
+	cout << "Press Enter: ";
+	getchar();
+	
+	// Do more arithmetic
+	for(unsigned i = 1001; i <= 2000; i++)
+		v *= i;
+
+    cout << endl << v << endl << endl; // prints 1000!
+    cout << hex << v << endl << endl; // prints 1000! in hex format
 
     try {
         cout << hex << -v << endl; // Ooops! can't print a negative value in hex format!
