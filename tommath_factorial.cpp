@@ -27,7 +27,7 @@ int main()
 	for(unsigned i = 1001; i <= 2000; i++)
 		v *= i;
 
-    cout << endl << v << endl << endl; // prints 1000!
+    cout << endl << dec << v << endl << endl; // prints 1000!
     cout << hex << v << endl << endl; // prints 1000! in hex format
 
     try {

@@ -9,7 +9,7 @@
 #include <random>   
 
 #define STARS 108
-#define REPS 1000000
+#define REPS 5000000
 
 using namespace std;
 
@@ -50,8 +50,8 @@ int main()
 		//int x = neg(gen);
 		//int x = p_dist(lcg);
 		//int x = p_dist(sub_eng);
-		int x = p_dist(gen);
-		//int x = bi(gen);
+		//int x = p_dist(gen);
+		int x = bi(gen);
 		//int x = bi(lcg);
 		//int x = bi(sub_eng);
 		//int x = round(norm(lcg));
