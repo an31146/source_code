@@ -139,11 +139,11 @@ public class BigInteger
     // maximum length of the BigInteger in uint (4 bytes)
     // change this to suit the required level of precision.
 
-    private const int maxLength = 70;
+    private const int maxLength = 150;
 
-	// Number of rounds to performs tests
-	private const int ROUNDS = 10;
-	
+    // Number of rounds to performs tests
+    private const int ROUNDS = 10;
+    
     // primes smaller than 2000 to test the generated prime number
 
     public static readonly int[] primesBelow2000 = {
@@ -683,14 +683,18 @@ public class BigInteger
             {
                 if((bi1.data[lastPos] & 0x80000000) != 0)     // bi1 negative
                 {
-                        bi1Neg = true; bi1 = -bi1;
+                    bi1Neg = true;
+                    bi1 = -bi1;
                 }
                 if((bi2.data[lastPos] & 0x80000000) != 0)     // bi2 negative
                 {
-                        bi2Neg = true; bi2 = -bi2;
+                    bi2Neg = true; 
+                    bi2 = -bi2;
                 }
             }
-            catch(Exception) {}
+            catch(Exception) {
+                throw(new ArithmeticException("Negation error."));
+            }
 
             BigInteger result = new BigInteger();
 
@@ -719,7 +723,7 @@ public class BigInteger
             }
             catch(Exception)
             {
-                    throw(new ArithmeticException("Multiplication overflow."));
+                throw(new ArithmeticException("Multiplication overflow."));
             }
 
 
@@ -1090,7 +1094,7 @@ public class BigInteger
         //Console.WriteLine("Before bi1 Len = {0}, bi2 Len = {1}", bi1.dataLength, bi2.dataLength);
 
         for(int i = 0; i < bi1.dataLength; i++)
-                remainder[i] = bi1.data[i];
+            remainder[i] = bi1.data[i];
         shiftLeft(remainder, shift);
         bi2 = bi2 << shift;
 
@@ -1138,7 +1142,7 @@ public class BigInteger
             }
 
             for(int h = 0; h < divisorLen; h++)
-                    dividendPart[h] = remainder[pos-h];
+                dividendPart[h] = remainder[pos-h];
 
             BigInteger kk = new BigInteger(dividendPart);
             BigInteger ss = bi2 * (long)q_hat;
@@ -1862,9 +1866,9 @@ public class BigInteger
         {
             // test small numbers
             if(thisVal.data[0] == 0 || thisVal.data[0] == 1)
-                    return false;
+                return false;
             else if(thisVal.data[0] == 2 || thisVal.data[0] == 3)
-                    return true;
+                return true;
         }
 
         if((thisVal.data[0] & 0x1) == 0)     // even numbers
@@ -1893,7 +1897,7 @@ public class BigInteger
 
                 // make sure "a" is not 0
                 if(byteLen > 1 || (byteLen == 1 && a.data[0] != 1))
-                        done = true;
+                    done = true;
             }
 
             // check whether a factor exists (fix for version 1.03)
@@ -2069,9 +2073,9 @@ public class BigInteger
     {
         BigInteger thisVal;
         if((this.data[maxLength-1] & 0x80000000) != 0)        // negative
-                thisVal = -this;
+            thisVal = -this;
         else
-                thisVal = this;
+            thisVal = this;
 
         if(thisVal.dataLength == 1)
         {
@@ -2114,7 +2118,7 @@ public class BigInteger
                     done = true;
             }
 
-                    // check whether a factor exists (fix for version 1.03)
+            // check whether a factor exists (fix for version 1.03)
             BigInteger gcdTest = a.gcd(thisVal);
                     if(gcdTest.dataLength == 1 && gcdTest.data[0] != 1)
                             return false;
@@ -2123,16 +2127,16 @@ public class BigInteger
 
             BigInteger expResult = a.modPow(p_sub1_shift, thisVal);
             if(expResult == p_sub1)
-                    expResult = -1;
+                expResult = -1;
 
-                    // calculate Jacobi symbol
-                    BigInteger jacob = Jacobi(a, thisVal);
+            // calculate Jacobi symbol
+            BigInteger jacob = Jacobi(a, thisVal);
 
-                    //Console.WriteLine("a = " + a.ToString(10) + " b = " + thisVal.ToString(10));
-                    //Console.WriteLine("expResult = " + expResult.ToString(10) + " Jacob = " + jacob.ToString(10));
+            //Console.WriteLine("a = " + a.ToString(10) + " b = " + thisVal.ToString(10));
+            //Console.WriteLine("expResult = " + expResult.ToString(10) + " Jacob = " + jacob.ToString(10));
 
-                    // if they are different then it is not prime
-                    if(expResult != jacob)
+            // if they are different then it is not prime
+            if(expResult != jacob)
                 return false;
         }
 
@@ -3093,11 +3097,18 @@ public class BigInteger
         // private and public key
         BigInteger bi_e = new BigInteger("a932b948feed4fb2b692609bd22164fc9edb59fae7880cc1eaff7b3c9626b7e5b241c27a974833b2622ebe09beb451917663d47232488f23a117fc97720f1e7", 16);
         BigInteger bi_d = new BigInteger("4adf2f7a89da93248509347d2ae506d683dd3a16357e859a980c4f77a4e2f7a01fae289f13a851df6e9db5adaa60bfd2b162bbbe31f7c8f828261a6839311929d2cef4f864dde65e556ce43c89bbbf9f1ac5511315847ce9cc8dc92470a747b8792d6a83b0092d2e5ebaf852c85cacf34278efa99160f2f8aa7ee7214de07b7", 16);
+        
+        //BigInteger bi_e = new BigInteger("10001", 16);
         BigInteger bi_n = new BigInteger("e8e77781f36a7b3188d711c2190b560f205a52391b3479cdb99fa010745cbeba5f2adc08e1de6bf38398a0487c4a73610d94ec36f17f3f46ad75e17bc1adfec99839589f45f95ccc94cb2a5c500b477eb3323d8cfab0c8458c96f0147a45d27e45a4d11d54d77684f65d48f15fafcc1ba208e71e921b9bd9017c16a5231af7f", 16);
-
-        Console.WriteLine("e =\n" + bi_e.ToString(10));
-        Console.WriteLine("\nd =\n" + bi_d.ToString(10));
-        Console.WriteLine("\nn =\n" + bi_n.ToString(10) + "\n");
+        
+        BigInteger modInv = bi_d.modInverse(bi_n) + 1;
+        //Console.WriteLine("modInv + 1 =\n" + modInv.ToString());
+        BigInteger dQ = bi_e.modInverse(modInv);
+        //Console.WriteLine("dQ =\n" + dQ.ToString());
+        
+        Console.WriteLine("encrypting exponent =\n" + bi_e.ToString(10));
+        Console.WriteLine("\ndecrypting exponent =\n" + bi_d.ToString(10));
+        Console.WriteLine("\nN =\n" + bi_n.ToString(10) + "\n");
 
         for(int count = 0; count < rounds; count++)
         {
@@ -3126,8 +3137,8 @@ public class BigInteger
 
             Console.Write("Round = " + count);
 
-            // encrypt and decrypt data
-            BigInteger bi_data = new BigInteger(val, t1);
+            // encrypt and decrypt data            
+            BigInteger bi_data = new BigInteger(val);
             BigInteger bi_encrypted = bi_data.modPow(bi_e, bi_n);
             BigInteger bi_decrypted = bi_encrypted.modPow(bi_d, bi_n);
 
@@ -3135,7 +3146,7 @@ public class BigInteger
             if(bi_decrypted != bi_data)
             {
                 Console.WriteLine("\nError at round " + count);
-                            Console.WriteLine(bi_data + "\n");
+                Console.WriteLine("{0}\n{1}\n", bi_data.ToString(), bi_decrypted.ToString());
                 return;
             }
             Console.WriteLine(" <PASSED>.");
@@ -3266,13 +3277,44 @@ public class BigInteger
             BigInteger c = (b+1)*(b+1);
 
             // check that b is the largest integer such that b*b <= a
-            if(c <= a)
+            if (c <= a)
             {
                 Console.WriteLine("\nError at round " + count);
-                            Console.WriteLine(a + "\n");
+                Console.WriteLine(a + "\n");
                 return;
             }
             Console.WriteLine(" <PASSED>.");
+        }
+    }
+
+
+    public static void SqrtTest2(int rounds)
+    {
+        BigInteger BigTwo = new BigInteger(256);
+        
+        for (int i = 0; i < 1000; i++)
+            BigTwo *= 10;
+        
+        for(int count = 0; count < rounds; count++)
+        {
+            BigInteger y = new BigInteger(count + 1);
+            for (int i = 0; i < 220; i++)
+                y *= 100;
+
+            BigInteger x = y.sqrt();
+            BigInteger z = (x+1) * (x+1);
+
+            Console.Write("Round = {0}", count);
+
+            // check that x is the largest integer such that x*x <= z
+            if (z <= x)
+            {
+                Console.WriteLine("\nError at round " + count);
+                Console.WriteLine(x + "\n");
+                return;
+            }
+            Console.WriteLine(" <PASSED>.");
+            Console.WriteLine("\n{0}\n{1}", z, x);
         }
     }
 
@@ -3359,6 +3401,18 @@ public class BigInteger
             (byte)0x2f, (byte)0x17, (byte)0xa7, (byte)0x7f 
         };
         
+        byte[] pseudoPrime6 = { (byte)0x00,
+            (byte)0x03, (byte)0x14, (byte)0x8b, (byte)0x80, (byte)0xa7, (byte)0xf8, (byte)0xf4, 
+            (byte)0x73, (byte)0x9f, (byte)0x07, (byte)0x07, (byte)0xf7, (byte)0x54, (byte)0xf5, 
+            (byte)0xf5, (byte)0x5f, (byte)0x65, (byte)0x5d, (byte)0xe9, (byte)0x83, (byte)0x3c, 
+            (byte)0x79, (byte)0x8c, (byte)0xcb, (byte)0xde, (byte)0xfb, (byte)0x99, (byte)0x66, 
+            (byte)0x10, (byte)0x7f, (byte)0x37, (byte)0xa9, (byte)0x07, (byte)0x21, (byte)0x58, 
+            (byte)0xa9, (byte)0x33, (byte)0x04, (byte)0x06, (byte)0xa7, (byte)0xdc, (byte)0x7a, 
+            (byte)0xcd, (byte)0xb2, (byte)0xce, (byte)0xb0, (byte)0xa9, (byte)0xcf, (byte)0x0e, 
+            (byte)0x49, (byte)0xed, (byte)0x2e, (byte)0x5f, (byte)0x4d, (byte)0x3d, (byte)0x9e, 
+            (byte)0xb3, (byte)0xb9, (byte)0x13, (byte)0x3d
+        };
+        
         Console.WriteLine("List of primes < 2000\n---------------------");
         int limit = 100, count = 0;
         for(int i = 0; i < 2000; i++)
@@ -3383,12 +3437,12 @@ public class BigInteger
         Console.WriteLine("\nCount = " + count);
 
 
-        BigInteger bi1 = new BigInteger(pseudoPrime5);
-        Console.WriteLine("\n\nPrimality testing for\n" + bi1.ToString() + "\n");
-        Console.WriteLine("SolovayStrassenTest(5) = " + bi1.SolovayStrassenTest(5));
-        Console.WriteLine("RabinMillerTest(5) = " + bi1.RabinMillerTest(5));
-        Console.WriteLine("FermatLittleTest(5) = " + bi1.FermatLittleTest(5));
-        Console.WriteLine("isProbablePrime() = " + bi1.isProbablePrime());
+        BigInteger bigInt1 = new BigInteger(pseudoPrime6);
+        Console.WriteLine("\n\nPrimality testing for\n" + bigInt1.ToString() + "\n");
+        Console.WriteLine("SolovayStrassenTest(5) = " + bigInt1.SolovayStrassenTest(5));
+        Console.WriteLine("RabinMillerTest(5) = " + bigInt1.RabinMillerTest(5));
+        Console.WriteLine("FermatLittleTest(5) = " + bigInt1.FermatLittleTest(5));
+        Console.WriteLine("isProbablePrime() = " + bigInt1.isProbablePrime());
 
         Console.Write("\nGenerating 512-bits random pseudoprime. . .");
         Random rand = new Random();
@@ -3396,11 +3450,19 @@ public class BigInteger
         Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
 
         //int dwStart = System.Environment.TickCount;
-		Console.WriteLine("SqrtTest({0})", ROUNDS);
-		BigInteger.SqrtTest(ROUNDS);
+        
+        Console.WriteLine("SqrtTest2({0})", ROUNDS);
+        BigInteger.SqrtTest2(ROUNDS);
+
+        // Console.WriteLine("RSATest({0})", ROUNDS);
         //BigInteger.MulDivTest(100000);
-        //BigInteger.RSATest(10);
-        //BigInteger.RSATest2(10);
+
+        // Console.WriteLine("RSATest({0})", ROUNDS);
+        // BigInteger.RSATest(ROUNDS);
+
+        //Console.WriteLine("RSATest2({0})", ROUNDS);
+        //BigInteger.RSATest2(ROUNDS);
+        
         //Console.WriteLine(System.Environment.TickCount - dwStart);
 
     }

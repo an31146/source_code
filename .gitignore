@@ -17,3 +17,5 @@ mono/Microsoft.Net.Compilers.Toolset.3.5.0/
 *.log
 *.txt
 *.zip
+bin/
+obj/

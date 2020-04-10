@@ -7,6 +7,10 @@
 
 #define LOGPRIME_SCALE_TINY 2
 
+#ifndef M_LN2
+	#define M_LN2 0.69314718055994530942
+#endif
+	
 static const uint8_t logprime_list[] = 
 {
     2,  3,  5,  6,  7,  7,  8,  8,  9,  10,

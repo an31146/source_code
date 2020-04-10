@@ -12,15 +12,16 @@ benefit from your work.
 $Id$
 --------------------------------------------------------------------*/
 
-//
-// gcc.exe -Wall -O2 -o tiny_quadsieve.exe tiny_quadsieve.c prime_delta.c -l gmp
-//
+/*
+ * gcc.exe -Wall -O2 -std=c99 -IC:\Tools\gmp-6.1.2 -o tiny_quadsieve.exe tiny_quadsieve.c prime_delta.c -lgmp
+*/
 
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "tiny_quadsieve.h"
 
 /* Basic MPQS implementation, intended for tiny inputs. Note
@@ -85,12 +86,14 @@ static uint32_t init_one_fb_tiny(uint32_t fb_size, mpz_ptr n, tiny_fb *factor_ba
 		}
 		else if (mpz_legendre_ui(nmodp, prime) == 1) {
 			fbptr->prime = (uint16_t)prime;
+			printf("%8" PRIu16, (uint16_t)prime);
 			fbptr->logprime = logprime_list[j];
 			fbptr->modsqrt = (uint16_t)sqrt(nmodp) % prime;
 			i++;
 		}
 	}
-
+	printf("\n\n");
+	
 	return i;
 }   // init_one_fb_tiny
 
@@ -728,7 +731,9 @@ uint32_t tinyqs(mpz_srcptr n, mpz_ptr factor1, mpz_ptr factor2)
 	bound = params->factor_base[params->fb_size - 1].prime;
 	bound *= large_prime_mult;
 	params->large_prime_max = bound;
+	printf("params->large_prime_max = %" PRIu16 "\n", bound);
 	params->error_bits = (uint32_t)(LOGPRIME_SCALE_TINY * (log((double)bound) / M_LN2 + 1));
+
 	for (i = 0; i < (1 << LOG2_PARTIAL_TABLE_SIZE); i++)
 		params->partial_list[i].large_prime = 0;
 
