@@ -142,7 +142,7 @@ public class BigInteger
     private const int maxLength = 150;
 
     // Number of rounds to performs tests
-    private const int ROUNDS = 10;
+    private const int ROUNDS = 100;
     
     // primes smaller than 2000 to test the generated prime number
 
@@ -981,12 +981,12 @@ public class BigInteger
         BigInteger bi = (BigInteger)o;
 
         if(this.dataLength != bi.dataLength)
-                return false;
+            return false;
 
         for(int i = 0; i < this.dataLength; i++)
         {
-                if(this.data[i] != bi.data[i])
-                        return false;
+            if(this.data[i] != bi.data[i])
+                    return false;
         }
         return true;
     }
@@ -1532,7 +1532,7 @@ public class BigInteger
 
 
     //***********************************************************************
-    // Returns a hex string showing the contains of the BigInteger
+    // Returns a hex string showing the contents of the BigInteger
     //
     // Examples
     // -------
@@ -1557,6 +1557,13 @@ public class BigInteger
         return result;
     }
 
+
+    //***********************************************************************
+    // Returns a byte array representing of the contents of the BigInteger
+    // by reversing the order returned by calling getBytes()
+    // The lowest index contains the LSB.
+    // 
+    //***********************************************************************
 
     public byte[] ToByteArray()
     {
@@ -3054,7 +3061,7 @@ public class BigInteger
             while(val2[0] == 0)
                 val2[0] = (byte)(rand.NextDouble() * 256);
 
-            Console.WriteLine(count);
+            Console.Write("Round [{0,8}]: ", count);
             BigInteger bn1 = new BigInteger(val, t1);
             BigInteger bn2 = new BigInteger(val2, t2);
 
@@ -3079,6 +3086,7 @@ public class BigInteger
                 Console.WriteLine(bn5 + "\n");
                 return;
             }
+            Console.WriteLine(" <PASSED>.");
         }
     }
 
@@ -3307,14 +3315,14 @@ public class BigInteger
             Console.Write("Round = {0}", count);
 
             // check that x is the largest integer such that x*x <= z
-            if (z <= x)
+            if (z <= y)
             {
                 Console.WriteLine("\nError at round " + count);
                 Console.WriteLine(x + "\n");
                 return;
             }
-            Console.WriteLine(" <PASSED>.");
             Console.WriteLine("\n{0}\n{1}", z, x);
+            Console.WriteLine(" <PASSED>.");
         }
     }
 
@@ -3390,27 +3398,29 @@ public class BigInteger
         };
         
         byte[] pseudoPrime5 = { (byte)0x00,
-            (byte)0x5b, (byte)0x15, (byte)0x92, (byte)0x27, (byte)0x43, (byte)0xfd, (byte)0x2b, 
-            (byte)0x31, (byte)0x88, (byte)0x1a, (byte)0x34, (byte)0x99, (byte)0xf6, (byte)0x88, 
-            (byte)0xc6, (byte)0xcc, (byte)0xea, (byte)0xd3, (byte)0x0a, (byte)0x23, (byte)0x79, 
-            (byte)0x54, (byte)0xa2, (byte)0x38, (byte)0xae, (byte)0x33, (byte)0x69, (byte)0x01, 
-            (byte)0xc1, (byte)0x38, (byte)0xfb, (byte)0xd2, (byte)0xe7, (byte)0xdc, (byte)0xb3, 
-            (byte)0x49, (byte)0x52, (byte)0x39, (byte)0x84, (byte)0xa2, (byte)0x56, (byte)0x03, 
-            (byte)0x4e, (byte)0x95, (byte)0x3f, (byte)0x21, (byte)0xbd, (byte)0xd7, (byte)0x79, 
-            (byte)0x30, (byte)0xfa, (byte)0xb2, (byte)0x8a, (byte)0xe5, (byte)0x14, (byte)0x18, 
-            (byte)0x2f, (byte)0x17, (byte)0xa7, (byte)0x7f 
+            (byte)0x5b, (byte)0x15, (byte)0x92, (byte)0x27, (byte)0x43, (byte)0xfd, 
+            (byte)0x2b, (byte)0x31, (byte)0x88, (byte)0x1a, (byte)0x34, (byte)0x99, 
+            (byte)0xf6, (byte)0x88, (byte)0xc6, (byte)0xcc, (byte)0xea, (byte)0xd3, 
+            (byte)0x0a, (byte)0x23, (byte)0x79, (byte)0x54, (byte)0xa2, (byte)0x38, 
+            (byte)0xae, (byte)0x33, (byte)0x69, (byte)0x01, (byte)0xc1, (byte)0x38, 
+            (byte)0xfb, (byte)0xd2, (byte)0xe7, (byte)0xdc, (byte)0xb3, (byte)0x49, 
+            (byte)0x52, (byte)0x39, (byte)0x84, (byte)0xa2, (byte)0x56, (byte)0x03,
+            (byte)0x4e, (byte)0x95, (byte)0x3f, (byte)0x21, (byte)0xbd, (byte)0xd7, 
+            (byte)0x79, (byte)0x30, (byte)0xfa, (byte)0xb2, (byte)0x8a, (byte)0xe5, 
+            (byte)0x14, (byte)0x18, (byte)0x2f, (byte)0x17, (byte)0xa7, (byte)0x7f 
         };
         
         byte[] pseudoPrime6 = { (byte)0x00,
-            (byte)0x03, (byte)0x14, (byte)0x8b, (byte)0x80, (byte)0xa7, (byte)0xf8, (byte)0xf4, 
-            (byte)0x73, (byte)0x9f, (byte)0x07, (byte)0x07, (byte)0xf7, (byte)0x54, (byte)0xf5, 
-            (byte)0xf5, (byte)0x5f, (byte)0x65, (byte)0x5d, (byte)0xe9, (byte)0x83, (byte)0x3c, 
-            (byte)0x79, (byte)0x8c, (byte)0xcb, (byte)0xde, (byte)0xfb, (byte)0x99, (byte)0x66, 
-            (byte)0x10, (byte)0x7f, (byte)0x37, (byte)0xa9, (byte)0x07, (byte)0x21, (byte)0x58, 
-            (byte)0xa9, (byte)0x33, (byte)0x04, (byte)0x06, (byte)0xa7, (byte)0xdc, (byte)0x7a, 
-            (byte)0xcd, (byte)0xb2, (byte)0xce, (byte)0xb0, (byte)0xa9, (byte)0xcf, (byte)0x0e, 
-            (byte)0x49, (byte)0xed, (byte)0x2e, (byte)0x5f, (byte)0x4d, (byte)0x3d, (byte)0x9e, 
-            (byte)0xb3, (byte)0xb9, (byte)0x13, (byte)0x3d
+            (byte)0x03, (byte)0x14, (byte)0x8b, (byte)0x80, (byte)0xa7, (byte)0xf8, 
+            (byte)0xf4, (byte)0x73, (byte)0x9f, (byte)0x07, (byte)0x07, (byte)0xf7, 
+            (byte)0x54, (byte)0xf5, (byte)0xf5, (byte)0x5f, (byte)0x65, (byte)0x5d, 
+            (byte)0xe9, (byte)0x83, (byte)0x3c, (byte)0x79, (byte)0x8c, (byte)0xcb, 
+            (byte)0xde, (byte)0xfb, (byte)0x99, (byte)0x66, (byte)0x10, (byte)0x7f, 
+            (byte)0x37, (byte)0xa9, (byte)0x07, (byte)0x21, (byte)0x58, (byte)0xa9, 
+            (byte)0x33, (byte)0x04, (byte)0x06, (byte)0xa7, (byte)0xdc, (byte)0x7a, 
+            (byte)0xcd, (byte)0xb2, (byte)0xce, (byte)0xb0, (byte)0xa9, (byte)0xcf, 
+            (byte)0x0e, (byte)0x49, (byte)0xed, (byte)0x2e, (byte)0x5f, (byte)0x4d, 
+            (byte)0x3d, (byte)0x9e, (byte)0xb3, (byte)0xb9, (byte)0x13, (byte)0x3d
         };
         
         Console.WriteLine("List of primes < 2000\n---------------------");
@@ -3451,11 +3461,11 @@ public class BigInteger
 
         //int dwStart = System.Environment.TickCount;
         
-        Console.WriteLine("SqrtTest2({0})", ROUNDS);
-        BigInteger.SqrtTest2(ROUNDS);
+        // Console.WriteLine("SqrtTest2({0})", ROUNDS);
+        // BigInteger.SqrtTest2(ROUNDS);
 
-        // Console.WriteLine("RSATest({0})", ROUNDS);
-        //BigInteger.MulDivTest(100000);
+        // Console.WriteLine("MulDivTest({0})", ROUNDS);
+        // BigInteger.MulDivTest(ROUNDS);
 
         // Console.WriteLine("RSATest({0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);
