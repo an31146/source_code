@@ -171,7 +171,7 @@ public class BigInteger
 
 
     private uint[] data = null;             // stores bytes from the Big Integer
-    public int dataLength;                 // number of actual chars used
+    public int dataLength;                  // number of actual chars used
 
 
     //***********************************************************************
@@ -201,6 +201,9 @@ public class BigInteger
         while(value != 0 && dataLength < maxLength)
         {
             data[dataLength] = (uint)(value & 0xFFFFFFFF);
+            // Console.WriteLine("data[]:  {0}\nvalue: 0x{1:x8}\ndataLength: {2}\n", data[dataLength], value, dataLength);
+            // if ((value & 0xFFFFFFFF) == 4294967289)
+                // Console.ReadLine();
             value >>= 32;
             dataLength++;
         }
@@ -208,12 +211,12 @@ public class BigInteger
         if(tempVal > 0)         // overflow check for +ve value
         {
             if(value != 0 || (data[maxLength-1] & 0x80000000) != 0)
-                throw(new ArithmeticException("Positive overflow in constructor."));
+                throw new ArithmeticException("Positive overflow in constructor.");
         }
         else if(tempVal < 0)    // underflow check for -ve value
         {
             if(value != -1 || (data[dataLength-1] & 0x80000000) == 0)
-                throw(new ArithmeticException("Negative underflow in constructor."));
+                throw new ArithmeticException("Negative underflow in constructor.");
         }
 
         if(dataLength == 0)
@@ -579,46 +582,46 @@ public class BigInteger
 
     public static BigInteger operator -(BigInteger bi1, BigInteger bi2)
     {
-            BigInteger result = new BigInteger();
+        BigInteger result = new BigInteger();
 
-            result.dataLength = (bi1.dataLength > bi2.dataLength) ? bi1.dataLength : bi2.dataLength;
+        result.dataLength = (bi1.dataLength > bi2.dataLength) ? bi1.dataLength : bi2.dataLength;
 
-            long carryIn = 0;
-            for(int i = 0; i < result.dataLength; i++)
-            {
-                long diff;
+        long carryIn = 0;
+        for(int i = 0; i < result.dataLength; i++)
+        {
+            long diff;
 
-                diff = (long)bi1.data[i] - (long)bi2.data[i] - carryIn;
-                result.data[i] = (uint)(diff & 0xFFFFFFFF);
+            diff = (long)bi1.data[i] - (long)bi2.data[i] - carryIn;
+            result.data[i] = (uint)(diff & 0xFFFFFFFF);
 
-                if(diff < 0)
-                        carryIn = 1;
-                else
-                        carryIn = 0;
-            }
+            if(diff < 0)
+                    carryIn = 1;
+            else
+                    carryIn = 0;
+        }
 
-            // roll over to negative
-            if(carryIn != 0)
-            {
-                for(int i = result.dataLength; i < maxLength; i++)
-                        result.data[i] = 0xFFFFFFFF;
-                result.dataLength = maxLength;
-            }
+        // roll over to negative
+        if(carryIn != 0)
+        {
+            for(int i = result.dataLength; i < maxLength; i++)
+                result.data[i] = 0xFFFFFFFF;
+            result.dataLength = maxLength;
+        }
 
-            // fixed in v1.03 to give correct datalength for a - (-b)
-            while(result.dataLength > 1 && result.data[result.dataLength-1] == 0)
-                result.dataLength--;
+        // fixed in v1.03 to give correct datalength for a - (-b)
+        while(result.dataLength > 1 && result.data[result.dataLength-1] == 0)
+            result.dataLength--;
 
-            // overflow check
+        // overflow check
 
-            int lastPos = maxLength - 1;
-            if((bi1.data[lastPos] & 0x80000000) != (bi2.data[lastPos] & 0x80000000) &&
-               (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
-            {
-                throw (new ArithmeticException());
-            }
+        int lastPos = maxLength - 1;
+        if ((bi1.data[lastPos] & 0x80000000)    != (bi2.data[lastPos] & 0x80000000) &&
+            (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
+        {
+            throw (new ArithmeticException());
+        }
 
-            return result;
+        return result;
     }
 
 
@@ -1586,7 +1589,7 @@ public class BigInteger
     public BigInteger modPow(BigInteger exp, BigInteger n)
     {
         if((exp.data[maxLength-1] & 0x80000000) != 0)
-                throw (new ArithmeticException("Positive exponents only."));
+                throw new ArithmeticException("Positive exponents only.");
 
         BigInteger resultNum = 1;
         BigInteger tempNum;
@@ -1649,6 +1652,21 @@ public class BigInteger
     }
 
 
+    public BigInteger Pow(int exp)
+    {
+        BigInteger result = new BigInteger(1);
+        
+        while (0 < exp--)
+        {
+            result *= this;
+
+            // if ((exp & 1) == 0)
+                // result *= result;
+            // Console.Write(exp & 1);
+            // exp >>= 1;
+        }
+        return result;
+    }
 
     //***********************************************************************
     // Fast calculation of modular reduction using Barrett's reduction.
@@ -2199,14 +2217,18 @@ public class BigInteger
         long D = 5, sign = -1, dCount = 0;
         bool done = false;
 
+        // Console.WriteLine("LucasStrongTestHelper...");
         while(!done)
         {
-            int Jresult = BigInteger.Jacobi(D, thisVal);
+            int Jresult = BigInteger.Jacobi(D, thisVal);        // Parameters are initialized as (BigInteger(long), BigInteger thisVal)
 
             if(Jresult == -1)
-                done = true;    // J(D, this) = 1
+            {
+                done = true;    //  Jacobi(D, this) = -1
+            }
             else
             {
+                // Console.WriteLine("Is it here?  Math.Abs(D)= {0}", Math.Abs(D));
                 if(Jresult == 0 && Math.Abs(D) < thisVal)       // divisor found
                     return false;
 
@@ -2218,11 +2240,13 @@ public class BigInteger
                         return false;
                 }
 
-                //Console.WriteLine(D);
+                // Console.WriteLine(D);
                 D = (Math.Abs(D) + 2) * sign;
+                // Console.WriteLine("Is it here?  D= {0}", D);
                 sign = -sign;
             }
             dCount++;
+            // Console.WriteLine("Is it here?  dCount= {0}\ndone: {1}", dCount, done);
         }
 
         long Q = (1 - D) >> 2;
@@ -2266,6 +2290,7 @@ public class BigInteger
 
         constant = constant / thisVal;
 
+        // Console.WriteLine("LucasSequenceHelper...");
         BigInteger[] lucas = LucasSequenceHelper(1, Q, t, thisVal, constant, 0);
         bool isPrime = false;
 
@@ -2284,13 +2309,13 @@ public class BigInteger
                 lucas[1] = thisVal.BarrettReduction(lucas[1] * lucas[1], thisVal, constant);
                 lucas[1] = (lucas[1] - (lucas[2] << 1)) % thisVal;
 
-                //lucas[1] = ((lucas[1] * lucas[1]) - (lucas[2] << 1)) % thisVal;
+                // lucas[1] = ((lucas[1] * lucas[1]) - (lucas[2] << 1)) % thisVal;
 
                 if((lucas[1].dataLength == 1 && lucas[1].data[0] == 0))
                     isPrime = true;
             }
 
-            lucas[2] = thisVal.BarrettReduction(lucas[2] * lucas[2], thisVal, constant);     //Q^k
+            lucas[2] = thisVal.BarrettReduction(lucas[2] * lucas[2], thisVal, constant);     // Q^k
         }
 
 
@@ -2390,7 +2415,10 @@ public class BigInteger
     {
         BigInteger thisVal;
         if((this.data[maxLength-1] & 0x80000000) != 0)        // negative
+        {
             thisVal = -this;
+            Console.WriteLine("-ve");
+        }
         else
             thisVal = this;
 
@@ -2413,7 +2441,7 @@ public class BigInteger
             BigInteger divisor = primesBelow2000[p];
 
             if(divisor >= thisVal)
-                    break;
+                break;
 
             BigInteger resultNum = thisVal % divisor;
             if(resultNum.IntValue() == 0)
@@ -2428,7 +2456,7 @@ public class BigInteger
         // Perform BASE 2 Rabin-Miller Test
 
         // calculate values of s and t
-        BigInteger p_sub1 = thisVal - (new BigInteger(1));
+        BigInteger p_sub1 = thisVal - new BigInteger(1);
         int s = 0;
 
         for(int index = 0; index < p_sub1.dataLength; index++)
@@ -2472,7 +2500,10 @@ public class BigInteger
 
         // if number is strong pseudoprime to base 2, then do a strong lucas test
         if(result)
+        {
+            // Console.WriteLine("result: {0}", result);
             result = LucasStrongTestHelper(thisVal);
+        }
 
         return result;
     }
@@ -2520,13 +2551,17 @@ public class BigInteger
 
     public static int Jacobi(BigInteger a, BigInteger b)
     {
+        // Console.WriteLine("a = {0}", a);
         // Jacobi defined only for odd integers
         if((b.data[0] & 0x1) == 0)
             throw (new ArgumentException("Jacobi defined only for odd integers."));
 
-        if(a >= b)      a %= b;
-        if(a.dataLength == 1 && a.data[0] == 0)      return 0;  // a == 0
-        if(a.dataLength == 1 && a.data[0] == 1)      return 1;  // a == 1
+        if(a >= b)
+            a %= b;
+        if(a.dataLength == 1 && a.data[0] == 0)
+            return 0;  // a == 0
+        if(a.dataLength == 1 && a.data[0] == 1)
+            return 1;  // a == 1
 
         if(a < 0)
         {
@@ -2798,6 +2833,7 @@ public class BigInteger
         }
         result.dataLength = (int)bytePos;
 
+        int j = 0;
         for(int i = (int)bytePos - 1; i >= 0; i--)
         {
             while(mask != 0)
@@ -2807,16 +2843,49 @@ public class BigInteger
 
                 // undo the guess if its square is larger than this
                 if((result * result) > this)
-                        result.data[i] ^= mask;
+                    result.data[i] ^= mask;
 
                 mask >>= 1;
+                j++;
             }
             mask = 0x80000000;
+            j++;
         }
+        Console.WriteLine("iterations: {0}", j);
         return result;
     }
 
 
+    BigInteger nthRoot(int n) {
+        if (this < new BigInteger(0) || n <= 0) {
+            throw new ArgumentException("Illegal argument.");
+        }
+ 
+        int n1 = n - 1;
+        BigInteger n2 = new BigInteger(n);
+        BigInteger n3 = new BigInteger(n1);
+        BigInteger c = new BigInteger(1);
+        BigInteger d = (n3 + this) / n2;
+        BigInteger e = (n3 * d + this / d.Pow(n1)) / n2;
+        BigInteger f = new BigInteger();
+
+        int i = 0;
+        while (!c.Equals(d) && !c.Equals(e)) {
+            c = d;
+            d = e;
+            f = e.Pow(n1);
+            // Console.WriteLine("{0}\n{1}\n", f, n2);
+            // Console.ReadLine();
+            e = (n3 * e + this / e.Pow(n1)) / n2;
+            i++;
+        }
+        Console.WriteLine("iterations: {0}", i);
+        if (d < e) {
+            return d;
+        }
+        return e;
+    }
+    
     //***********************************************************************
     // Returns the k_th number in the Lucas Sequence reduced modulo n.
     //
@@ -3001,6 +3070,7 @@ public class BigInteger
         result[1] = v;
         result[2] = Q_k;
 
+        // Console.WriteLine("Exiting LucasSequenceHelper.");
         return result;
     }
 
@@ -3300,19 +3370,21 @@ public class BigInteger
     {
         BigInteger BigTwo = new BigInteger(256);
         
-        for (int i = 0; i < 1000; i++)
-            BigTwo *= 10;
+        for (int i = 0; i < 500; i++)
+            BigTwo *= 100;
+        
+        Console.WriteLine(BigTwo.sqrt());
         
         for(int count = 0; count < rounds; count++)
         {
             BigInteger y = new BigInteger(count + 1);
-            for (int i = 0; i < 220; i++)
+            for (int i = 0; i < 250; i++)
                 y *= 100;
 
             BigInteger x = y.sqrt();
             BigInteger z = (x+1) * (x+1);
 
-            Console.Write("Round = {0}", count);
+            Console.Write("\nRound: {0}", count);
 
             // check that x is the largest integer such that x*x <= z
             if (z <= y)
@@ -3321,7 +3393,7 @@ public class BigInteger
                 Console.WriteLine(x + "\n");
                 return;
             }
-            Console.WriteLine("\n{0}\n{1}", z, x);
+            Console.WriteLine("\nz = {0}\nx = {1}", z, x);
             Console.WriteLine(" <PASSED>.");
         }
     }
@@ -3420,12 +3492,12 @@ public class BigInteger
             (byte)0x33, (byte)0x04, (byte)0x06, (byte)0xa7, (byte)0xdc, (byte)0x7a, 
             (byte)0xcd, (byte)0xb2, (byte)0xce, (byte)0xb0, (byte)0xa9, (byte)0xcf, 
             (byte)0x0e, (byte)0x49, (byte)0xed, (byte)0x2e, (byte)0x5f, (byte)0x4d, 
-            (byte)0x3d, (byte)0x9e, (byte)0xb3, (byte)0xb9, (byte)0x13, (byte)0x3d
+            (byte)0x3d, (byte)0x9e, (byte)0xb3, (byte)0xb9, (byte)0x18, (byte)0x9f  
         };
         
         Console.WriteLine("List of primes < 2000\n---------------------");
         int limit = 100, count = 0;
-        for(int i = 0; i < 2000; i++)
+        for(uint i = 0; i < 2000; i++)
         {
             if(i >= limit)
             {
@@ -3433,7 +3505,7 @@ public class BigInteger
                 limit += 100;
             }
 
-            BigInteger p = new BigInteger(-i);
+            BigInteger p = new BigInteger(i);
 
             if(p.isProbablePrime())
             {
@@ -3441,18 +3513,21 @@ public class BigInteger
                     Console.Write("{0,2:G}, ", i);
                 else
                     Console.Write("{0,4:G}, ", i);
+                // Console.WriteLine(p.Pow(10));
+                // Console.ReadLine();
                 count++;
             }
         }
         Console.WriteLine("\nCount = " + count);
 
-
         BigInteger bigInt1 = new BigInteger(pseudoPrime6);
-        Console.WriteLine("\n\nPrimality testing for\n" + bigInt1.ToString() + "\n");
-        Console.WriteLine("SolovayStrassenTest(5) = " + bigInt1.SolovayStrassenTest(5));
-        Console.WriteLine("RabinMillerTest(5) = " + bigInt1.RabinMillerTest(5));
-        Console.WriteLine("FermatLittleTest(5) = " + bigInt1.FermatLittleTest(5));
-        Console.WriteLine("isProbablePrime() = " + bigInt1.isProbablePrime());
+        {
+            Console.WriteLine("\n\nPrimality testing for:\n" + bigInt1.ToString() + "\n");
+            Console.WriteLine("SolovayStrassenTest(5) = " + bigInt1.SolovayStrassenTest(5));
+            Console.WriteLine("RabinMillerTest(5) = " + bigInt1.RabinMillerTest(5));
+            Console.WriteLine("FermatLittleTest(5) = " + bigInt1.FermatLittleTest(5));
+            Console.WriteLine("isProbablePrime() = " + bigInt1.isProbablePrime());
+        }
 
         Console.Write("\nGenerating 512-bits random pseudoprime. . .");
         Random rand = new Random();
@@ -3461,16 +3536,16 @@ public class BigInteger
 
         //int dwStart = System.Environment.TickCount;
         
-        // Console.WriteLine("SqrtTest2({0})", ROUNDS);
-        // BigInteger.SqrtTest2(ROUNDS);
+        Console.WriteLine("SqrtTest2(ROUNDS={0})", ROUNDS);
+        BigInteger.SqrtTest2(ROUNDS);
 
-        // Console.WriteLine("MulDivTest({0})", ROUNDS);
+        // Console.WriteLine("MulDivTest(ROUNDS={0})", ROUNDS);
         // BigInteger.MulDivTest(ROUNDS);
 
-        // Console.WriteLine("RSATest({0})", ROUNDS);
+        // Console.WriteLine("RSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);
 
-        //Console.WriteLine("RSATest2({0})", ROUNDS);
+        //Console.WriteLine("RSATest2(ROUNDS={0})", ROUNDS);
         //BigInteger.RSATest2(ROUNDS);
         
         //Console.WriteLine(System.Environment.TickCount - dwStart);
