@@ -211,12 +211,12 @@ public class BigInteger
         if(tempVal > 0)         // overflow check for +ve value
         {
             if(value != 0 || (data[maxLength-1] & 0x80000000) != 0)
-                throw new ArithmeticException("Positive overflow in constructor.");
+                throw new OverflowException("Positive overflow in constructor.");
         }
         else if(tempVal < 0)    // underflow check for -ve value
         {
             if(value != -1 || (data[dataLength-1] & 0x80000000) == 0)
-                throw new ArithmeticException("Negative underflow in constructor.");
+                throw new OverflowException("Negative underflow in constructor.");
         }
 
         if(dataLength == 0)
@@ -244,7 +244,7 @@ public class BigInteger
         }
 
         if(value != 0 || (data[maxLength-1] & 0x80000000) != 0)
-            throw(new ArithmeticException("Positive overflow in constructor."));
+            throw new OverflowException("Positive overflow in constructor.");
 
         if(dataLength == 0)
             dataLength = 1;
@@ -315,7 +315,7 @@ public class BigInteger
 
 
             if(posVal >= radix)
-                throw(new ArithmeticException("Invalid string in constructor."));
+                throw new ArgumentException("Invalid string in constructor.");
             else
             {
                 if(value[0] == '-')
@@ -331,12 +331,12 @@ public class BigInteger
         if(value[0] == '-')     // negative values
         {
             if((result.data[maxLength-1] & 0x80000000) == 0)
-                throw(new ArithmeticException("Negative underflow in constructor."));
+                throw new OverflowException("Negative underflow in constructor.");
         }
         else    // positive values
         {
             if((result.data[maxLength-1] & 0x80000000) != 0)
-                throw(new ArithmeticException("Positive overflow in constructor."));
+                throw new OverflowException("Positive overflow in constructor.");
         }
 
         data = new uint[maxLength];
@@ -374,7 +374,7 @@ public class BigInteger
 
 
         if(dataLength > maxLength)
-            throw(new ArithmeticException("Byte overflow in constructor."));
+            throw new OverflowException("Byte overflow in constructor.");
 
         data = new uint[maxLength];
 
@@ -413,7 +413,7 @@ public class BigInteger
             dataLength++;
 
         if(dataLength > maxLength || inLen > inData.Length)
-            throw(new ArithmeticException("Byte overflow in constructor."));
+            throw new OverflowException("Byte overflow in constructor.");
 
 
         data = new uint[maxLength];
@@ -451,7 +451,7 @@ public class BigInteger
         dataLength = inData.Length;
 
         if(dataLength > maxLength)
-              throw(new ArithmeticException("Byte overflow in constructor."));
+              throw new OverflowException("Byte overflow in constructor.");
 
         data = new uint[maxLength];
 
@@ -524,7 +524,7 @@ public class BigInteger
         if((bi1.data[lastPos] & 0x80000000) == (bi2.data[lastPos] & 0x80000000) &&
            (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
         {
-            throw (new ArithmeticException());
+            throw new OverflowException("Addition overflow.");
         }
 
         return result;
@@ -570,7 +570,7 @@ public class BigInteger
         if((bi1.data[lastPos] & 0x80000000) == 0 &&
            (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
         {
-            throw (new ArithmeticException("Overflow in ++."));
+            throw new OverflowException("Overflow in increment operator++.");
         }
         return result;
     }
@@ -595,9 +595,9 @@ public class BigInteger
             result.data[i] = (uint)(diff & 0xFFFFFFFF);
 
             if(diff < 0)
-                    carryIn = 1;
+                carryIn = 1;
             else
-                    carryIn = 0;
+                carryIn = 0;
         }
 
         // roll over to negative
@@ -618,7 +618,7 @@ public class BigInteger
         if ((bi1.data[lastPos] & 0x80000000)    != (bi2.data[lastPos] & 0x80000000) &&
             (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
         {
-            throw (new ArithmeticException());
+            throw new OverflowException("Subtraction overflow.");
         }
 
         return result;
@@ -665,7 +665,7 @@ public class BigInteger
             if((bi1.data[lastPos] & 0x80000000) != 0 &&
                (result.data[lastPos] & 0x80000000) != (bi1.data[lastPos] & 0x80000000))
             {
-                throw (new ArithmeticException("Underflow in --."));
+                throw new OverflowException("Underflow in decrement operator--.");
             }
 
             return result;
@@ -696,7 +696,7 @@ public class BigInteger
                 }
             }
             catch(Exception) {
-                throw(new ArithmeticException("Negation error."));
+                throw new ArithmeticException("Negation error.");
             }
 
             BigInteger result = new BigInteger();
@@ -726,7 +726,7 @@ public class BigInteger
             }
             catch(Exception)
             {
-                throw(new ArithmeticException("Multiplication overflow."));
+                throw(new OverflowException("Multiplication overflow."));
             }
 
 
@@ -761,7 +761,7 @@ public class BigInteger
                     }
                 }
 
-                throw(new ArithmeticException("Multiplication overflow."));
+                throw new OverflowException("Multiplication overflow.");
             }
 
             // if input has different signs, then result is -ve
@@ -953,7 +953,7 @@ public class BigInteger
         }
 
         if((bi1.data[maxLength-1] & 0x80000000) == (result.data[maxLength-1] & 0x80000000))
-            throw (new ArithmeticException("Overflow in negation.\n"));
+            throw new OverflowException("Overflow in negation.");
 
         result.dataLength = maxLength;
 
@@ -1489,7 +1489,7 @@ public class BigInteger
     public string ToString(int radix)
     {
         if(radix < 2 || radix > 36)
-            throw (new ArgumentException("Radix must be >= 2 and <= 36"));
+            throw new ArgumentException("Radix must be >= 2 and <= 36");
 
         string charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         string result = "";
@@ -1589,7 +1589,7 @@ public class BigInteger
     public BigInteger modPow(BigInteger exp, BigInteger n)
     {
         if((exp.data[maxLength-1] & 0x80000000) != 0)
-                throw new ArithmeticException("Positive exponents only.");
+            throw new ArgumentException("Positive exponents only.");
 
         BigInteger resultNum = 1;
         BigInteger tempNum;
@@ -1802,7 +1802,7 @@ public class BigInteger
             dwords++;
 
         if(dwords > maxLength)
-            throw (new ArithmeticException("Number of required bits > maxLength."));
+            throw new ArgumentException("Number of required bits > maxLength.");
 
         for(int i = 0; i < dwords; i++)
             data[i] = (uint)(rand.NextDouble() * 0x100000000);
@@ -2554,7 +2554,7 @@ public class BigInteger
         // Console.WriteLine("a = {0}", a);
         // Jacobi defined only for odd integers
         if((b.data[0] & 0x1) == 0)
-            throw (new ArgumentException("Jacobi defined only for odd integers."));
+            throw new ArgumentException("Jacobi defined only for odd integers.");
 
         if(a >= b)
             a %= b;
@@ -2702,7 +2702,7 @@ public class BigInteger
         }
 
         if(r[0].dataLength > 1 || (r[0].dataLength == 1 && r[0].data[0] != 1))
-            throw (new ArithmeticException("No inverse!"));
+            throw new ArithmeticException("No inverse exists!");
 
         BigInteger result = ((p[0] - (p[1] * q[0])) % modulus);
 
@@ -2979,7 +2979,7 @@ public class BigInteger
         BigInteger[] result = new BigInteger[3];
 
         if((k.data[0] & 0x00000001) == 0)
-            throw (new ArgumentException("Argument k must be odd."));
+            throw new ArgumentException("Argument k must be odd.");
 
         int numbits = k.bitCount();
         uint mask = (uint)0x1 << ((numbits & 0x1F) - 1);
@@ -3246,31 +3246,17 @@ public class BigInteger
         byte[] val = new byte[64];
 
         byte[] pseudoPrime1 = {
-            (byte)0x85, (byte)0x84, (byte)0x64, (byte)0xFD, (byte)0x70, (byte)0x6A,
-            (byte)0x9F, (byte)0xF0, (byte)0x94, (byte)0x0C, (byte)0x3E, (byte)0x2C,
-            (byte)0x74, (byte)0x34, (byte)0x05, (byte)0xC9, (byte)0x55, (byte)0xB3,
-            (byte)0x85, (byte)0x32, (byte)0x98, (byte)0x71, (byte)0xF9, (byte)0x41,
-            (byte)0x21, (byte)0x5F, (byte)0x02, (byte)0x9E, (byte)0xEA, (byte)0x56,
-            (byte)0x8D, (byte)0x8C, (byte)0x44, (byte)0xCC, (byte)0xEE, (byte)0xEE,
-            (byte)0x3D, (byte)0x2C, (byte)0x9D, (byte)0x2C, (byte)0x12, (byte)0x41,
-            (byte)0x1E, (byte)0xF1, (byte)0xC5, (byte)0x32, (byte)0xC3, (byte)0xAA,
-            (byte)0x31, (byte)0x4A, (byte)0x52, (byte)0xD8, (byte)0xE8, (byte)0xAF,
-            (byte)0x42, (byte)0xF4, (byte)0x72, (byte)0xA1, (byte)0x2A, (byte)0x0D,
-            (byte)0x97, (byte)0xB1, (byte)0x31, (byte)0xB3,
+            0x85, 0x84, 0x64, 0xFD, 0x70, 0x6A, 0x9F, 0xF0, 0x94, 0x0C, 0x3E, 0x2C, 0x74, 0x34, 0x05, 0xC9, 
+            0x55, 0xB3, 0x85, 0x32, 0x98, 0x71, 0xF9, 0x41, 0x21, 0x5F, 0x02, 0x9E, 0xEA, 0x56, 0x8D, 0x8C, 
+            0x44, 0xCC, 0xEE, 0xEE, 0x3D, 0x2C, 0x9D, 0x2C, 0x12, 0x41, 0x1E, 0xF1, 0xC5, 0x32, 0xC3, 0xAA,
+            0x31, 0x4A, 0x52, 0xD8, 0xE8, 0xAF, 0x42, 0xF4, 0x72, 0xA1, 0x2A, 0x0D, 0x97, 0xB1, 0x31, 0xB3,
         };
 
         byte[] pseudoPrime2 = {
-            (byte)0x99, (byte)0x98, (byte)0xCA, (byte)0xB8, (byte)0x5E, (byte)0xD7,
-            (byte)0xE5, (byte)0xDC, (byte)0x28, (byte)0x5C, (byte)0x6F, (byte)0x0E,
-            (byte)0x15, (byte)0x09, (byte)0x59, (byte)0x6E, (byte)0x84, (byte)0xF3,
-            (byte)0x81, (byte)0xCD, (byte)0xDE, (byte)0x42, (byte)0xDC, (byte)0x93,
-            (byte)0xC2, (byte)0x7A, (byte)0x62, (byte)0xAC, (byte)0x6C, (byte)0xAF,
-            (byte)0xDE, (byte)0x74, (byte)0xE3, (byte)0xCB, (byte)0x60, (byte)0x20,
-            (byte)0x38, (byte)0x9C, (byte)0x21, (byte)0xC3, (byte)0xDC, (byte)0xC8,
-            (byte)0xA2, (byte)0x4D, (byte)0xC6, (byte)0x2A, (byte)0x35, (byte)0x7F,
-            (byte)0xF3, (byte)0xA9, (byte)0xE8, (byte)0x1D, (byte)0x7B, (byte)0x2C,
-            (byte)0x78, (byte)0xFA, (byte)0xB8, (byte)0x02, (byte)0x55, (byte)0x80,
-            (byte)0x9B, (byte)0xC2, (byte)0xA5, (byte)0xCB,
+            0x99, 0x98, 0xCA, 0xB8, 0x5E, 0xD7, 0xE5, 0xDC, 0x28, 0x5C, 0x6F, 0x0E, 0x15, 0x09, 0x59, 0x6E, 
+            0x84, 0xF3, 0x81, 0xCD, 0xDE, 0x42, 0xDC, 0x93, 0xC2, 0x7A, 0x62, 0xAC, 0x6C, 0xAF, 0xDE, 0x74, 
+            0xE3, 0xCB, 0x60, 0x20, 0x38, 0x9C, 0x21, 0xC3, 0xDC, 0xC8, 0xA2, 0x4D, 0xC6, 0x2A, 0x35, 0x7F,
+            0xF3, 0xA9, 0xE8, 0x1D, 0x7B, 0x2C, 0x78, 0xFA, 0xB8, 0x02, 0x55, 0x80, 0x9B, 0xC2, 0xA5, 0xCB,
         };
 
 
@@ -3393,7 +3379,7 @@ public class BigInteger
                 Console.WriteLine(x + "\n");
                 return;
             }
-            Console.WriteLine("\nz = {0}\nx = {1}", z, x);
+            // Console.WriteLine("\nz = {0}\nx = {1}", z, x);
             Console.WriteLine(" <PASSED>.");
         }
     }
@@ -3415,102 +3401,65 @@ public class BigInteger
         // Known problem -> these two pseudoprimes passes my implementation of
         // primality test but failed in JDK's isProbablePrime test.
 
-        byte[] pseudoPrime1 = { (byte)0x00,
-            (byte)0x85, (byte)0x84, (byte)0x64, (byte)0xFD, (byte)0x70, (byte)0x6A,
-            (byte)0x9F, (byte)0xF0, (byte)0x94, (byte)0x0C, (byte)0x3E, (byte)0x2C,
-            (byte)0x74, (byte)0x34, (byte)0x05, (byte)0xC9, (byte)0x55, (byte)0xB3,
-            (byte)0x85, (byte)0x32, (byte)0x98, (byte)0x71, (byte)0xF9, (byte)0x41,
-            (byte)0x21, (byte)0x5F, (byte)0x02, (byte)0x9E, (byte)0xEA, (byte)0x56,
-            (byte)0x8D, (byte)0x8C, (byte)0x44, (byte)0xCC, (byte)0xEE, (byte)0xEE,
-            (byte)0x3D, (byte)0x2C, (byte)0x9D, (byte)0x2C, (byte)0x12, (byte)0x41,
-            (byte)0x1E, (byte)0xF1, (byte)0xC5, (byte)0x32, (byte)0xC3, (byte)0xAA,
-            (byte)0x31, (byte)0x4A, (byte)0x52, (byte)0xD8, (byte)0xE8, (byte)0xAF,
-            (byte)0x42, (byte)0xF4, (byte)0x72, (byte)0xA1, (byte)0x2A, (byte)0x0D,
-            (byte)0x97, (byte)0xB1, (byte)0x31, (byte)0xB3,
+        byte[] pseudoPrime1 = { 0x00,
+            0x85, 0x84, 0x64, 0xFD, 0x70, 0x6A, 0x9F, 0xF0, 0x94, 0x0C, 0x3E, 0x2C, 0x74, 0x34, 0x05, 0xC9, 
+            0x55, 0xB3, 0x85, 0x32, 0x98, 0x71, 0xF9, 0x41, 0x21, 0x5F, 0x02, 0x9E, 0xEA, 0x56, 0x8D, 0x8C, 
+            0x44, 0xCC, 0xEE, 0xEE, 0x3D, 0x2C, 0x9D, 0x2C, 0x12, 0x41, 0x1E, 0xF1, 0xC5, 0x32, 0xC3, 0xAA,
+            0x31, 0x4A, 0x52, 0xD8, 0xE8, 0xAF, 0x42, 0xF4, 0x72, 0xA1, 0x2A, 0x0D, 0x97, 0xB1, 0x31, 0xB3,
         };
 
-        byte[] pseudoPrime2 = { (byte)0x00,
-            (byte)0x99, (byte)0x98, (byte)0xCA, (byte)0xB8, (byte)0x5E, (byte)0xD7,
-            (byte)0xE5, (byte)0xDC, (byte)0x28, (byte)0x5C, (byte)0x6F, (byte)0x0E,
-            (byte)0x15, (byte)0x09, (byte)0x59, (byte)0x6E, (byte)0x84, (byte)0xF3,
-            (byte)0x81, (byte)0xCD, (byte)0xDE, (byte)0x42, (byte)0xDC, (byte)0x93,
-            (byte)0xC2, (byte)0x7A, (byte)0x62, (byte)0xAC, (byte)0x6C, (byte)0xAF,
-            (byte)0xDE, (byte)0x74, (byte)0xE3, (byte)0xCB, (byte)0x60, (byte)0x20,
-            (byte)0x38, (byte)0x9C, (byte)0x21, (byte)0xC3, (byte)0xDC, (byte)0xC8,
-            (byte)0xA2, (byte)0x4D, (byte)0xC6, (byte)0x2A, (byte)0x35, (byte)0x7F,
-            (byte)0xF3, (byte)0xA9, (byte)0xE8, (byte)0x1D, (byte)0x7B, (byte)0x2C,
-            (byte)0x78, (byte)0xFA, (byte)0xB8, (byte)0x02, (byte)0x55, (byte)0x80,
-            (byte)0x9B, (byte)0xC2, (byte)0xA5, (byte)0xCB,
+        byte[] pseudoPrime2 = { 0x00,
+            0x99, 0x98, 0xCA, 0xB8, 0x5E, 0xD7, 0xE5, 0xDC, 0x28, 0x5C, 0x6F, 0x0E, 0x15, 0x09, 0x59, 0x6E, 
+            0x84, 0xF3, 0x81, 0xCD, 0xDE, 0x42, 0xDC, 0x93, 0xC2, 0x7A, 0x62, 0xAC, 0x6C, 0xAF, 0xDE, 0x74, 
+            0xE3, 0xCB, 0x60, 0x20, 0x38, 0x9C, 0x21, 0xC3, 0xDC, 0xC8, 0xA2, 0x4D, 0xC6, 0x2A, 0x35, 0x7F,
+            0xF3, 0xA9, 0xE8, 0x1D, 0x7B, 0x2C, 0x78, 0xFA, 0xB8, 0x02, 0x55, 0x80, 0x9B, 0xC2, 0xA5, 0xCB,
         };
         
-        byte[] pseudoPrime3 = { (byte)0x00, 
-            (byte)0x6c, (byte)0xbd, (byte)0xd3, (byte)0x6a, (byte)0xf4, (byte)0x9c, 
-            (byte)0xc9, (byte)0x9b, (byte)0xab, (byte)0xd0, (byte)0x98, (byte)0xfa, 
-            (byte)0x36, (byte)0x06, (byte)0xae, (byte)0xdf, (byte)0x87, (byte)0x1e, 
-            (byte)0x71, (byte)0x6f, (byte)0x4a, (byte)0xe1, (byte)0xee, (byte)0xf7, 
-            (byte)0xda, (byte)0x68, (byte)0xd5, (byte)0x04, (byte)0xf3, (byte)0xb9, 
-            (byte)0xb1, (byte)0x82, (byte)0x84, (byte)0x60, (byte)0xf6, (byte)0x35, 
-            (byte)0x90, (byte)0x72, (byte)0x07, (byte)0xd7, (byte)0x68, (byte)0x77, 
-            (byte)0xe5, (byte)0xd9, (byte)0xe0, (byte)0x3a, (byte)0x8f, (byte)0xf0, 
-            (byte)0x20, (byte)0x00, (byte)0xf3, (byte)0x23, (byte)0x58, (byte)0x8f, 
-            (byte)0x3c, (byte)0xb3, (byte)0x91, (byte)0x3a, (byte)0xb2, (byte)0x7f, 
+        byte[] pseudoPrime3 = { 0x00, 
+            0x6c, 0xbd, 0xd3, 0x6a, 0xf4, 0x9c, 0xc9, 0x9b, 0xab, 0xd0, 0x98, 0xfa, 0x36, 0x06, 0xae, 0xdf, 
+            0x87, 0x1e, 0x71, 0x6f, 0x4a, 0xe1, 0xee, 0xf7, 0xda, 0x68, 0xd5, 0x04, 0xf3, 0xb9, 0xb1, 0x82, 
+            0x84, 0x60, 0xf6, 0x35, 0x90, 0x72, 0x07, 0xd7, 0x68, 0x77, 0xe5, 0xd9, 0xe0, 0x3a, 0x8f, 0xf0, 
+            0x20, 0x00, 0xf3, 0x23, 0x58, 0x8f, 0x3c, 0xb3, 0x91, 0x3a, 0xb2, 0x7f, 
         };
 
-        byte[] pseudoPrime4 = { (byte)0x00, 
-            (byte)0x53, (byte)0xc0, (byte)0xcd, (byte)0x2a, (byte)0x75, (byte)0xce, 
-            (byte)0xd0, (byte)0x84, (byte)0xb1, (byte)0x11, (byte)0x9f, (byte)0xa8, 
-            (byte)0xa5, (byte)0x5a, (byte)0xe3, (byte)0x3c, (byte)0x21, (byte)0x95, 
-            (byte)0xbd, (byte)0xd1, (byte)0x51, (byte)0x40, (byte)0x50, (byte)0x89, 
-            (byte)0x94, (byte)0x79, (byte)0x8d, (byte)0x8e, (byte)0xef, (byte)0x13, 
-            (byte)0xad, (byte)0xaa, (byte)0xa7, (byte)0xaa, (byte)0xb4, (byte)0x55, 
-            (byte)0x45, (byte)0xe5, (byte)0xa9, (byte)0xbd, (byte)0xae, (byte)0x6f, 
-            (byte)0x17, (byte)0x57, (byte)0x8e, (byte)0xd0, (byte)0xc8, (byte)0xbe, 
-            (byte)0x49, (byte)0xe6, (byte)0x7d, (byte)0xab, (byte)0x54, (byte)0x8d, 
-            (byte)0x7f, (byte)0xf0, (byte)0xaf, (byte)0x6a, (byte)0x64, (byte)0x0d, 
+        byte[] pseudoPrime4 = { 0x00, 
+            0x53, 0xc0, 0xcd, 0x2a, 0x75, 0xce, 0xd0, 0x84, 0xb1, 0x11, 0x9f, 0xa8, 0xa5, 0x5a, 0xe3, 0x3c, 
+            0x21, 0x95, 0xbd, 0xd1, 0x51, 0x40, 0x50, 0x89, 0x94, 0x79, 0x8d, 0x8e, 0xef, 0x13, 0xad, 0xaa, 
+            0xa7, 0xaa, 0xb4, 0x55, 0x45, 0xe5, 0xa9, 0xbd, 0xae, 0x6f, 0x17, 0x57, 0x8e, 0xd0, 0xc8, 0xbe, 
+            0x49, 0xe6, 0x7d, 0xab, 0x54, 0x8d, 0x7f, 0xf0, 0xaf, 0x6a, 0x64, 0x0d, 
         };
         
-        byte[] pseudoPrime5 = { (byte)0x00,
-            (byte)0x5b, (byte)0x15, (byte)0x92, (byte)0x27, (byte)0x43, (byte)0xfd, 
-            (byte)0x2b, (byte)0x31, (byte)0x88, (byte)0x1a, (byte)0x34, (byte)0x99, 
-            (byte)0xf6, (byte)0x88, (byte)0xc6, (byte)0xcc, (byte)0xea, (byte)0xd3, 
-            (byte)0x0a, (byte)0x23, (byte)0x79, (byte)0x54, (byte)0xa2, (byte)0x38, 
-            (byte)0xae, (byte)0x33, (byte)0x69, (byte)0x01, (byte)0xc1, (byte)0x38, 
-            (byte)0xfb, (byte)0xd2, (byte)0xe7, (byte)0xdc, (byte)0xb3, (byte)0x49, 
-            (byte)0x52, (byte)0x39, (byte)0x84, (byte)0xa2, (byte)0x56, (byte)0x03,
-            (byte)0x4e, (byte)0x95, (byte)0x3f, (byte)0x21, (byte)0xbd, (byte)0xd7, 
-            (byte)0x79, (byte)0x30, (byte)0xfa, (byte)0xb2, (byte)0x8a, (byte)0xe5, 
-            (byte)0x14, (byte)0x18, (byte)0x2f, (byte)0x17, (byte)0xa7, (byte)0x7f 
+        byte[] pseudoPrime5 = { 0x00,
+            0x5b, 0x15, 0x92, 0x27, 0x43, 0xfd, 0x2b, 0x31, 0x88, 0x1a, 0x34, 0x99, 0xf6, 0x88, 0xc6, 0xcc, 
+            0xea, 0xd3, 0x0a, 0x23, 0x79, 0x54, 0xa2, 0x38, 0xae, 0x33, 0x69, 0x01, 0xc1, 0x38, 0xfb, 0xd2, 
+            0xe7, 0xdc, 0xb3, 0x49, 0x52, 0x39, 0x84, 0xa2, 0x56, 0x03, 0x4e, 0x95, 0x3f, 0x21, 0xbd, 0xd7, 
+            0x79, 0x30, 0xfa, 0xb2, 0x8a, 0xe5, 0x14, 0x18, 0x2f, 0x17, 0xa7, 0x7f 
         };
         
-        byte[] pseudoPrime6 = { (byte)0x00,
-            (byte)0x03, (byte)0x14, (byte)0x8b, (byte)0x80, (byte)0xa7, (byte)0xf8, 
-            (byte)0xf4, (byte)0x73, (byte)0x9f, (byte)0x07, (byte)0x07, (byte)0xf7, 
-            (byte)0x54, (byte)0xf5, (byte)0xf5, (byte)0x5f, (byte)0x65, (byte)0x5d, 
-            (byte)0xe9, (byte)0x83, (byte)0x3c, (byte)0x79, (byte)0x8c, (byte)0xcb, 
-            (byte)0xde, (byte)0xfb, (byte)0x99, (byte)0x66, (byte)0x10, (byte)0x7f, 
-            (byte)0x37, (byte)0xa9, (byte)0x07, (byte)0x21, (byte)0x58, (byte)0xa9, 
-            (byte)0x33, (byte)0x04, (byte)0x06, (byte)0xa7, (byte)0xdc, (byte)0x7a, 
-            (byte)0xcd, (byte)0xb2, (byte)0xce, (byte)0xb0, (byte)0xa9, (byte)0xcf, 
-            (byte)0x0e, (byte)0x49, (byte)0xed, (byte)0x2e, (byte)0x5f, (byte)0x4d, 
-            (byte)0x3d, (byte)0x9e, (byte)0xb3, (byte)0xb9, (byte)0x18, (byte)0x9f  
+        byte[] pseudoPrime6 = { 0x00,
+            0x03, 0x14, 0x8b, 0x80, 0xa7, 0xf8, 0xf4, 0x73, 0x9f, 0x07, 0x07, 0xf7, 0x54, 0xf5, 0xf5, 0x5f, 
+            0x65, 0x5d, 0xe9, 0x83, 0x3c, 0x79, 0x8c, 0xcb, 0xde, 0xfb, 0x99, 0x66, 0x10, 0x7f, 0x37, 0xa9, 
+            0x07, 0x21, 0x58, 0xa9, 0x33, 0x04, 0x06, 0xa7, 0xdc, 0x7a, 0xcd, 0xb2, 0xce, 0xb0, 0xa9, 0xcf, 
+            0x0e, 0x49, 0xed, 0x2e, 0x5f, 0x4d, 0x3d, 0x9e, 0xb3, 0xb9, 0x18, 0x9f  
         };
         
         Console.WriteLine("List of primes < 2000\n---------------------");
-        int limit = 100, count = 0;
+        int limit = 89, count = 0;
         for(uint i = 0; i < 2000; i++)
         {
-            if(i >= limit)
+            // if( (count+1) % 20 == 0)
+            if (i >= limit)
             {
                 Console.WriteLine();
-                limit += 100;
+                limit += 101;
             }
 
             BigInteger p = new BigInteger(i);
 
             if(p.isProbablePrime())
             {
-                if (i < 100)
-                    Console.Write("{0,2:G}, ", i);
+                if (i < 1000)
+                    Console.Write("{0,3:G}, ", i);
                 else
                     Console.Write("{0,4:G}, ", i);
                 // Console.WriteLine(p.Pow(10));
@@ -3528,16 +3477,17 @@ public class BigInteger
             Console.WriteLine("FermatLittleTest(5) = " + bigInt1.FermatLittleTest(5));
             Console.WriteLine("isProbablePrime() = " + bigInt1.isProbablePrime());
         }
-
-        Console.Write("\nGenerating 512-bits random pseudoprime. . .");
+        
+        int randPrimeBits = 1024;
+        Console.Write("\nGenerating {0}-bits random pseudoprime. . .", randPrimeBits);
         Random rand = new Random();
-        BigInteger prime = BigInteger.genPseudoPrime(512, 5, rand);
+        BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, 5, rand);
         Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
 
         //int dwStart = System.Environment.TickCount;
         
-        Console.WriteLine("SqrtTest2(ROUNDS={0})", ROUNDS);
-        BigInteger.SqrtTest2(ROUNDS);
+        // Console.WriteLine("SqrtTest2(ROUNDS={0})", ROUNDS);
+        // BigInteger.SqrtTest2(ROUNDS);
 
         // Console.WriteLine("MulDivTest(ROUNDS={0})", ROUNDS);
         // BigInteger.MulDivTest(ROUNDS);

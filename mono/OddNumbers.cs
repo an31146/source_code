@@ -1,16 +1,10 @@
-using System.CodeDom.Compiler;
-using System.Collections.Generic;
-using System.Collections;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
-using System.Text;
+/*
+ * Output the odd numbers between a specified range, inclusive, to the file passed in the environment variable OUTPUT_PATH
+ */
 using System;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
 
 class Solution {
 
