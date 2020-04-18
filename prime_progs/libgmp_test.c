@@ -47,14 +47,15 @@ bool miller_rabin(const mpz_t n, int rounds)
     mpz_t nm1, x, y, q;
     unsigned long k, i;
 
-    int base_primes[54] =  {  2,   3,   5,   7,  11,  13,  17,  19,
-                             23,  29,  31,  37,  41,  43,  47,  53,
-                             59,  61,  67,  71,  73,  79,  83,  89,
-       	                     97, 101, 103, 107, 109, 113, 127, 131,
-                            137, 139, 149, 151, 157, 163, 167, 173,
-                            179, 181, 191, 193, 197, 199, 211, 223,
-                            227, 229, 233, 239, 241, 251
-                           };
+    int base_primes[54] = {
+          2,   3,   5,   7,  11,  13,  17,  19,
+         23,  29,  31,  37,  41,  43,  47,  53,
+         59,  61,  67,  71,  73,  79,  83,  89,
+         97, 101, 103, 107, 109, 113, 127, 131,
+        137, 139, 149, 151, 157, 163, 167, 173,
+        179, 181, 191, 193, 197, 199, 211, 223,
+        227, 229, 233, 239, 241, 251
+    };
 
     for (int i = 0; i < sizeof(base_primes)/sizeof(int); i++ )
         if (mpz_divisible_ui_p(n, base_primes[i]))
@@ -137,7 +138,10 @@ void powers_of_two()
     	start = clock();
     	printf("\nmpz_sizeinbase(2^%d-1, 10) = %d \t\t", expos[i], (int32_t)mpz_sizeinbase(a, 10));
     	stop = clock();
-    	printf("time: %.0f ms\n", (float)(stop-start)/CLOCKS_PER_SEC*1000.0f);
+        if (stop-start < 1000)
+            printf("time: %.0f ms\n", (float)(stop-start)/CLOCKS_PER_SEC*1000.0f);
+        else`
+            printf("time: %.1f ms\n", (float)(stop-start)/CLOCKS_PER_SEC);
     	//printf("mpz_sizeinbase(2^1048576, 10) = %lu\n", mpz_sizeinbase(a, 10));
     			
         mpz_set_ui(c, 13L);

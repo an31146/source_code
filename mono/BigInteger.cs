@@ -3388,9 +3388,16 @@ public class BigInteger
     public static string ByteArrayStruct(byte[] byte_array)
     {
         // Output byte [] structure suitable for BigInteger.cs
-        string str_bytes = "";
+        string str_bytes = "new byte [] {\n    ";
+        int c = 0;
         foreach (byte b in byte_array)
-            str_bytes += String.Format($"(byte)0x{b:x2}, ");
+        {
+            str_bytes += String.Format($"0x{b:x2}, ");
+            c++;
+            if (c % 8 == 0)
+                str_bytes += "\n    ";
+        }
+        str_bytes += "};";
 
         return str_bytes;
     }

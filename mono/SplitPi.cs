@@ -18,29 +18,38 @@ using System.Diagnostics;
 // CS0162: Unreachable code detected
 class MyStream
 {
+    const int MAX_LINE_LENGTH = 80;
+    
     public static void Main(String[] args)
     {
-        StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\source_code\pi\pi.txt");
-        StreamWriter sw = new StreamWriter(@"C:\Users\richa\Google Drive\source_code\pi\pi-linefeeds.txt");
+        // StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\source_code\pi\pi.txt");
+        StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\Documents II\python\pi_chudnovsky.txt");
+        StreamWriter sw = new StreamWriter(@"C:\Users\richa\Google Drive\source_code\pi\pi-linefeeds#2.txt");
         
         do {
             string strLineIn = sr.ReadLine();
             Console.WriteLine("Length: {0}", strLineIn.Length);
             
-            if (strLineIn.Length == 121)
+            if (strLineIn.Length <= MAX_LINE_LENGTH)
                 sw.WriteLine(strLineIn);
             else
             {
-                while (strLineIn.Length > 0)
+                while (strLineIn.Length > MAX_LINE_LENGTH)
                 {
                     string strSplit;
-                    if (strLineIn.Length > 121)
-                        strSplit = strLineIn.Substring(0, 121);
+                    if (strLineIn.Length > MAX_LINE_LENGTH)
+                    {
+                        strSplit = strLineIn.Substring(0, MAX_LINE_LENGTH);
+                        strLineIn = strLineIn.Substring(MAX_LINE_LENGTH);
+                    }
                     else
                         strSplit = strLineIn;
                     
                     sw.Write(strSplit + "\n");
-                    strLineIn = strLineIn.Substring(122);
+                    // Console.WriteLine("2. Length: {0}", );
+                    // Console.ReadLine();
+                    // if (strLineIn.Length > 121)
+                    
                 }               
             }
         } while (!sr.EndOfStream);

@@ -19,7 +19,7 @@
 
 #define HELLO_PORT 12345
 #define HELLO_GROUP "225.0.0.255"
-#define MSGBUFSIZE 256
+#define MSGBUFSIZE 4096
 
 int main(int argc, char *argv[])
 {
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     }
 /*** END OF MODIFICATION TO ORIGINAL */
 
-     /* set up destination address */
+    /* set up destination address */
     memset(&addr,0,sizeof(addr));
     addr.sin_family=AF_INET;
     addr.sin_addr.s_addr=htonl(INADDR_ANY); /* N.B.: differs from sender */
@@ -61,28 +61,27 @@ int main(int argc, char *argv[])
      
     /* bind to receive address */
     if (bind(fd,(struct sockaddr *) &addr,sizeof(addr)) < 0) {
-	  perror("bind");
-	  exit(1);
+        perror("bind");
+        exit(1);
     }
      
      /* use setsockopt() to request that the kernel join a multicast group */
     mreq.imr_multiaddr.s_addr=inet_addr(HELLO_GROUP);
     mreq.imr_interface.s_addr=htonl(INADDR_ANY);
     if (setsockopt(fd,IPPROTO_IP,IP_ADD_SOURCE_MEMBERSHIP,(char *)&mreq,sizeof(mreq)) < 0) {
-	  perror("setsockopt");
-	  exit(1);
+        perror("setsockopt");
+        exit(1);
     }
 
     /* now just enter a read-print loop */
     while (1) {
-	  addrlen=sizeof(addr);
-	  if ((nbytes=recvfrom(fd,msgbuf,MSGBUFSIZE,0,
-			       (struct sockaddr *) &addr,&addrlen)) < 0) {
-	       perror("recvfrom");
-	       exit(1);
-	  }
-	  puts(msgbuf);
+        addrlen=sizeof(addr);
+        if ((nbytes=recvfrom(fd,msgbuf,MSGBUFSIZE,0,
+            (struct sockaddr *) &addr,&addrlen)) < 0) {
+            perror("recvfrom");
+            exit(1);
+        }
+        _cputs(msgbuf);
     }
     return 0;
 }
-
