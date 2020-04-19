@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include <mpir.h>
+#include <gmp.h>
 #include <omp.h>
 
 double binomial_coeff(double n, double r)
@@ -74,29 +74,29 @@ void mpz_binomial_coeff_2(mpz_ptr b, int n, int r)
 }
 
 /*
- * Machin-like formula
+ * Machin-like formula:
+ * https://en.wikipedia.org/wiki/List_of_formulae_involving_%CF%80#Machin-like_formulae
+ *
  *   80000 iterations = accurate to 24672 d.p.
  *   537 secs to perform 100000 iterations = accurate to 30098 d.p.
  *
  */
-void machin_like(mpf_ptr sum, int i)
+void machin_like(mpf_ptr sum, int N)
 {
     mpf_t n, t;
     mpf_t pow_2;
     mpf_t ONE;
     mpz_t b;
 
-    mpf_init(n);
-    mpf_init(t);
-    mpf_init(pow_2);
-    mpf_init_set_ui(ONE, 1UL);
+    mpf_inits(n, t, pow_2, ONE, NULL);
     mpz_init(b);
 
     omp_set_num_threads(2);
     //#pragma omp parallel for reduction(+ : sum)
     #pragma omp parallel for shared(sum, ONE) private(pow_2, n, b, t)
-    for (int k=1; k<i; k++)
+    for (int k=1; k<N; k++)
     {
+        mpf_set_ui(ONE, 1UL);
         mpf_mul_2exp(pow_2, ONE, k);            // pow_2 = 1 * 2^k
 
         mpz_bin_uiui(b, 2*k, k);                // b = nCr(2k, k)
@@ -106,7 +106,7 @@ void machin_like(mpf_ptr sum, int i)
         
         //#pragma omp critical
         {
-            mpf_add(sum, sum, t);                   // sum += t
+            mpf_add(sum, sum, t);               // sum += t
         }
         
         //printf("%5.1f%%\r", (float)k/100.0f);
@@ -124,51 +124,64 @@ void machin_like(mpf_ptr sum, int i)
 }
 
 /*
- * amazingly slow convergence algorithm - Leibniz series expansion for arctan(1) - Gregory's formula
+ * (Don't bother! 19/04/2020)
+ * Amazingly slow convergence algorithm.
+ *
+ * Leibniz series expansion for arctan(1) - 
+ * https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
+ *
+ * Gregory's series:
+ * https://en.wikipedia.org/wiki/Gregory%27s_series
  *
  * 100 million iterations to get 14 d.p.
  *
  */
 void arctan_of_one(mpf_ptr sum, int N)
 {
-    mpf_t n, ONE;
-    double sum2=1;
+    mpf_t m, n;
+    mpf_inits(m, n, NULL);
+    int MUL = 1000000;
+    // double sum2 = 1.0d, x, y;
 
-    mpf_init_set_ui(ONE, 1);
-    mpf_init_set(sum, ONE);
-    mpf_init(n);
-
-    for (int i=0; i<N; i++)
+    for (int j=0; j<N*MUL; j+=MUL)
     {
-        //mpf_add_ui(i, i, 2UL);
-        mpf_div_ui(n, ONE, i*4+3);          // n = 1/3
-        //gmp_printf("%0.Ff - ", n);
-        mpf_sub(sum, sum, n);               // sum -= n
-        sum2 -= 1.0 / ((double)i*4.0+3.0);
-        
-        //mpf_add_ui(i, i, 2UL);
-        mpf_div_ui(n, ONE, i*4+5);          // n = 1/5
-        //gmp_printf("%0.Ff - ", n);
-        mpf_add(sum, sum, n);               // sum += n
-        sum2 += 1.0 / ((double)i*4.0+5.0);
+        for (int i=j; i<j+MUL; i++)
+        {
+            mpf_set_si(m, -1L);                 //
+            mpf_div_ui(m, m, i*4+3);            // m = -1/3, -1/7, -1/11, etc
+            mpf_add(sum, sum, m);               // sum -= m
+            // gmp_printf("%.20Ff\n", m);
+            
+            // x = 1.0d / (double)(i*4+3);
+            // printf("%.20f\n", x);
+            // sum2 -= x;
+            
+            mpf_set_ui(n, 1UL);
+            mpf_div_ui(n, n, i*4+1);            // n = 1, 1/5, 1/9, 1/13, etc
+            mpf_add(sum, sum, n);               // sum += n
+            // gmp_printf("%.20Ff\n", n);
+            
+            // y = 1.0d / (double)(i*4+5);
+            // printf("%.20f\n", y);
+            // sum2 += y;
+        }
+        putchar('.');
     }
-    mpf_mul_ui(sum, sum, 4);                // sum = 4*sum
-    sum2 *= 4.0;
- 
-    //sum2 = -2.0 + 2*sum2;    
-    printf("%0.20g\n", sum2);
-    mpf_clears(n, ONE, NULL);
+    printf("\n");
+    // sum2 *= 4.0d;
+    // printf("%0.18g\n", sum2);
+    mpf_mul_ui(sum, sum, 4L);               // sum = 4*sum
+    mpf_clears(m, n, NULL);
 
-    //mpf_mul_ui(sum, sum, 4UL);
-    gmp_printf("%0.Ff\n", sum);
-    
-    
+    // gmp_printf("%0.Ff\n", sum);
+
+
     return;
 }
 
 
 /*
- *   (Lucas formula - doesn't work) 
+ *   (Lucas formula - doesn't work, FIX this!) 
  *   
     π                ∞                 1 
    ---  =  1 - 16 * SUM  ------------------------------
@@ -186,7 +199,7 @@ void lucas_formula(mpf_ptr sum, int N)
     mpf_init_set_ui(ONE, 1L);
     mpf_init_set_ui(FOUR, 4L);
 
-    mpf_div_ui(sum, ONE, 15L);
+    mpf_mul_ui(sum, sum, 16L);
     //gmp_printf("%0.Ff\n", sum);
         
     for (int k=0; k<N; k++)
@@ -376,7 +389,40 @@ void bbp_formula(mpf_ptr sum, int N)
 	mpz_clears(fac, fac2, d2, NULL);
 	
 }
- 
+
+/*
+ *  Gauss-Legendre algorithm:
+ *  https://en.wikipedia.org/wiki/Gauss%E2%80%93Legendre_algorithm
+ *
+ *  a0 = 1
+ *  b0 = 1/√2
+ *  t0 = 0.25
+ *  p0 = 1
+ *
+ *  a_n+1 = (a_n + b_n) / 2
+ *  b_n+1 = √(a_n * b_n)
+ *  t_n+1 = t_n - p_n(a_n - a_n+1)^2
+ *  p_n+1 = 2 * p_n
+ * 
+ */
+void gauss_legendre_algorithm(mpf_ptr sum, int N)
+{
+    mpf_t a0, b0, t0, p0;
+    int n_digits = 50;
+    
+    mpf_inits(a0, b0, p0, NULL);
+    mpf_set_ui(a0, 1L);
+    mpf_set_ui(p0, 1L);
+    mpf_sqrt_ui(b0, 2L);
+    mpf_ui_div(b0, 1L, b0);
+    mpf_init_set_d(t0, 0.25d);
+    
+    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, a0, n_digits);
+    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, b0, n_digits);
+    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, t0, n_digits);
+    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, p0, n_digits);
+}    
+
 int main(int argc, char *argv[])
 {
     FILE *fs;
@@ -397,52 +443,14 @@ int main(int argc, char *argv[])
     mpf_set_default_prec(prec);
     mpf_init(sum);
     
-    //printf("%d\n", mpf_get_default_prec());
-    
-    //omp_set_num_threads(2);
-    
-    /*
-    mpf_t pow_2, r, two_r, t;
-    
-    mpf_init(r);
-    mpf_init(t);
-    mpf_init(pow_2);
-    mpf_init(two_r);
-
-    mpf_sqrt_ui(t, 2L);
-    mpf_mul(t, t, t);
-    gmp_printf("%0.Ff\n", t);
-
-    mpf_set_ui(r, 50);
-    mpf_set_ui(two_r, 100);
-    mpf_binomial_coeff(n, two_r, r);
-    gmp_printf("%Ff\n", n);
-    
-    mpz_binomial_coeff_2(b, 100, 50);
-    gmp_printf("%Zd\n", b);
-    
-    x = binomial_coeff(100, 50);
-    printf("%f\n", x);    
-
-    return 0;
-    */
-    
-        //sum2 += pow(2, k) / binomial_coeff(2*k, k);
-
-        /*
-        mpf_set_d(r, k);                        // r = k
-        mpf_set_d(two_r, k);                    // two_r = k
-        mpf_mul_ui(two_r, two_r, 2);            // two_r *= 2
-        mpf_binomial_coeff(n, two_r, r);        // n = binomial(two_r, r)
-        */
-        //mpz_binomial_coeff_2(b, 2*k, k);
     
     start = clock();
-    //bbp_formula(sum, iter);
-	chudnovsky_formula(sum, iter);
-    //gosper_formula(sum, iter);
-    //machin_like(sum, iter);
-    //arctan_of_one(sum, iter);
+    // bbp_formula(sum, iter);
+	// chudnovsky_formula(sum, iter);
+    // gosper_formula(sum, iter);
+    // machin_like(sum, iter);
+    // arctan_of_one(sum, iter);
+    gauss_legendre_algorithm(sum, iter);
     stop = clock();
     
     printf("\n\nElapsed time: %6.2f seconds\n",  
@@ -459,5 +467,5 @@ int main(int argc, char *argv[])
     //gmp_printf("%0.Ff\n", sum);
     mpf_clear(sum);
     
-    return 0;
+    return EXIT_SUCCESS;
 }
