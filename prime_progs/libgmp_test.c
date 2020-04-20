@@ -121,14 +121,15 @@ bool miller_rabin(const mpz_t n, int rounds)
 void powers_of_two()
 {
 	mpz_t a, b, c;
-	unsigned long start, stop, i;
-	unsigned int expos[6] = {0x1000, 9689L, 110503L, 216091L, 756839L, 1257787L};
+    
+	unsigned long start, stop;
+	unsigned int expos[6] = {0x1000, 9689UL, 110503UL, 216091UL, 756839UL, 1257787UL};
 
 	mpz_init(a);
 	mpz_init(b);
 	mpz_init(c);
 
-    for (i=0; i<6; i++)
+    for (int i = 0; i < 6; i++)
     {
         mpz_set_ui(a, 1);
     	mpz_mul_2exp(a, a, expos[i]);           // a = 2^4096
@@ -140,7 +141,7 @@ void powers_of_two()
     	stop = clock();
         if (stop-start < 1000)
             printf("time: %.0f ms\n", (float)(stop-start)/CLOCKS_PER_SEC*1000.0f);
-        else`
+        else
             printf("time: %.1f ms\n", (float)(stop-start)/CLOCKS_PER_SEC);
     	//printf("mpz_sizeinbase(2^1048576, 10) = %lu\n", mpz_sizeinbase(a, 10));
     			

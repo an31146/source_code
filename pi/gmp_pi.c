@@ -182,10 +182,11 @@ void arctan_of_one(mpf_ptr sum, int N)
 
 /*
  *   (Lucas formula - doesn't work, FIX this!) 
- *   
-    π                ∞                 1 
-   ---  =  1 - 16 * SUM  ------------------------------
-    4               k=0  (4k + 1)^2(4k + 3)^2(4k + 5)^2
+ *
+ * 
+ *    π                ∞                 1 
+ *   ---  =  1 - 16 * SUM  ------------------------------
+ *    4               k=0  (4k + 1)^2(4k + 3)^2(4k + 5)^2
  *      
  */ 
 void lucas_formula(mpf_ptr sum, int N)
@@ -230,13 +231,14 @@ void lucas_formula(mpf_ptr sum, int N)
 }
 
 /*
- *          (Gosper formula 1974)
+ *           (Gosper formula 1974)
  *
-            ∞     (25k - 3)(k!)(2k)!
-      π =  SUM   --------------------
-           k=0       2^(k-1)(3k)!
  *
- *      20000 iterations accurate to 22600 d.p.
+ *           ∞     (25k - 3)(k!)(2k)!
+ *     π =  SUM   --------------------
+ *          k=0       2^(k-1)(3k)!
+ *
+ *                  - 20000 iterations accurate to 22600 d.p.
  *      ~60-75 secs - 26681 iterations accurate to 30137 d.p.
  */
 void gosper_formula(mpf_ptr sum, int N)
@@ -404,23 +406,62 @@ void bbp_formula(mpf_ptr sum, int N)
  *  t_n+1 = t_n - p_n(a_n - a_n+1)^2
  *  p_n+1 = 2 * p_n
  * 
+ *           (a_n+1 + b_n+1)^2
+ *   π  ≈=   -----------------
+ *               4 * t_n+1
+ *
+ *   gmp_pi.exe 3321921 19          // accurate to 1000019 digits  Elapsed time:   1.05 seconds
  */
 void gauss_legendre_algorithm(mpf_ptr sum, int N)
 {
     mpf_t a0, b0, t0, p0;
-    int n_digits = 50;
+    mpf_t a1, b1, t1;
+    int n_digits = 80;
     
-    mpf_inits(a0, b0, p0, NULL);
+    mpf_inits(a0, b0, p0, t0, NULL);
+    mpf_inits(a1, b1, t1, NULL);
+    
     mpf_set_ui(a0, 1L);
     mpf_set_ui(p0, 1L);
     mpf_sqrt_ui(b0, 2L);
     mpf_ui_div(b0, 1L, b0);
     mpf_init_set_d(t0, 0.25d);
     
-    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, a0, n_digits);
-    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, b0, n_digits);
-    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, t0, n_digits);
-    gmp_printf ("fixed point mpf %.*Ff with %d digits\n", n_digits, p0, n_digits);
+    for (int i = 0; i < N; i++)
+    {
+        mpf_add(a1, a0, b0);                // a1 = (a_n + b_n)
+        mpf_div_ui(a1, a1, 2UL);            //    = a1 / 2
+        
+        mpf_mul(b1, a0, b0);                // b1 = a0 * b0
+        mpf_sqrt(b1, b1);                   //    = √(b1)
+        
+        mpf_sub(t1, a0, a1);                // t1 = a0 - a1
+        mpf_pow_ui(t1, t1, 2UL);            //    = (a0 - a1)^2
+        mpf_mul(t1, p0, t1);                //    = p0 * (a0 - a1)^2
+        mpf_sub(t1, t0, t1);                //    = t0 - p0 * (a0 - a1)^2
+        
+        mpf_mul_ui(p0, p0, 2UL);            // p0 *= 2
+    
+        gmp_printf ("a1: %.*Ff with %d digits\n", n_digits, a1, n_digits);
+        gmp_printf ("b1: %.*Ff with %d digits\n", n_digits, b1, n_digits);
+        gmp_printf ("t1: %.*Ff with %d digits\n", n_digits, t1, n_digits);
+        gmp_printf ("p0: %.*Ff with %d digits\n\n", n_digits, p0, n_digits);
+        
+        mpf_set(a0, a1);
+        mpf_set(b0, b1);
+        mpf_set(t0, t1);
+
+        // getchar();
+    }
+    
+    mpf_add(sum, a1, b1);               // sum = a1 + b1
+    mpf_pow_ui(sum, sum, 2UL);          //     = (a1 + b1)^2
+    mpf_div(sum, sum, t1);              //     = sum / t1
+    mpf_div_ui(sum, sum, 4UL);          //     = sum / 4
+    
+    gmp_printf ("pi ~= %.*Ff with %d digits\n", n_digits, sum, n_digits);
+    
+    mpf_clears(a0, b0, p0, t0, a1, b1, t1, NULL);
 }    
 
 int main(int argc, char *argv[])
@@ -458,10 +499,10 @@ int main(int argc, char *argv[])
     
     if ((fs = fopen("pi3.txt", "w+t")) != NULL)
     {
-		char buffer[1048576];
-        //mpf_out_str(fs, 10, 0, sum);
-        gmp_sprintf(buffer, "%0.Ff", sum);
-		fprintf(fs, "%s", buffer);
+		__attribute__((unused)) char buffer[1048576];
+        // mpf_out_str(fs, 10, 0, sum);
+        gmp_fprintf(fs, "%0.Ff", sum);
+		//fprintf(fs, "%s", buffer);
         fclose(fs);
     }
     //gmp_printf("%0.Ff\n", sum);

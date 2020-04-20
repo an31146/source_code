@@ -22,9 +22,9 @@ class MyStream
     
     public static void Main(String[] args)
     {
-        // StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\source_code\pi\pi.txt");
-        StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\Documents II\python\pi_chudnovsky.txt");
-        StreamWriter sw = new StreamWriter(@"C:\Users\richa\Google Drive\source_code\pi\pi-linefeeds#2.txt");
+        StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\source_code\pi\pi3.txt");
+        // StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\Documents II\python\pi_chudnovsky.txt");
+        StreamWriter sw = new StreamWriter(@"C:\Users\richa\Google Drive\source_code\pi\pi-linefeeds#3.txt");
         
         do {
             string strLineIn = sr.ReadLine();
