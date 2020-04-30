@@ -1,9 +1,10 @@
 ﻿/*
  * gmp_pi.c - calculate pi with arbitrary precision using binomial coefficients (Machin-like formula)
  * 
- * gcc -Wall -O2 -std=c99 -o gmp_pi.exe gmp_pi.c -fopenmp -l gomp -l gmp
+ * gcc -Wall -O2 -IC:\Tools\gmp-6.1.2 -std=gnu99 -o gmp_pi.exe gmp_pi.c -fopenmp -lgomp -lgmp
  *
  * pi = -2 + sum(2^(n+1) / nCr(2n, n))
+ *
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,7 +95,7 @@ void machin_like(mpf_ptr sum, int N)
     omp_set_num_threads(2);
     //#pragma omp parallel for reduction(+ : sum)
     #pragma omp parallel for shared(sum, ONE) private(pow_2, n, b, t)
-    for (int k=1; k<N; k++)
+    for (int k = 1; k < N; k++)
     {
         mpf_set_ui(ONE, 1UL);
         mpf_mul_2exp(pow_2, ONE, k);            // pow_2 = 1 * 2^k
@@ -120,7 +121,6 @@ void machin_like(mpf_ptr sum, int N)
     mpz_clear(b);
     mpf_clears(n, t, pow_2, ONE, NULL);
     
-    return;
 }
 
 /*
@@ -175,8 +175,6 @@ void arctan_of_one(mpf_ptr sum, int N)
 
     // gmp_printf("%0.Ff\n", sum);
 
-
-    return;
 }
 
 
@@ -227,7 +225,6 @@ void lucas_formula(mpf_ptr sum, int N)
     
     gmp_printf("%0.Ff\n", sum);
     
-    return;
 }
 
 /*
@@ -274,7 +271,6 @@ void gosper_formula(mpf_ptr sum, int N)
     mpf_clears(pow_2, t, _25k_sub3, n, NULL);
     mpz_clear(b);
     
-    return;
 }
 
 /*
@@ -287,36 +283,34 @@ void gosper_formula(mpf_ptr sum, int N)
  *         4100 iterations accurate to 4939 d.p. ~0.31 secs
  *         7519 iterations accurate to 9061 d.p. ~0.74 secs
  *        25020 iterations accurate to 30137 d.p. ~4.8 secs
+ *       500400 iterations accurate to 602555 d.p. ~809.14 seconds
+ *       750400 iterations accurate to 953985 d.p. ~913.46 seconds
+ *       825400 iterations accurate to 993895 d.p. ~1275.68 seconds
+ *       840400 iterations accurate to 1000019 d.p. ~1355.63 seconds
  */
 void bbp_formula(mpf_ptr sum, int N)
 {
-    mpf_t pow_16k;
     mpf_t n, t;
+    mpf_inits(n, t, NULL);
     
-    mpf_inits(pow_16k, n, t, NULL);
-    
-    for (int k=0; k<N; k++)
+    for (int k = 0; k < N; k++)
     {
-        //mpf_set_ui(pow_16k, 16L);               // pow_16k = 16
-        //mpf_pow_ui(pow_16k, pow_16k, k);        //         = 16^k
-        
-        mpf_set_ui(t, 4L);                      //       t = 4
+        mpf_set_ui(t, 4UL);                      //       t = 4
         mpf_div_ui(t, t, 8*k+1);                //         = 4/(8k+1)
         mpf_set(n, t);                          //       n = 4/(8k+1)
         
-        mpf_set_ui(t, 2);                       //       t = 2
+        mpf_set_ui(t, 2UL);                     //       t = 2
         mpf_div_ui(t, t, 8*k+4);                //         = 2/(8k+4)
         mpf_sub(n, n, t);                       //       n -= 2/(8k+4)
         
-        mpf_set_ui(t, 1);                       //       t = 1
+        mpf_set_ui(t, 1UL);                     //       t = 1
         mpf_div_ui(t, t, 8*k+5);                //         = 1/(8k+5)
         mpf_sub(n, n, t);                       //       n -= 1/(8k+5)
         
-        mpf_set_ui(t, 1);                       //       t = 1
+        mpf_set_ui(t, 1UL);                     //       t = 1
         mpf_div_ui(t, t, 8*k+6);                //         = 1/(8k+6)
         mpf_sub(n, n, t);                       //       n -= 1/(8k+6)
 
-        //mpf_div(n, n, pow_16k);                 //       n /= 16^k
         mpf_div_2exp(n, n, 4*k);                //       n /= 2^(4*k)
         mpf_add(sum, sum, n);                   //     sum += n
 
@@ -324,9 +318,8 @@ void bbp_formula(mpf_ptr sum, int N)
     }
 
     //gmp_printf("%0.Ff\n", sum);
-    mpf_clears(pow_16k, n, t, NULL);
+    mpf_clears(n, t, NULL);
     
-    return;
 }
 
 /*
@@ -486,12 +479,12 @@ int main(int argc, char *argv[])
     
     
     start = clock();
-    // bbp_formula(sum, iter);
+    bbp_formula(sum, iter);
 	// chudnovsky_formula(sum, iter);
     // gosper_formula(sum, iter);
     // machin_like(sum, iter);
     // arctan_of_one(sum, iter);
-    gauss_legendre_algorithm(sum, iter);
+    // gauss_legendre_algorithm(sum, iter);
     stop = clock();
     
     printf("\n\nElapsed time: %6.2f seconds\n",  

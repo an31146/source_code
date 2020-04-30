@@ -142,7 +142,7 @@ public class BigInteger
     private const int maxLength = 130;          // 100 is sufficient for 1560-bits, 130 needed for 2048-bits
 
     // Number of rounds to performs tests
-    private const int ROUNDS = 100;
+    private const int ROUNDS = 1000;
     
     // primes smaller than 2000 to test the generated prime number
 
@@ -261,9 +261,10 @@ public class BigInteger
         data = new uint[maxLength];
 
         dataLength = bi.dataLength;
-
-        for(int i = 0; i < dataLength; i++)
-            data[i] = bi.data[i];
+        
+        //for(int i = 0; i < dataLength; i++)
+        //    data[i] = bi.data[i];
+        bi.data.CopyTo(data, 0);
     }
 
 
@@ -451,15 +452,15 @@ public class BigInteger
         dataLength = inData.Length;
 
         if(dataLength > maxLength)
-              throw new OverflowException("Byte overflow in constructor.");
+            throw new OverflowException("Byte overflow in constructor.");
 
         data = new uint[maxLength];
 
         for(int i = dataLength - 1, j = 0; i >= 0; i--, j++)
-                data[j] = inData[i];
+            data[j] = inData[i];
 
         while(dataLength > 1 && data[dataLength-1] == 0)
-                dataLength--;
+            dataLength--;
 
         //Console.WriteLine("Len = " + dataLength);
     }
@@ -846,7 +847,7 @@ public class BigInteger
             for(int i = 0; i < 32; i++)
             {
                 if((result.data[result.dataLength-1] & mask) != 0)
-                        break;
+                    break;
 
                 result.data[result.dataLength-1] |= mask;
                 mask >>= 1;
@@ -989,7 +990,7 @@ public class BigInteger
         for(int i = 0; i < this.dataLength; i++)
         {
             if(this.data[i] != bi.data[i])
-                    return false;
+                return false;
         }
         return true;
     }
@@ -1652,7 +1653,10 @@ public class BigInteger
         return resultNum;
     }
 
-
+    //***********************************************************************
+    // Naive method of exponentiation
+    //***********************************************************************
+    
     public BigInteger Pow(int exp)
     {
         BigInteger result = new BigInteger(1);
@@ -2147,8 +2151,8 @@ public class BigInteger
 
             // check whether a factor exists (fix for version 1.03)
             BigInteger gcdTest = a.gcd(thisVal);
-                    if(gcdTest.dataLength == 1 && gcdTest.data[0] != 1)
-                            return false;
+            if(gcdTest.dataLength == 1 && gcdTest.data[0] != 1)
+                return false;
 
             // calculate a^((p-1)/2) mod p
 
@@ -2187,25 +2191,25 @@ public class BigInteger
 
     public bool LucasStrongTest()
     {
-            BigInteger thisVal;
-            if((this.data[maxLength-1] & 0x80000000) != 0)        // negative
-                    thisVal = -this;
-            else
-                    thisVal = this;
+        BigInteger thisVal;
+        if((this.data[maxLength-1] & 0x80000000) != 0)        // negative
+            thisVal = -this;
+        else
+            thisVal = this;
 
-            if(thisVal.dataLength == 1)
-            {
-                    // test small numbers
-                    if(thisVal.data[0] == 0 || thisVal.data[0] == 1)
-                            return false;
-                    else if(thisVal.data[0] == 2 || thisVal.data[0] == 3)
-                            return true;
-            }
-
-            if((thisVal.data[0] & 0x1) == 0)     // even numbers
+        if(thisVal.dataLength == 1)
+        {
+            // test small numbers
+            if(thisVal.data[0] == 0 || thisVal.data[0] == 1)
                     return false;
+            else if(thisVal.data[0] == 2 || thisVal.data[0] == 3)
+                    return true;
+        }
 
-            return LucasStrongTestHelper(thisVal);
+        if((thisVal.data[0] & 0x1) == 0)     // even numbers
+            return false;
+
+        return LucasStrongTestHelper(thisVal);
     }
 
 
@@ -2219,7 +2223,7 @@ public class BigInteger
         long D = 5, sign = -1, dCount = 0;
         bool done = false;
 
-        // Console.WriteLine("LucasStrongTestHelper...");
+        //Console.WriteLine("LucasStrongTestHelper...");
         while(!done)
         {
             int Jresult = BigInteger.Jacobi(D, thisVal);        // Parameters are initialized as (BigInteger(long), BigInteger thisVal)
@@ -2236,7 +2240,7 @@ public class BigInteger
 
                 if(dCount == 20)
                 {
-                    // check for square
+                    // check for (perfect) square
                     BigInteger root = thisVal.sqrt();
                     if(root * root == thisVal)
                         return false;
@@ -2856,7 +2860,7 @@ public class BigInteger
             mask = 0x80000000;
             j++;
         }
-        Console.WriteLine("iterations: {0}", j);
+        // Console.WriteLine("iterations: {0}", j);
         return result;
     }
 
@@ -2884,7 +2888,7 @@ public class BigInteger
             e = (n3 * e + this / e.Pow(n1)) / n2;
             i++;
         }
-        Console.WriteLine("iterations: {0}", i);
+        //Console.WriteLine("iterations: {0}", i);
         if (d < e) {
             return d;
         }
@@ -3087,19 +3091,19 @@ public class BigInteger
     public static void MulDivTest(int rounds)
     {
         Random rand = new Random();
-        byte[] val1 = new byte[96];
-        byte[] val2 = new byte[96];
+        byte[] val1 = new byte[516];
+        byte[] val2 = new byte[516];
 
         for(int count = 0; count < rounds; count++)
         {
             // generate 2 numbers of random length
             int t1 = 0;
             // while(t1 == 0)
-                t1 = (int)(rand.Next() % 93) + 4;
+                t1 = (int)(rand.Next() % 513) + 4;
 
             int t2 = 0;
             // while(t2 == 0)
-                t2 = (int)(rand.Next() % 93) + 4;
+                t2 = (int)(rand.Next() % 513) + 4;
 
             bool done = false;
             while(!done)
@@ -3154,9 +3158,9 @@ public class BigInteger
             BigInteger bn5 = (bn3 * bn2) + bn4;
 
             // Make sure they're the same
-            // Console.WriteLine($"\n{bn1}\n{bn5}\n{t1}\n{t2}\n");
             if(bn5 != bn1)
             {
+                Console.WriteLine($"\n{bn1}\n{bn5}\n{bn1.bitCount()}\n{bn2.bitCount()}\n");
                 Console.WriteLine("Error at " + count);
                 Console.WriteLine(bn1 + "\n");
                 Console.WriteLine(bn2 + "\n");
@@ -3339,9 +3343,9 @@ public class BigInteger
             // generate data of random length
             int t1 = 0;
             while(t1 == 0)
-                t1 = (int)(rand.NextDouble() * 1024);
+                t1 = (int)(rand.Next() & 0x3ff);
 
-            Console.Write("Round = " + count);
+            Console.Write("Round = {0,8}\trandBits = {1}\t", count, t1);
 
             BigInteger a = new BigInteger();
             a.genRandomBits(t1, rand);
@@ -3374,7 +3378,7 @@ public class BigInteger
         {
             BigInteger y = new BigInteger(count + 1);
             for (int i = 0; i < 250; i++)
-                y *= 100;
+                y *= 10000;
 
             BigInteger x = y.sqrt();
             BigInteger z = (x+1) * (x+1);
@@ -3501,7 +3505,8 @@ public class BigInteger
 
             BigInteger p = new BigInteger(i);
 
-            if(p.isProbablePrime())
+            // if(p.isProbablePrime())
+            if(p.LucasStrongTest())
             {
                 if (i < 1000)
                     Console.Write("{0,3:G}, ", i);
@@ -3513,14 +3518,15 @@ public class BigInteger
             }
         }
         Console.WriteLine("\nCount = " + count);
-
-        BigInteger bigInt1 = new BigInteger(pseudoPrime1);
+        
+        const int confidence = 15;
+        BigInteger bigInt1 = new BigInteger(pseudoPrime2);
         {
             Console.WriteLine("\n\nPrimality testing for:\n" + bigInt1.ToString() + "\n");
-            Console.WriteLine("SolovayStrassenTest(5) = " + bigInt1.SolovayStrassenTest(5));
-            Console.WriteLine("RabinMillerTest(5) = " + bigInt1.RabinMillerTest(5));
-            Console.WriteLine("FermatLittleTest(5) = " + bigInt1.FermatLittleTest(5));
-            Console.WriteLine("isProbablePrime() = " + bigInt1.isProbablePrime());
+            Console.WriteLine("SolovayStrassenTest({0}) = {1}", confidence, bigInt1.SolovayStrassenTest(confidence));
+            Console.WriteLine("RabinMillerTest({0}) = {1}", confidence, bigInt1.RabinMillerTest(confidence));
+            Console.WriteLine("FermatLittleTest({0}) = {1}", confidence, bigInt1.FermatLittleTest(confidence));
+            Console.WriteLine("isProbablePrime() = {0}", bigInt1.isProbablePrime());
         }
         
         /*
@@ -3535,11 +3541,14 @@ public class BigInteger
         
         //Print_Jacobi_Table(29, 31);
         
+        // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.SqrtTest(ROUNDS);
+
         // Console.WriteLine("\nSqrtTest2(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest2(ROUNDS);
 
-        Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
-        BigInteger.MulDivTest(ROUNDS);
+        // Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.MulDivTest(ROUNDS);
 
         // Console.WriteLine("\nRSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);
