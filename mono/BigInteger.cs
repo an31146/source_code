@@ -132,6 +132,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 
 public class BigInteger
@@ -146,17 +147,19 @@ public class BigInteger
     
     // primes smaller than 2000 to test the generated prime number
 
-    public static readonly int[] primesBelow2000 = {
-        2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97,
-        101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
-        211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293,
-        307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397,
-        401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499,
-        503, 509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599,
-        601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659, 661, 673, 677, 683, 691,
-        701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797,
-        809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887,
-        907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997,
+    public static readonly int[] primesBelow2000 = 
+    {
+           2,    3,    5,    7,   11,   13,   17,   19,   23,   29,   31,   37,   41,   43,   47,  
+          53,   59,   61,   67,   71,   73,   79,   83,   89,   97,
+         101,  103,  107,  109,  113,  127,  131,  137,  139,  149,  151,  157,  163,  167,  173,  179,  181,  191,  193,  197,  199,
+         211,  223,  227,  229,  233,  239,  241,  251,  257,  263,  269,  271,  277,  281,  283,  293,
+         307,  311,  313,  317,  331,  337,  347,  349,  353,  359,  367,  373,  379,  383,  389,  397,
+         401,  409,  419,  421,  431,  433,  439,  443,  449,  457,  461,  463,  467,  479,  487,  491,  499,
+         503,  509,  521,  523,  541,  547,  557,  563,  569,  571,  577,  587,  593,  599,
+         601,  607,  613,  617,  619,  631,  641,  643,  647,  653,  659,  661,  673,  677,  683,  691,
+         701,  709,  719,  727,  733,  739,  743,  751,  757,  761,  769,  773,  787,  797,
+         809,  811,  821,  823,  827,  829,  839,  853,  857,  859,  863,  877,  881,  883,  887,
+         907,  911,  919,  929,  937,  941,  947,  953,  967,  971,  977,  983,  991,  997,
         1009, 1013, 1019, 1021, 1031, 1033, 1039, 1049, 1051, 1061, 1063, 1069, 1087, 1091, 1093, 1097,
         1103, 1109, 1117, 1123, 1129, 1151, 1153, 1163, 1171, 1181, 1187, 1193,
         1201, 1213, 1217, 1223, 1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291, 1297,
@@ -679,97 +682,97 @@ public class BigInteger
 
     public static BigInteger operator *(BigInteger bi1, BigInteger bi2)
     {
-            int lastPos = maxLength-1;
-            bool bi1Neg = false, bi2Neg = false;
+        int lastPos = maxLength-1;
+        bool bi1Neg = false, bi2Neg = false;
 
-            // take the absolute value of the inputs
-            try
+        // take the absolute value of the inputs
+        try
+        {
+            if((bi1.data[lastPos] & 0x80000000) != 0)     // bi1 negative
             {
-                if((bi1.data[lastPos] & 0x80000000) != 0)     // bi1 negative
-                {
-                    bi1Neg = true;
-                    bi1 = -bi1;
-                }
-                if((bi2.data[lastPos] & 0x80000000) != 0)     // bi2 negative
-                {
-                    bi2Neg = true; 
-                    bi2 = -bi2;
-                }
+                bi1Neg = true;
+                bi1 = -bi1;
             }
-            catch(Exception) {
-                throw new ArithmeticException("Negation error.");
-            }
-
-            BigInteger result = new BigInteger();
-
-            // multiply the absolute values
-            try
+            if((bi2.data[lastPos] & 0x80000000) != 0)     // bi2 negative
             {
-                for(int i = 0; i < bi1.dataLength; i++)
-                {
-                    if(bi1.data[i] == 0)
-                        continue;
+                bi2Neg = true; 
+                bi2 = -bi2;
+            }
+        }
+        catch(Exception) {
+            throw new ArithmeticException("Negation error.");
+        }
 
-                    ulong mcarry = 0;
-                    for(int j = 0, k = i; j < bi2.dataLength; j++, k++)
+        BigInteger result = new BigInteger();
+
+        // multiply the absolute values
+        try
+        {
+            for(int i = 0; i < bi1.dataLength; i++)
+            {
+                if(bi1.data[i] == 0)
+                    continue;
+
+                ulong mcarry = 0;
+                for(int j = 0, k = i; j < bi2.dataLength; j++, k++)
+                {
+                    // k = i + j
+                    ulong val = ((ulong)bi1.data[i] * (ulong)bi2.data[j]) +
+                                 (ulong)result.data[k] + mcarry;
+
+                    result.data[k] = (uint)(val & 0xFFFFFFFF);
+                    mcarry = (val >> 32);
+                }
+
+                if(mcarry != 0)
+                    result.data[i+bi2.dataLength] = (uint)mcarry;
+            }
+        }
+        catch(Exception)
+        {
+            throw(new OverflowException("Multiplication overflow."));
+        }
+
+
+        result.dataLength = bi1.dataLength + bi2.dataLength;
+        if(result.dataLength > maxLength)
+            result.dataLength = maxLength;
+
+        while(result.dataLength > 1 && result.data[result.dataLength-1] == 0)
+            result.dataLength--;
+
+        // overflow check (result is -ve)
+        if((result.data[lastPos] & 0x80000000) != 0)
+        {
+            if(bi1Neg != bi2Neg && result.data[lastPos] == 0x80000000)    // different sign
+            {
+                // handle the special case where multiplication produces
+                // a max negative number in 2's complement.
+
+                if(result.dataLength == 1)
+                    return result;
+                else
+                {
+                    bool isMaxNeg = true;
+                    for(int i = 0; i < result.dataLength - 1 && isMaxNeg; i++)
                     {
-                        // k = i + j
-                        ulong val = ((ulong)bi1.data[i] * (ulong)bi2.data[j]) +
-                                     (ulong)result.data[k] + mcarry;
-
-                        result.data[k] = (uint)(val & 0xFFFFFFFF);
-                        mcarry = (val >> 32);
+                        if(result.data[i] != 0)
+                                isMaxNeg = false;
                     }
 
-                    if(mcarry != 0)
-                        result.data[i+bi2.dataLength] = (uint)mcarry;
-                }
-            }
-            catch(Exception)
-            {
-                throw(new OverflowException("Multiplication overflow."));
-            }
-
-
-            result.dataLength = bi1.dataLength + bi2.dataLength;
-            if(result.dataLength > maxLength)
-                result.dataLength = maxLength;
-
-            while(result.dataLength > 1 && result.data[result.dataLength-1] == 0)
-                result.dataLength--;
-
-            // overflow check (result is -ve)
-            if((result.data[lastPos] & 0x80000000) != 0)
-            {
-                if(bi1Neg != bi2Neg && result.data[lastPos] == 0x80000000)    // different sign
-                {
-                    // handle the special case where multiplication produces
-                    // a max negative number in 2's complement.
-
-                    if(result.dataLength == 1)
+                    if(isMaxNeg)
                         return result;
-                    else
-                    {
-                        bool isMaxNeg = true;
-                        for(int i = 0; i < result.dataLength - 1 && isMaxNeg; i++)
-                        {
-                            if(result.data[i] != 0)
-                                    isMaxNeg = false;
-                        }
-
-                        if(isMaxNeg)
-                            return result;
-                    }
                 }
-
-                throw new OverflowException("Multiplication overflow.");
             }
 
-            // if input has different signs, then result is -ve
-            if(bi1Neg != bi2Neg)
-                return -result;
+            throw new OverflowException("Multiplication overflow.");
+        }
 
-            return result;
+        // if input has different signs, then result is -ve
+        if(bi1Neg != bi2Neg)
+            return -result;
+
+        return result;
     }
 
 
@@ -998,7 +1001,7 @@ public class BigInteger
 
     public override int GetHashCode()
     {
-        return this.ToString().GetHashCode();
+        return this.ToByteArray().GetHashCode();
     }
 
 
@@ -1659,17 +1662,75 @@ public class BigInteger
     
     public BigInteger Pow(int exp)
     {
-        BigInteger result = new BigInteger(1);
+        if (exp < 0)
+            throw new ArgumentException("Positive exponents only.");
         
-        while (0 < exp--)
-        {
-            result *= this;
+        BigInteger result = new BigInteger(1);
 
-            // if ((exp & 1) == 0)
-                // result *= result;
-            // Console.Write(exp & 1);
-            // exp >>= 1;
+        if (exp == 0)
+            return result;
+        if (exp == 1)
+            return this;
+
+        // initialize result = this but only when special case of powers of two
+        // if (exp % 2 == 0)
+        // result = this;
+        // else
+            // exp--;
+        string strHexPowerOf2 = String.Format("{0:X}", exp);
+        
+        Regex re = new Regex("^[1248]{1}0?$");
+        if (re.IsMatch(strHexPowerOf2))
+        {
+            // Console.WriteLine("\nFound match: {0}", strHexPowerOf2);
+            result = this;
+            
+            while (exp > 1)
+            {
+                result *= result;
+                exp >>= 1;
+            }
         }
+        else
+        {
+                // Console.WriteLine("exp: {0}", exp);
+            // while ((exp & 0x80000000) == 0)
+                // exp <<= 1;
+            
+            // Console.WriteLine("\nexp: 0x{0:X}", exp);
+            // Console.WriteLine("{0}", (exp & 0x80000000) == 0x80000000);
+            string strBinary = "";
+            while (exp > 0)
+            {
+                if ((exp & 1) == 1)
+                    strBinary = "1" + strBinary;
+                else
+                    strBinary = "0" + strBinary;
+                exp >>= 1;
+            }
+            // Console.WriteLine("\nstrBinary: {0}", strBinary);
+            
+            int i = 0;
+            while (strBinary.Length > 0)
+            {
+                // Console.WriteLine("\nstep: {0}\t{1}", i, result);
+                if (strBinary[0] == '1')
+                {
+                    // Console.Write("multiplying...");
+                    result *= this;
+                }
+                
+                strBinary = strBinary.Substring(1);
+                if (strBinary.Length > 0)
+                {
+                    // Console.Write("squaring...");
+                    result *= result;
+                }
+                // Console.WriteLine("exp: {0}", exp);
+                // Console.WriteLine("\nstep: {0}\t{1}", i++, result);
+            } 
+        }
+        
         return result;
     }
 
@@ -1907,7 +1968,7 @@ public class BigInteger
 
         int bits = thisVal.bitCount();
         BigInteger a = new BigInteger();
-        BigInteger p_sub1 = thisVal - (new BigInteger(1));
+        BigInteger p_sub1 = thisVal - new BigInteger(1);
         Random rand = new Random();
 
         for(int round = 0; round < confidence; round++)
@@ -3173,6 +3234,44 @@ public class BigInteger
         }
     }
 
+    
+    //***********************************************************************
+    // Tests the correctness of raising x to the power n
+    // - using list of primes < 2000 and modPow()
+    //***********************************************************************
+    public static void PowTest(int rounds)
+    {
+        BigInteger x;
+        for(int count = 3; count < rounds; count++)
+        {
+            Console.Write("Round: {0}", count);
+            
+            foreach(int p in primesBelow2000)
+            // foreach(int p in new int[] {2, 3, 5, 7, 11, 13, 17} )
+            {
+                BigInteger bigInt_p = new BigInteger(p);
+                x = bigInt_p.Pow(count);
+
+                Console.WriteLine("\t{0}^{1} = {2}", p, count, x);
+                
+                if (count == 0 && x != new BigInteger(1))
+                    throw new ArithmeticException("x.Pow(0) was not equal to 1.");
+                if (count == 1 && x != bigInt_p)
+                    throw new ArithmeticException("x.Pow(1) was not equal to x.");
+                if (count > 0 && x % p != 0)
+                    throw new ArithmeticException( String.Format("x mod {0} was not congruent to zero.", p) );
+                if ( p > 2 && (x % (p-1) != 1) )
+                    throw new ArithmeticException( String.Format("p^{0} mod (p-1) was not congruent to one.", count) );
+                if ( x.gcd(new BigInteger(2017)) != 1 ) 
+                    throw new ArithmeticException("gcd(x, 2017) has common denominator > 1.");
+                
+            }
+            Console.WriteLine(" <PASSED>.");
+            Console.ReadLine();
+            
+        }
+    }
+
 
     //***********************************************************************
     // Tests the correct implementation of the modulo exponential function
@@ -3512,7 +3611,7 @@ public class BigInteger
                     Console.Write("{0,3:G}, ", i);
                 else
                     Console.Write("{0,4:G}, ", i);
-                // Console.WriteLine(p.Pow(10));
+                // Console.WriteLine("\n{0}", p.Pow(10));
                 // Console.ReadLine();
                 count++;
             }
@@ -3533,13 +3632,16 @@ public class BigInteger
         int randPrimeBits = 2048;
         Console.Write("\n\nGenerating {0}-bits random pseudoprime.", randPrimeBits);
         Random rand = new Random();
-        BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, 5, rand);
+        BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, confidence, rand);
         Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
         */
         
         //int dwStart = System.Environment.TickCount;
         
         //Print_Jacobi_Table(29, 31);
+
+        Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
+        BigInteger.PowTest(ROUNDS);
         
         // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest(ROUNDS);
