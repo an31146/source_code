@@ -1,4 +1,4 @@
-//************************************************************************************
+﻿//************************************************************************************
 // BigInteger Class Version 1.03
 //
 // Copyright (c) 2002 Chew Keong TAN
@@ -143,7 +143,10 @@ public class BigInteger
     private const int maxLength = 130;          // 100 is sufficient for 1560-bits, 130 needed for 2048-bits
 
     // Number of rounds to performs tests
-    private const int ROUNDS = 1000;
+    private const int ROUNDS = 300;
+
+    // default confidence level to test primes
+    private const int confidence = 15;
     
     // primes smaller than 2000 to test the generated prime number
 
@@ -1696,6 +1699,10 @@ public class BigInteger
                 // Console.WriteLine("exp: {0}", exp);
             // while ((exp & 0x80000000) == 0)
                 // exp <<= 1;
+            // for ( ; exp > 0; exp--)
+                // result *= this;
+            
+            // return result;
             
             // Console.WriteLine("\nexp: 0x{0:X}", exp);
             // Console.WriteLine("{0}", (exp & 0x80000000) == 0x80000000);
@@ -1710,7 +1717,7 @@ public class BigInteger
             }
             // Console.WriteLine("\nstrBinary: {0}", strBinary);
             
-            int i = 0;
+            // int i = 0;
             while (strBinary.Length > 0)
             {
                 // Console.WriteLine("\nstep: {0}\t{1}", i, result);
@@ -1981,7 +1988,7 @@ public class BigInteger
 
                 // make sure "a" has at least 2 bits
                 while(testBits < 2)
-                    testBits = (int)(rand.NextDouble() * bits);
+                    testBits = (int)(rand.Next() % bits);
 
                 a.genRandomBits(testBits, rand);
 
@@ -2093,7 +2100,7 @@ public class BigInteger
 
                 // make sure "a" has at least 2 bits
                 while(testBits < 2)
-                    testBits = (int)(rand.NextDouble() * bits);
+                    testBits = (int)(rand.Next() % bits);
 
                 a.genRandomBits(testBits, rand);
 
@@ -2199,7 +2206,7 @@ public class BigInteger
 
                 // make sure "a" has at least 2 bits
                 while(testBits < 2)
-                    testBits = (int)(rand.NextDouble() * bits);
+                    testBits = (int)(rand.Next() % bits);
 
                 a.genRandomBits(testBits, rand);
 
@@ -2262,9 +2269,9 @@ public class BigInteger
         {
             // test small numbers
             if(thisVal.data[0] == 0 || thisVal.data[0] == 1)
-                    return false;
+                return false;
             else if(thisVal.data[0] == 2 || thisVal.data[0] == 3)
-                    return true;
+                return true;
         }
 
         if((thisVal.data[0] & 0x1) == 0)     // even numbers
@@ -3146,6 +3153,38 @@ public class BigInteger
 
 
     //***********************************************************************
+    // Tests the multiplicative inverse function
+    //***********************************************************************
+
+    public static void ModInverseTest(int rounds)
+    {
+        Random rand = new Random();
+        
+        for(int count = 0; count < rounds; count++)
+        {
+            Console.Write("Round [{0,8}]: ", count);
+
+            BigInteger modulus = genPseudoPrime(128, confidence, rand);
+            
+            foreach (int p in primesBelow2000)
+            {
+                BigInteger bi_p = new BigInteger(p);
+                BigInteger bi_inv = bi_p.modInverse(modulus);
+                
+                var congruent_to_1 = bi_p * bi_inv % modulus;
+                
+                // Console.WriteLine("{0} * {1} % {2} ≡ {3}", bi_p, bi_inv, modulus, congruent_to_1);
+                
+                if (congruent_to_1 != 1)
+                    throw new ArithmeticException( String.Format("{0}*{1} mod {2} was not congruent to 1.", bi_p, bi_inv, modulus) );
+            }
+            Console.WriteLine(" <PASSED>.");
+            
+        }
+    }
+    
+
+    //***********************************************************************
     // Tests the correct implementation of the /, %, * and + operators
     //***********************************************************************
 
@@ -3267,7 +3306,7 @@ public class BigInteger
                 
             }
             Console.WriteLine(" <PASSED>.");
-            Console.ReadLine();
+            // Console.ReadLine();
             
         }
     }
@@ -3281,8 +3320,9 @@ public class BigInteger
 
     public static void RSATest(int rounds)
     {
-        Random rand = new Random(1);
-        byte[] val = new byte[64];
+        const int LEN = 127;
+        Random rand = new Random();
+        byte[] val = new byte[LEN];
 
         // private and public key
         BigInteger bi_e = new BigInteger("a932b948feed4fb2b692609bd22164fc9edb59fae7880cc1eaff7b3c9626b7e5b241c27a974833b2622ebe09beb451917663d47232488f23a117fc97720f1e7", 16);
@@ -3305,25 +3345,28 @@ public class BigInteger
             // generate data of random length
             int t1 = 0;
             while(t1 == 0)
-                t1 = (int)(rand.NextDouble() * 65);
+                t1 = (int)(rand.Next() % LEN);
 
             bool done = false;
             while(!done)
             {
-                for(int i = 0; i < 64; i++)
+                for(int i = 0; i < LEN; i++)
                 {
                     if(i < t1)
-                        val[i] = (byte)(rand.NextDouble() * 256);
+                        val[i] = (byte)rand.Next();
                     else
                         val[i] = 0;
 
                     if(val[i] != 0)
+                    {
+                        // Console.WriteLine("done.");
                         done = true;
+                    }
                 }
             }
 
             while(val[0] == 0)
-                val[0] = (byte)(rand.NextDouble() * 256);
+                val[0] = (byte)rand.Next();
 
             Console.Write("Round = " + count);
 
@@ -3354,8 +3397,9 @@ public class BigInteger
 
     public static void RSATest2(int rounds)
     {
+        const int LEN = 128;
         Random rand = new Random();
-        byte[] val = new byte[64];
+        byte[] val = new byte[LEN];
 
         byte[] pseudoPrime1 = {
             0x85, 0x84, 0x64, 0xFD, 0x70, 0x6A, 0x9F, 0xF0, 0x94, 0x0C, 0x3E, 0x2C, 0x74, 0x34, 0x05, 0xC9, 
@@ -3380,17 +3424,17 @@ public class BigInteger
         for(int count = 0; count < rounds; count++)
         {
             // generate private and public key
-            BigInteger bi_e = bi_pq.genCoPrime(512, rand);
+            BigInteger bi_e = bi_pq.genCoPrime(1024, rand);
             BigInteger bi_d = bi_e.modInverse(bi_pq);
 
-            Console.WriteLine("\ne =\n" + bi_e.ToString(10));
-            Console.WriteLine("\nd =\n" + bi_d.ToString(10));
-            Console.WriteLine("\nn =\n" + bi_n.ToString(10) + "\n");
+            // Console.WriteLine("\ne =\n" + bi_e.ToString(10));
+            // Console.WriteLine("\nd =\n" + bi_d.ToString(10));
+            // Console.WriteLine("\nn =\n" + bi_n.ToString(10) + "\n");
 
             // generate data of random length
             int t1 = 0;
             while(t1 == 0)
-                t1 = (int)(rand.NextDouble() * 65);
+                t1 = (int)(rand.Next() % LEN);
 
             bool done = false;
             while(!done)
@@ -3398,7 +3442,7 @@ public class BigInteger
                 for(int i = 0; i < 64; i++)
                 {
                     if(i < t1)
-                        val[i] = (byte)(rand.NextDouble() * 256);
+                        val[i] = (byte)rand.Next();
                     else
                         val[i] = 0;
 
@@ -3408,7 +3452,7 @@ public class BigInteger
             }
 
             while(val[0] == 0)
-                    val[0] = (byte)(rand.NextDouble() * 256);
+                val[0] = (byte)rand.Next();
 
             Console.Write("Round = " + count);
 
@@ -3591,9 +3635,9 @@ public class BigInteger
         // primality test but failed in JDK's isProbablePrime test.
 
         
-        Console.WriteLine("List of primes < 2000\n---------------------");
+        Console.Write("List of primes < 10000\n" + new String('-', 120));
         int limit = 89, count = 0;
-        for(uint i = 0; i < 2000; i++)
+        for(uint i = 0; i < 10000; i++)
         {
             // if( (count+1) % 20 == 0)
             if (i >= limit)
@@ -3604,8 +3648,9 @@ public class BigInteger
 
             BigInteger p = new BigInteger(i);
 
-            // if(p.isProbablePrime())
-            if(p.LucasStrongTest())
+            if(p.isProbablePrime())
+            // if(p.LucasStrongTest())
+            // if(p.FermatLittleTest(confidence))
             {
                 if (i < 1000)
                     Console.Write("{0,3:G}, ", i);
@@ -3618,7 +3663,9 @@ public class BigInteger
         }
         Console.WriteLine("\nCount = " + count);
         
-        const int confidence = 15;
+        // BigInteger c = new BigInteger(5777);        // false LucasStrongTest prime!
+        // Console.WriteLine("LucasStrongTest: {0}", c.LucasStrongTest());
+        
         BigInteger bigInt1 = new BigInteger(pseudoPrime2);
         {
             Console.WriteLine("\n\nPrimality testing for:\n" + bigInt1.ToString() + "\n");
@@ -3627,21 +3674,25 @@ public class BigInteger
             Console.WriteLine("FermatLittleTest({0}) = {1}", confidence, bigInt1.FermatLittleTest(confidence));
             Console.WriteLine("isProbablePrime() = {0}", bigInt1.isProbablePrime());
         }
-        
+                
         /*
         int randPrimeBits = 2048;
         Console.Write("\n\nGenerating {0}-bits random pseudoprime.", randPrimeBits);
         Random rand = new Random();
         BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, confidence, rand);
+        Console.WriteLine("\nprime.GetHashCode(): 0x{0:X8}", prime.GetHashCode());
         Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
-        */
+        */       
         
         //int dwStart = System.Environment.TickCount;
         
         //Print_Jacobi_Table(29, 31);
-
-        Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
-        BigInteger.PowTest(ROUNDS);
+        
+        // Console.WriteLine("\nModInverseTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.ModInverseTest(ROUNDS);
+        
+        // Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.PowTest(ROUNDS);
         
         // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest(ROUNDS);
@@ -3655,8 +3706,8 @@ public class BigInteger
         // Console.WriteLine("\nRSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);
 
-        //Console.WriteLine("\nRSATest2(ROUNDS={0})", ROUNDS);
-        //BigInteger.RSATest2(ROUNDS);
+        // Console.WriteLine("\nRSATest2(ROUNDS={0})", ROUNDS);
+        // BigInteger.RSATest2(ROUNDS);
         
         //Console.WriteLine(System.Environment.TickCount - dwStart);
 
