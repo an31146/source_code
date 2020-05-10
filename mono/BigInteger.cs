@@ -142,8 +142,8 @@ public class BigInteger
 
     private const int maxLength = 130;          // 100 is sufficient for 1560-bits, 130 needed for 2048-bits
 
-    // Number of rounds to performs tests
-    private const int ROUNDS = 300;
+    // Number of rounds to perform tests
+    private const int ROUNDS = 40000;
 
     // default confidence level to test primes
     private const int confidence = 15;
@@ -3199,11 +3199,11 @@ public class BigInteger
             // generate 2 numbers of random length
             int t1 = 0;
             // while(t1 == 0)
-                t1 = (int)(rand.Next() % 513) + 4;
+                t1 = (int)rand.Next(513) + 4;
 
             int t2 = 0;
             // while(t2 == 0)
-                t2 = (int)(rand.Next() % 513) + 4;
+                t2 = (int)rand.Next(513) + 4;
 
             bool done = false;
             while(!done)
@@ -3526,7 +3526,7 @@ public class BigInteger
             BigInteger x = y.sqrt();
             BigInteger z = (x+1) * (x+1);
 
-            Console.Write("\nRound: {0}", count);
+            Console.Write("Round: {0}", count);
 
             // check that x is the largest integer such that x*x <= z
             if (z <= y)
@@ -3635,9 +3635,9 @@ public class BigInteger
         // primality test but failed in JDK's isProbablePrime test.
 
         
-        Console.Write("List of primes < 10000\n" + new String('-', 120));
+        Console.Write("List of primes < 1000\n" + new String('-', 120));
         int limit = 89, count = 0;
-        for(uint i = 0; i < 10000; i++)
+        for(uint i = 0; i < 1000; i++)
         {
             // if( (count+1) % 20 == 0)
             if (i >= limit)
@@ -3684,7 +3684,11 @@ public class BigInteger
         Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
         */       
         
-        //int dwStart = System.Environment.TickCount;
+        //
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        int dwStart = Environment.TickCount;
+        
+        sw.Start();
         
         //Print_Jacobi_Table(29, 31);
         
@@ -3700,8 +3704,8 @@ public class BigInteger
         // Console.WriteLine("\nSqrtTest2(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest2(ROUNDS);
 
-        // Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
-        // BigInteger.MulDivTest(ROUNDS);
+        Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
+        BigInteger.MulDivTest(ROUNDS);
 
         // Console.WriteLine("\nRSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);
@@ -3709,8 +3713,9 @@ public class BigInteger
         // Console.WriteLine("\nRSATest2(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest2(ROUNDS);
         
-        //Console.WriteLine(System.Environment.TickCount - dwStart);
-
+        sw.Stop();
+        Console.WriteLine("\nTickCount {0} secs.", (float)(Environment.TickCount - dwStart) / 1000.0f);
+        Console.WriteLine("Stopwatch {0:F2} secs.", sw.Elapsed.TotalSeconds);
     }
 
 }
