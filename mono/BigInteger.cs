@@ -143,7 +143,7 @@ public class BigInteger
     private const int maxLength = 130;          // 100 is sufficient for 1560-bits, 130 needed for 2048-bits
 
     // Number of rounds to perform tests
-    private const int ROUNDS = 40000;
+    private const int ROUNDS = 380;
 
     // default confidence level to test primes
     private const int confidence = 15;
@@ -3291,7 +3291,7 @@ public class BigInteger
                 BigInteger bigInt_p = new BigInteger(p);
                 x = bigInt_p.Pow(count);
 
-                Console.WriteLine("\t{0}^{1} = {2}", p, count, x);
+                // Console.WriteLine("\t{0}^{1} = {2}", p, count, x);
                 
                 if (count == 0 && x != new BigInteger(1))
                     throw new ArithmeticException("x.Pow(0) was not equal to 1.");
@@ -3695,8 +3695,8 @@ public class BigInteger
         // Console.WriteLine("\nModInverseTest(ROUNDS={0})", ROUNDS);
         // BigInteger.ModInverseTest(ROUNDS);
         
-        // Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
-        // BigInteger.PowTest(ROUNDS);
+        Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
+        BigInteger.PowTest(ROUNDS);
         
         // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest(ROUNDS);
@@ -3704,8 +3704,8 @@ public class BigInteger
         // Console.WriteLine("\nSqrtTest2(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest2(ROUNDS);
 
-        Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
-        BigInteger.MulDivTest(ROUNDS);
+        // Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.MulDivTest(ROUNDS);
 
         // Console.WriteLine("\nRSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);

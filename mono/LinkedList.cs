@@ -17,6 +17,7 @@ public class Tree<T> : List<T>
         Value = _value;
         Left = null;
         Right = null;
+        // Console.WriteLine("created node: {0}\n", Value);
     }
        
     public Tree<T> GetNode()
@@ -44,41 +45,54 @@ public class Tree<T> : List<T>
         return defComp.Compare(Value, y);
     }
 
-    public Tree<T> AddNode(ref Tree<T> _thisNode, T _value)
+    public void AddNode(Tree<T> _thisNode, T _value)
     {
         if (_thisNode == null)
-        {
+        {   
             //Node = new Tree<T>(_value);
             _thisNode = new Tree<T>(_value);
             //Node = _thisNode;
             //if (_thisNode == null)
             //    _thisNode = Node;
             Console.WriteLine("added node: {0}", _thisNode.GetValue());
-            return _thisNode;
+            return;
         }
             
-        if (this.CompareTo(_value) > 0)
+        Console.WriteLine("_thisNode.Value = {0}", this.Value);
+        
+        if (_thisNode.CompareTo(_value) > 0)
         {
-            Console.WriteLine("add \"{0}\" to left node.", _value);
-            //if (_thisNode.Left == null)
-                this.Left = AddNode(ref _thisNode.Left, _value);
-                Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
-                return this.Left;
+            if (_thisNode.Left == null)
+                _thisNode.Left = new Tree<T>(_value);
+            else
+                AddNode(_thisNode.Left, _value);
+            
+            Console.WriteLine("added \"{0}\" to Left node.", _value);
+                // Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
+                Console.WriteLine("_thisNode.Left {0}= null\n_thisNode.Right {1}= null\n", (_thisNode.Left == null ? '=' : '!'), (_thisNode.Right == null ? '=' : '!') );
+                Console.WriteLine(new String('-', 40));
+            //    return this.Left;
             //else
             //    _thisNode.Left = new Tree<T>(_value);
             
-        }
-        else
-        {
-            Console.WriteLine("add \"{0}\" to right node.", _value);
-            //if (_thisNode.Right != null)
-                this.Right = AddNode(ref _thisNode.Right, _value);
-                Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
-                return this.Right;
+        } else {
+            if (_thisNode.Right == null)
+                _thisNode.Right = new Tree<T>(_value);
+            else
+                AddNode(_thisNode.Right, _value);
+            
+            Console.WriteLine("added \"{0}\" to Right node.", _value);
+                // Console.WriteLine("_thisNode.Left == null is {0}\n_thisNode.Right == null is {1}\n", _thisNode.Left == null, _thisNode.Right == null);
+                Console.WriteLine("_thisNode.Left {0}= null\n_thisNode.Right {1}= null\n", (_thisNode.Left == null ? '=' : '!'), (_thisNode.Right == null ? '=' : '!') );
+                Console.WriteLine(new String('-', 40));
+            //    return this.Right;
             //else
             //    _thisNode.Right = new Tree<T>(_value);
             
         }
+        
+        Console.Write("This statement should never be reached...");
+        Console.ReadLine();
     }
     
     public List<T> Traverse(Tree<T> _node, List<T> _listOfT = null)
@@ -108,7 +122,8 @@ public class Example
     {
         // Create the link list.
         string[] words =
-            { "the", "fox", "jumps", "over", "the", "dog" };
+        //    { "the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog" };
+            { "mangetout", "avocado", "cabbage", "beetroot", "capsicum", "fennel", "carrot", "ginger", "garlic", "kale", "potato" };
         LinkedList<string> sentence = new LinkedList<string>(words);
         
         
@@ -120,18 +135,22 @@ public class Example
             //else 
              
             //Console.WriteLine(str);
-            tree.AddNode(ref tree, str);
+            tree.AddNode(tree, str);
+            var t = tree;
+            Console.WriteLine("{0}\t{1}\t{2}", t.GetValue(), t.GetLeft(), t.GetRight());
         }
         
-        Console.WriteLine("\ntree != null is {0}\ntree.GetLeft() != null is {1}\ntree.GetRight() != null is {2}\n", tree != null, tree.GetLeft() != null, tree.GetRight() != null);
+        // Console.WriteLine("\ntree != null is {0}\ntree.GetLeft() != null is {1}\ntree.GetRight() != null is {2}\n", tree != null, tree.GetLeft() != null, tree.GetRight() != null);
+        Console.WriteLine("\ntree {0}= null\ntree.GetLeft() {1}= null\ntree.GetRight() {2}= null\n", 
+                            (tree == null ? '=' : '!'), (tree.GetLeft() == null ? '=' : '!'), (tree.GetRight() == null ? '=' : '!') );
         
         List<string> sorted_words = null;
         
         sorted_words = tree.Traverse(tree, sorted_words);
         Console.WriteLine("sorted_words.Count = {0}", sorted_words.Count);
         
-        foreach (string str in sorted_words)
-            Console.WriteLine(str);
+        // foreach (string str in sorted_words)
+            // Console.WriteLine(str);
 
         Console.Write("Press Enter: ");
         Console.ReadLine();
