@@ -27,40 +27,19 @@ public class Tree<T> : List<T>
         // Console.WriteLine("created node: {0}\n", Value);
     }
        
-    public Tree<T> GetNode()
-    {
-        return this;
-    }
+    public Tree<T> GetNode() => this;
     
-    public Tree<T> GetLeft()
-    {
-        return Left;
-    }
+    public Tree<T> GetLeft() => Left;
     
-    public Tree<T> GetRight()
-    {
-        return Right;
-    }
+    public Tree<T> GetRight() => Right;
     
-    public int GetUniqueCount()
-    {
-        return UniqueCount;
-    }
+    public int GetUniqueCount() => UniqueCount;
 
-    public int GetTotalCount()
-    {
-        return TotalCount;
-    }
+    public int GetTotalCount() => TotalCount;
     
-    public T GetValue()
-    {
-        return (T)Value;
-    }
+    public T GetValue() => (T)Value;
 
-    public int CompareTo(T y)
-    {
-        return defComp.Compare(Value, y);
-    }
+    public int CompareTo(T y) => defComp.Compare(Value, y);
 
     public void AddNode(Tree<T> _thisNode, T _value)
     {
@@ -180,7 +159,7 @@ public class Example
                 Console.WriteLine("Line {0,5} - Length: {1}", ++lineCount, strLineIn.Length);
             
                 words = strLineIn.Split(new char [] {' ',',','.','?',';',':','!','"','\'','-','_','(',')','*','/'} );
-    #endif
+#endif
                 foreach (string str in words)
                 {
                     //if (words[0].Equals(str))
@@ -194,7 +173,7 @@ public class Example
                     var t = tree;
                     // Console.WriteLine("{0}\t{1}\t{2}", t.GetValue(), t.GetLeft(), t.GetRight());
                 }
-    #if _TEXTFILE
+#if _TEXTFILE
             } while (!sr.EndOfStream);
         }
         catch (IOException ex)
