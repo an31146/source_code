@@ -143,7 +143,7 @@ public class BigInteger
     private const int maxLength = 130;          // 100 is sufficient for 1560-bits, 130 needed for 2048-bits
 
     // Number of rounds to perform tests
-    private const int ROUNDS = 40000;
+    private const int ROUNDS = 4000;
 
     // default confidence level to test primes
     private const int confidence = 15;
@@ -2779,7 +2779,7 @@ public class BigInteger
         }
 
         if(r[0].dataLength > 1 || (r[0].dataLength == 1 && r[0].data[0] != 1))
-            throw new ArithmeticException("No inverse exists!");
+            throw new ArithmeticException("No modular inverse exists!");
 
         BigInteger result = ((p[0] - (p[1] * q[0])) % modulus);
 
@@ -3666,7 +3666,7 @@ public class BigInteger
         // BigInteger c = new BigInteger(5777);        // false LucasStrongTest prime!
         // Console.WriteLine("LucasStrongTest: {0}", c.LucasStrongTest());
         
-        BigInteger bigInt1 = new BigInteger(pseudoPrime2);
+        BigInteger bigInt1 = new BigInteger(pseudoPrime4);
         {
             Console.WriteLine("\n\nPrimality testing for:\n" + bigInt1.ToString() + "\n");
             Console.WriteLine("SolovayStrassenTest({0}) = {1}", confidence, bigInt1.SolovayStrassenTest(confidence));
@@ -3698,14 +3698,14 @@ public class BigInteger
         // Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
         // BigInteger.PowTest(ROUNDS);
         
-        // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
-        // BigInteger.SqrtTest(ROUNDS);
+        Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
+        BigInteger.SqrtTest(ROUNDS);
 
         // Console.WriteLine("\nSqrtTest2(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest2(ROUNDS);
 
-        Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
-        BigInteger.MulDivTest(ROUNDS);
+        // Console.WriteLine("\nMulDivTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.MulDivTest(ROUNDS);
 
         // Console.WriteLine("\nRSATest(ROUNDS={0})", ROUNDS);
         // BigInteger.RSATest(ROUNDS);

@@ -2,7 +2,7 @@
  * #!/usr/bin/mcs
  *
  * BinaryFileStreamIO.cs
- * "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\Roslyn\csc.exe" /target:exe /out:BinaryFileStreamIO.exe BinaryFileStreamIO.cs
+ * "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\Roslyn\csc.exe" /target:exe /platform:anycpu /out:BinaryFileStreamIO.exe BinaryFileStreamIO.cs
  */
 #define TEST_FILE_EXISTS
 
@@ -93,7 +93,7 @@ class MyStream
             for (int j = 0; j < REPETITIONS / DIVISOR; j++)
             {
                 w.Write(utf8.GetBytes(strAscii));
-                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
+                Console.Write("{0:P1} \r", (float)j / (REPETITIONS / DIVISOR) );
             }
             sw.Stop();
             
@@ -134,7 +134,7 @@ class MyStream
                     //Console.Write(r.ReadChar());
                     //r.ReadChar();			// Elapsed time: 115080 ms
                     charArray = r.ReadChars(READ_BLOCK_SIZE);
-                    Console.Write("{0:F1} %\r", (float)fs.Position / fs.Length * 100.0f);
+                    Console.Write("{0:P1} \r", (float)fs.Position / fs.Length );
                 //}
             }
             sw.Stop();

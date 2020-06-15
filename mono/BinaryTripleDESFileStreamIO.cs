@@ -162,50 +162,50 @@ class MyStream
         // Writing
         try
         {
-            FileStream fs = new FileStream(FILE_NAME, FileMode.CreateNew);
-            Stopwatch sw = new Stopwatch();
-            Encoding ascii = Encoding.ASCII;
-            Encoding utf8 = Encoding.UTF8;
+            using (FileStream fs = new FileStream(FILE_NAME, FileMode.CreateNew))
+            {
+                Encoding ascii = Encoding.ASCII;
+                Encoding utf8 = Encoding.UTF8;
 
-            // Create the writer for data.
-            BinaryWriter w = new BinaryWriter(fs);
-            string strAscii = "";
+                // Create the writer for data.
+                using (BinaryWriter w = new BinaryWriter(fs))
+                {
+                    string strAscii = "";
 
-            // Create a string of ASCII characters
-            for (int i = 32; i < 255; i++)
-            {
-                strAscii += (char)i;
-            }
-            // Multiply and concatenate - becomes 16 times the original length
-            for (int i = 0; i < 8; i++)
-            {
-                strAscii += strAscii;
-                DIVISOR *= 2;
-            }
-            
-            Byte[] encBytes;
-            {
-                encBytes = EncryptStringToBytes(strAscii, tripleDESalg.Key, tripleDESalg.IV);
-            }
+                    // Create a string of ASCII characters
+                    for (int i = 32; i < 255; i++)
+                    {
+                        strAscii += (char)i;
+                    }
+                    // Multiply and concatenate - becomes 16 times the original length
+                    for (int i = 0; i < 8; i++)
+                    {
+                        strAscii += "\n" + strAscii;
+                        DIVISOR *= 2;
+                    }
+                    
+                    Byte[] encBytes;
+                    {
+                        encBytes = EncryptStringToBytes(strAscii, tripleDESalg.Key, tripleDESalg.IV);
+                    }
 
-            Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / DIVISOR * encBytes.Length); // + bom.Length);
-            //Console.WriteLine("DIVISOR = {0}", DIVISOR);
-            
-            sw.Start();
-            // Write the string for COUNT times to Test.data
-            for (int j = 0; j < REPETITIONS / DIVISOR; j++)
-            {
-                //w.Write(utf8.GetBytes(strAscii));
-                w.Write(encBytes);
-                Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
+                    Console.WriteLine("Writing {0} bytes to file...", REPETITIONS / DIVISOR * encBytes.Length); // + bom.Length);
+                    //Console.WriteLine("DIVISOR = {0}", DIVISOR);
+                    
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    // Write the string for COUNT times to Test.data
+                    for (int j = 0; j < REPETITIONS / DIVISOR; j++)
+                    {
+                        //w.Write(utf8.GetBytes(strAscii));
+                        w.Write(encBytes);
+                        Console.Write("{0:F1} %\r", (float)j / (REPETITIONS / DIVISOR) * 100.0f);
+                    }
+                    sw.Stop();
+                    Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
+                    Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
+                }
             }
-            sw.Stop();
-            Console.WriteLine("\nWrote {0} bytes to file...", fs.Length);
-            
-            w.Close();
-            fs.Close();
-            
-            Console.WriteLine("\nElapsed time: {0} ms\n", sw.ElapsedMilliseconds);
         }
         catch (IOException ex)
         {
@@ -217,7 +217,6 @@ class MyStream
         try
         {
             //using (MemoryStream memStream = new MemoryStream())
-            Stopwatch sw = new Stopwatch();
             string plain_text = "";
             
             try
@@ -230,7 +229,9 @@ class MyStream
                     int offset = 0;
 
                     Console.WriteLine("Reading from file in {0}-byte chunks...", READ_BLOCK_SIZE);
-                    sw.Restart();
+                    
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
                     //fs.Seek(0, SeekOrigin.Begin);
                     using (BinaryReader r = new BinaryReader(fs))
                     {

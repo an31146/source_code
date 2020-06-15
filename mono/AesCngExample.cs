@@ -6,37 +6,90 @@ using static System.Console;
 
 class AesExample
 {
-    public static void Main()
+    static void HexDump(byte[] bytes)
     {
-        string original = "Aes Class\nDefinition\nNamespace:\nSystem.Security.Cryptography\nAssemblies:\nSystem.Security.Cryptography.Algorithms.dll, mscorlib.dll, netstandard.dll, System.Core.dll\n" +
-                          "Represents the abstract base class from which all implementations of the Advanced Encryption Standard (AES) must inherit.";
-
-        // Create a new instance of the Aes
-        // class.  This generates a new key and initialization 
-        // vector (IV).
-        using (Aes myAes = AesCng.Create())
+        int byte_count = 0;
+        string char_string = "";
+        foreach (byte b in bytes)
         {
-            int byte_count = 0;
-            // Encrypt the string to an array of bytes.
-            byte[] encrypted = EncryptStringToBytes_Aes(original, myAes.Key, myAes.IV);
-            foreach (byte b in encrypted)
+            if (byte_count % 16 == 0)
+                Console.Write("{0:X8}:  ", byte_count);
+            Write("{0:X2} ", b);
+            if (b > 31 && b < 127)
+                char_string += (char)b;
+            else
+                char_string += '.';
+            if (++byte_count % 8 == 0)
             {
-                if (byte_count % 32 ==0)
-                    Console.Write("{0:X8}:  ", byte_count);
-                Write("{0:X2} ", b);
-                if ((++byte_count) % 32 == 0)
-                    WriteLine();
+                Write(' ');
+                char_string += "  ";
             }
-            WriteLine();
-
-            // Decrypt the bytes to a string.
-            string roundtrip = DecryptStringFromBytes_Aes(encrypted, myAes.Key, myAes.IV);
-
-            //Display the original data and the decrypted data.
-            WriteLine("Original text\n-------------\n{0}\n", original);
-            WriteLine("Decrypted, round Trip:\n----------------------\n{0}", roundtrip);
+            if (byte_count % 16 == 0)
+            {
+                WriteLine(char_string);
+                char_string = "";
+            }
         }
     }
+
+    public static void Main(string[] args)
+    {
+        string original = "Aes Class\nDefinition\nNamespace:\nSystem.Security.Cryptography\nAssemblies:\nSystem.Security.Cryptography.Algorithms.dll, mscorlib.dll," +
+                          "netstandard.dll, System.Core.dll\n" +
+                          "Represents the abstract base class from which all implementations of the Advanced Encryption Standard (AES) must inherit.";
+        string fileName = "";
+        
+        if (args.Length == 1)
+            fileName = args[0];
+
+        StreamReader sr = null;;
+        try
+        {
+            sr = new StreamReader(fileName);
+
+            // Create a new instance of the Aes
+            // class.  This generates a new key and initialization 
+            // vector (IV).
+            using (Aes myAes = AesCng.Create())
+            {
+                WriteLine("myAes.Key:\n-------------");
+                HexDump(myAes.Key);
+                WriteLine("\nmyAes.IV:\n-------------");
+                HexDump(myAes.IV);
+                WriteLine("\n");
+                
+                original = "";
+                while (!sr.EndOfStream) {
+                    original += sr.ReadLine();
+                    original += "\n";
+                } 
+
+                // Encrypt the string to an array of bytes.
+                byte[] encrypted = EncryptStringToBytes_Aes(original, myAes.Key, myAes.IV);
+                WriteLine("Encrypted bytes:\n-------------");
+                HexDump(encrypted);
+                WriteLine();
+
+                // Decrypt the bytes to a string.
+                string roundtrip = DecryptStringFromBytes_Aes(encrypted, myAes.Key, myAes.IV);
+
+                //Display the original data and the decrypted data.
+                //WriteLine("\nOriginal text\n-------------\n{0}\n", original);
+                WriteLine("Decrypted, round Trip:\n----------------------\n{0}\n", roundtrip);
+            }
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine("\nCaught exception: {0}", ex.Message);
+            return;
+        }
+        finally
+        {
+            if (sr != null)
+                sr.Close();
+        }
+    }
+    
     static byte[] EncryptStringToBytes_Aes(string plainText, byte[] Key, byte[] IV)
     {
         // Check arguments.
@@ -72,7 +125,6 @@ class AesExample
                 }
             }
         }
-
 
         // Return the encrypted bytes from the memory stream.
         return encrypted;
