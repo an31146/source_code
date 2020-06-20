@@ -1,8 +1,8 @@
 /*
- * g++ -Wall -O2 -std=c++11 -I "C:\Users\richa\Google Drive\Projects\gmp-6.1.2" 
- *                          -L "C:\Users\richa\Google Drive\Documents II\Visual Studio 2017\Projects\mpir-3.0.0\dll\x64\Release" 
+ * g++ -Wall -O2 -std=c++11 -I C:\Tools\gmp-6.1.2 
+ *                          -L C:\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\x86_64-w64-mingw32\lib 
  *                          -o multiprecision.exe multiprecision.cpp 
- *                          -lmpir
+ *                          -l mpir
  */
 #include <boost/integer/integer_log2.hpp>
 #include <boost/multiprecision/gmp.hpp>
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     typedef mpz_int int_type;
     time_t time_seed = time(NULL);
     boost::random::mt11213b base_gen(time_seed);
-    boost::random::independent_bits_engine<mt11213b, 1024, int_type> gen(base_gen);
+    boost::random::independent_bits_engine<mt11213b, 65536, int_type> gen(base_gen);
 
     // We must use a different generator for the tests and number generation, otherwise
     // we get false positives.

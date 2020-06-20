@@ -19,16 +19,25 @@ using System.Diagnostics;
 class MyStream
 {
     const int MAX_LINE_LENGTH = 80;
+    static string strFilenameReader = @"C:\Google Drive\Projects\ParallelProgrammingSamples_RC\ComputePi\ComputePi_CSharp\IntegerPi\bin\Debug\exponent.txt";
+    static string strFilenameWriter = @"C:\Users\richa\AppData\Local\Temp\exponent-crlf.txt";
     
     public static void Main(String[] args)
     {
-        StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\source_code\pi\pi3.txt");
-        // StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\Documents II\python\pi_chudnovsky.txt");
-        StreamWriter sw = new StreamWriter(@"C:\Users\richa\Google Drive\source_code\pi\pi-linefeeds#3.txt");
+        if (File.Exists(args[0]))
+            strFilenameReader = args[0];
+        else
+            Console.WriteLine("Input flie not found!  Using: {0}\n", strFilenameReader);
+        StreamReader sr = new StreamReader(strFilenameReader);
+
+        if (args.Length == 2)
+            strFilenameWriter = args[1];
+        StreamWriter sw = new StreamWriter(strFilenameWriter);
         
+        int lineCount = 1;
         do {
             string strLineIn = sr.ReadLine();
-            Console.WriteLine("Length: {0}", strLineIn.Length);
+            Console.WriteLine("Line #{0} length: {1}", lineCount++, strLineIn.Length);
             
             if (strLineIn.Length <= MAX_LINE_LENGTH)
                 sw.WriteLine(strLineIn);
@@ -36,14 +45,16 @@ class MyStream
             {
                 while (strLineIn.Length > MAX_LINE_LENGTH)
                 {
-                    string strSplit;
+                    string strSplit = "";
                     if (strLineIn.Length > MAX_LINE_LENGTH)
                     {
                         strSplit = strLineIn.Substring(0, MAX_LINE_LENGTH);
                         strLineIn = strLineIn.Substring(MAX_LINE_LENGTH);
+                        //Console.Write("{0}, ", strLineIn.Length);
                     }
-                    else
-                        strSplit = strLineIn;
+                    
+                    if (strLineIn.Length <= MAX_LINE_LENGTH)
+                        strSplit += "\n" + strLineIn;
                     
                     sw.Write(strSplit + "\n");
                     // Console.WriteLine("2. Length: {0}", );

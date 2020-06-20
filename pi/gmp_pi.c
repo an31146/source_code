@@ -280,13 +280,14 @@ void gosper_formula(mpf_ptr sum, int N)
       π =  SUM  ---- x | ------ - ------ - ------ - ------ |
            k=0  16^k   └ (8k+1)   (8k+4)   (8k+5)   (8k+6) ┘
  *
- *         4100 iterations accurate to 4939 d.p. ~0.31 secs
- *         7519 iterations accurate to 9061 d.p. ~0.74 secs
- *        25020 iterations accurate to 30137 d.p. ~4.8 secs
- *       500400 iterations accurate to 602555 d.p. ~809.14 seconds
- *       750400 iterations accurate to 953985 d.p. ~913.46 seconds
- *       825400 iterations accurate to 993895 d.p. ~1275.68 seconds
- *       840400 iterations accurate to 1000019 d.p. ~1355.63 seconds
+ *          253 iterations accurate to 308 d.p. ~0.01 secs
+ *          507 iterations accurate to 617 d.p. ~0.03 secs
+ *         1021 iterations accurate to 1235 d.p. ~0.06 secs
+ *         4091 iterations accurate to 4933 d.p. ~0.27 secs
+ *         8183 iterations accurate to 9864 d.p. ~0.16 seconds
+ *        16377 iterations accurate to 19729 d.p. ~0.64 seconds
+ *       262141 iterations accurate to 315655 d.p. ~183.83 seconds
+ *       262141 iterations accurate to 315660 d.p. ¬183.78 seconds
  */
 void bbp_formula(mpf_ptr sum, int N)
 {
@@ -295,7 +296,7 @@ void bbp_formula(mpf_ptr sum, int N)
     
     for (int k = 0; k < N; k++)
     {
-        mpf_set_ui(t, 4UL);                      //       t = 4
+        mpf_set_ui(t, 4UL);                     //       t = 4
         mpf_div_ui(t, t, 8*k+1);                //         = 4/(8k+1)
         mpf_set(n, t);                          //       n = 4/(8k+1)
         
@@ -314,7 +315,7 @@ void bbp_formula(mpf_ptr sum, int N)
         mpf_div_2exp(n, n, 4*k);                //       n /= 2^(4*k)
         mpf_add(sum, sum, n);                   //     sum += n
 
-        printf("%8d\r", k);
+        //printf("%8d\r", k);                   // progress output adds significant time!
     }
 
     //gmp_printf("%0.Ff\n", sum);
@@ -466,8 +467,8 @@ int main(int argc, char *argv[])
     
     if (argc != 3)
     {
-        prec = 16400;
-        iter = 17001;
+        prec = 1024;
+        iter = 11;
     }
     else
     {
@@ -494,7 +495,7 @@ int main(int argc, char *argv[])
     {
 		__attribute__((unused)) char buffer[1048576];
         // mpf_out_str(fs, 10, 0, sum);
-        gmp_fprintf(fs, "%0.Ff", sum);
+        gmp_fprintf(fs, "%0.Ff\n", sum);
 		//fprintf(fs, "%s", buffer);
         fclose(fs);
     }

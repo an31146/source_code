@@ -27,8 +27,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#define LOWER         14.134728277619551020L    /* lower bound of t domain              */
-#define UPPER         14.134728277622L          /* upper bound of t domain              */
+#define LOWER         14.134725141734L          /* lower bound of t domain              */
+#define UPPER         14.134725205732L          /* upper bound of t domain              */
 #define NUMSAMPLES    50                        /* number of samples to compute         */
 
 /**************************************************************************/

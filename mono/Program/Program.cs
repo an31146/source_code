@@ -1,4 +1,7 @@
 ﻿using System;
+using Mpir.NET;
+
+using static Mpir.NET.mpir;
 
 namespace Program
 {
@@ -20,7 +23,19 @@ namespace Program
                     count++;
                 }
             }
-            Console.WriteLine("\n# primes: {0}", count);
+            Console.WriteLine("\n# primes: {0}\n", count);
+
+            mpz_t t = new mpz_t(1);
+            foreach (int i in primes)
+                t *= i;
+            mpz_nextprime(t, t);
+            mpz_sub_ui(t, t, 1);
+            Console.WriteLine("{0}", t);
+
+            mpz_mul_2exp(t, 1, 65536);
+            mpz_sub_ui(t, t, 1);
+
+            Console.WriteLine("{0}", t);
         }
     }
 }

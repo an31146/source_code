@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 #include <time.h>
+
 #define SIZE 20017
 
 uint32_t *primes, k = 1;
