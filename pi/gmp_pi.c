@@ -78,7 +78,10 @@ void mpz_binomial_coeff_2(mpz_ptr b, int n, int r)
  * Machin-like formula:
  * https://en.wikipedia.org/wiki/List_of_formulae_involving_%CF%80#Machin-like_formulae
  *
- *   80000 iterations = accurate to 24672 d.p.
+ *   1021 iterations = accurate to 309 d.p.  
+ *   32767 iterations = accurate to 9874 d.p.       5.21 seca
+ *   
+ *      check this timing:
  *   537 secs to perform 100000 iterations = accurate to 30098 d.p.
  *
  */
@@ -92,9 +95,6 @@ void machin_like(mpf_ptr sum, int N)
     mpf_inits(n, t, pow_2, ONE, NULL);
     mpz_init(b);
 
-    omp_set_num_threads(2);
-    //#pragma omp parallel for reduction(+ : sum)
-    #pragma omp parallel for shared(sum, ONE) private(pow_2, n, b, t)
     for (int k = 1; k < N; k++)
     {
         mpf_set_ui(ONE, 1UL);
@@ -105,22 +105,14 @@ void machin_like(mpf_ptr sum, int N)
     
         mpf_div(t, pow_2, n);                   // t = pow_2 / n
         
-        //#pragma omp critical
-        {
-            mpf_add(sum, sum, t);               // sum += t
-        }
-        
-        //printf("%5.1f%%\r", (float)k/100.0f);
-        printf("%8d\r", k);
+        mpf_add(sum, sum, t);               // sum += t
     }
     //#pragma omp barrier
-
     mpf_add(sum, sum, sum);
     mpf_sub_ui(sum, sum, 2L);
     
     mpz_clear(b);
     mpf_clears(n, t, pow_2, ONE, NULL);
-    
 }
 
 /*
@@ -328,62 +320,62 @@ void bbp_formula(mpf_ptr sum, int N)
  * https://en.wikipedia.org/wiki/Approximations_of_%CF%80#20th_and_21st_centuries
  *
  *
- *         1           ∞    (-1)^k(6k)!(13591409 + 545140134k)
- *       -----  =  12  Σ   ------------------------------------
- *         π          k=0       (3k)!(k!)^3*640320^(3k+3/2)
+ *         1             1        ∞  ┌     (6k)!      (13591409 + 545140134k) ┐
+ *       -----  =  ------------   Σ  | ------------ * ----------------------- |
+ *         π       46880*√10005  k=0 └ (3k)!*(k!)^3        (-640320)^3k       ┘
  *
  */
- void chudnovsky_formula(mpf_ptr sum, int N)
+ void chudnovsky_formula(mpf_ptr Sum, int Limit)
  {
-    mpf_t n, d1, s1, ONE;
-	mpz_t fac, fac2, d2;
+    mpf_t C1, C2, M, N, D;
+	mpz_t L, M1, M2, X;
     
-    mpf_inits(n, d1, s1, ONE, NULL);
-	mpz_inits(fac, fac2, d2, NULL);
+    mpf_inits(C1, C2, M, N, D, NULL);
+	mpz_inits(L, M1, M2, X, NULL);
  
-    for (unsigned int k = 0; k < N; k++)
+    for (unsigned int k = 0; k < Limit; k++)
     {
-		mpz_fac_ui(fac, 6 * k);									// fac = (6k)!
-		mpz_mul_ui(fac, fac, 13591409UL + 545140134UL * k);		// fac = (6k)! * (13591409 + 545140134*k)
-		mpf_set_z(n, fac);										// n   = fac
-		
-		mpz_fac_ui(fac, 3 * k);									// fac = (3k)!
-		mpz_mfac_uiui(fac2, k, 3);								// fac2 = (k!)^3
-		mpz_mul(d2, fac, fac2);									// d2  = fac * fac2
-		mpf_set_z(d1, d2);										// d1  = d2
-		
-		// re-use denominator mpz_t d2
-		mpz_ui_pow_ui(d2, 640320UL, 6 * k + 3);					// d2 = 640320^(6k+3)
-		gmp_printf("d2 = %Zd\n", d2);							// 
-		mpf_set_z(s1, d2);										// s1 = d2
-		mpf_sqrt(s1, s1);										// s1 = sqrt(s1)
-		mpf_mul(d1, d1, s1);									// d1 = (3k)! (k!)^3 * sqrt(640320^(6k+3))
-		gmp_printf("d1 = %.20Ff\n", d1);
+		mpz_fac_ui(M1, 6*k);                    // M1` = (6k)!
+		mpz_fac_ui(M2, 3*k);					// M2  = (3k)!
+        mpz_div(M1, M1, M2);                    // M1 /= M2
 
+		mpz_fac_ui(M2, k);				        // M3  = k!
+        mpz_pow_ui(M2, M2, 3);                  // M2  = M2^3
+        mpz_div(M1, M1, M2);                    // M1 /= M2^3
+		
+        //gmp_printf("M%d = %Zd\n", k, M1);		// 
+
+        mpz_set_ui(L, 545140134);               // L  = 545140134
+        mpz_mul_ui(L, L, k);                    // L  = 545140134*k
+        mpz_add_ui(L, L, 13591409);             // L += 13591409
+
+        mpz_set_si(X, -640320);                 // X = -640320
+		mpz_pow_ui(X, X, 3*k);                  // X  = ‭(-640320)‬^3k
+
+        //gmp_printf("L%d = %Zd\nX%d = %Zd\n", k, L, k, X);			// 
+		
 		// divide numerator by denominator
-		mpf_div(n, n, d1);										// n = fac / d1
-		
-		// take into account alternate signs
-		if (k % 2 == 0) 
-			mpf_add(sum, sum, n);
-		else
-			mpf_sub(sum, sum, n);
-			
-		//gmp_printf("%0.Ff\n", sum);
-		//gmp_printf("%0.Fg\n\n", n);
-	}
-	
-	mpf_mul_ui(sum, sum, 12);
-	// reciprocal
-	mpf_set_ui(ONE, 1);
-	mpf_div(sum, ONE, sum);
-	
-	gmp_printf("%0.Ff\n\n", sum);
-	//getchar();
+		mpf_set_z(N, L);						//
+		mpf_set_z(D, X);						//
+		mpf_div(N, N, D);						// 
+        
+        // multiply by M1
+        mpf_set_z(M, M1);
+        mpf_mul(N, M, N);
 
-	mpf_clears(n, d1, s1, ONE, NULL);
-	mpz_clears(fac, fac2, d2, NULL);
+		//gmp_printf("N%d = %0.Fg\n\n", k, N);
+		
+        mpf_add(Sum, Sum, N);
+	}
+	mpf_set_ui(C1, 426880);
+    mpf_sqrt_ui(C2, 10005);
+    
+	mpf_mul(C1, C2, C1);
+	mpf_div(Sum, C1, Sum);
+    //mpf_ui_div(Sum, 1, Sum);
 	
+	mpf_clears(C1, C2, M, N, D, NULL);
+	mpz_clears(L, M1, M2, X, NULL);
 }
 
 /*
@@ -480,11 +472,13 @@ int main(int argc, char *argv[])
     
     
     start = clock();
-    bbp_formula(sum, iter);
-	// chudnovsky_formula(sum, iter);
+    // bbp_formula(sum, iter);
+	chudnovsky_formula(sum, iter);
     // gosper_formula(sum, iter);
     // machin_like(sum, iter);
-    // arctan_of_one(sum, iter);
+    /*
+     *  arctan_of_one(sum, iter);        // convergence like the harmonic series!  :-|
+     */  
     // gauss_legendre_algorithm(sum, iter);
     stop = clock();
     
@@ -493,10 +487,11 @@ int main(int argc, char *argv[])
     
     if ((fs = fopen("pi3.txt", "w+t")) != NULL)
     {
-		__attribute__((unused)) char buffer[1048576];
-        // mpf_out_str(fs, 10, 0, sum);
-        gmp_fprintf(fs, "%0.Ff\n", sum);
-		//fprintf(fs, "%s", buffer);
+		//__attribute__((unused)) 
+        char buffer[1048576];
+        //mpf_out_str(fs, 10, 0, sum);
+        gmp_sprintf(buffer, "%0.Ff\n", sum);
+		fprintf(fs, "%s", buffer);
         fclose(fs);
     }
     //gmp_printf("%0.Ff\n", sum);

@@ -23,8 +23,8 @@ int main (void) {
     //mpf_ui_div (x0, 4, x0);
 	mpf_sqrt (x0, x0);
 
-    gmp_printf("x0 = %.500Ff\n", x0);
-    gmp_printf("y0 = %.500Ff\n", y0);
+    gmp_printf("x0 = %.500Ff\n\n", x0);
+    gmp_printf("y0 = %.500Ff\n\n", y0);
     
 	mpf_init (resA);
 	mpf_init (resB);
@@ -33,7 +33,8 @@ int main (void) {
 		agm(x0, y0, resA, resB);
 		agm(resA, resB, x0, y0);
 	}
-	gmp_printf ("%.500Ff\n", x0);
+	gmp_printf ("%.500Ff\n\n", x0);
+    mpf_ui_div (y0, 1.0, y0);
 	gmp_printf ("%.500Ff\n\n", y0);
  
 	return 0;

@@ -27,8 +27,8 @@ int main()
 	for(unsigned i = 1001; i <= 2000; i++)
 		v *= i;
 
-    cout << endl << dec << v << endl << endl; // prints 1000!
-    cout << hex << v << endl << endl; // prints 1000! in hex format
+    cout << endl << dec << v << endl << endl; // prints 2000!
+    cout << hex << v << endl << endl; // prints 2000! in hex format
 
     try {
         cout << hex << -v << endl; // Ooops! can't print a negative value in hex format!

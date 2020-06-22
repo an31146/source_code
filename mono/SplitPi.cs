@@ -27,7 +27,7 @@ class MyStream
         if (File.Exists(args[0]))
             strFilenameReader = args[0];
         else
-            Console.WriteLine("Input flie not found!  Using: {0}\n", strFilenameReader);
+            Console.WriteLine("Input file not found!  Using: {0}\n", strFilenameReader);
         StreamReader sr = new StreamReader(strFilenameReader);
 
         if (args.Length == 2)
