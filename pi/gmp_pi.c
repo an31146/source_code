@@ -349,7 +349,7 @@ void bbp_formula(mpf_ptr sum, int N)
         mpz_mul_ui(L, L, k);                    // L  = 545140134*k
         mpz_add_ui(L, L, 13591409);             // L += 13591409
 
-        mpz_set_si(X, -640320);                 // X = -640320
+        mpz_set_si(X, -640320);                 // X  = -640320
 		mpz_pow_ui(X, X, 3*k);                  // X  = ‭(-640320)‬^3k
 
         //gmp_printf("L%d = %Zd\nX%d = %Zd\n", k, L, k, X);			// 
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
     printf("\n\nElapsed time: %6.2f seconds\n",  
             (float)(stop-start)/(float)CLOCKS_PER_SEC ); 
     
-    if ((fs = fopen("pi3.txt", "w+t")) != NULL)
+    if ((fs = fopen("gmp_pi.txt", "w+t")) != NULL)
     {
 		//__attribute__((unused)) 
         char buffer[1048576];
