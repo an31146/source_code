@@ -17,13 +17,13 @@ namespace Program
                 t *= i;
             mpz_nextprime(t, t);
             mpz_sub_ui(t, t, 1);
-            Console.WriteLine("{0}\n", t);
+            //Console.WriteLine("{0}\n", t);
 
             mpz_mul_2exp(t, 1, 4491);
             mpz_sub_ui(t, t, 1);
 
             List<mpz_t> u = new List<mpz_t>();
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 x <<= 32768;
                 u.Add(new mpz_t(x) * t);
@@ -32,6 +32,7 @@ namespace Program
                 u.Add(new mpz_t(x));
             }
 
+            Console.WriteLine("TestMpirMemLeak task ended...");
             //mpz_clear(t);
         }
 

@@ -21,10 +21,22 @@ double factorial(int n)
     return f;
 }
 
+double f(double x, double a)
+{
+    return x * x - a;
+}
+
+double secant_method(double x1, double x2, double a)
+{
+    return x1 - f(x1, a) * (x1 - x2) / (f(x1, a) - f(x2, a));
+}
+
 void mpf_exp(mpf_ptr e, double x, int precision)
 {
     mpf_t mpf_tmp, mpf_fact, mpf_x, mpf_near_zero, EPSILON;
     mpz_t mpz_fact;
+    __attribute__((unused)) char mpf_str[(size_t)(precision / 3.3219)];
+    __attribute__((unused)) mp_exp_t exponent;
 
     mpf_inits(mpf_fact, mpf_tmp, mpf_x, mpf_near_zero, EPSILON, NULL);
     mpz_init(mpz_fact);
@@ -32,7 +44,8 @@ void mpf_exp(mpf_ptr e, double x, int precision)
     
     mpf_set_ui(EPSILON, 1);
     mpf_div_2exp(EPSILON, EPSILON, precision);
-    gmp_printf("EPSILON = %.Fg\n\n", EPSILON);
+    //mpf_get_str(mpf_str, &exponent, 10, 0, EPSILON);
+    gmp_printf("EPSILON = %.80Fg\n\n", EPSILON);
 
     mpf_set_d(mpf_x, x);
     mpf_set(mpf_near_zero, EPSILON);
@@ -70,6 +83,20 @@ double e(double x)
     return e;
 }
 
+double do_secant(double x)
+{
+    double g1 = x / 2.0, g0 = x / 4.0;
+    for (int i = 0; i < 10; i++)
+    {
+        double g = secant_method(g1, g0, x);
+        printf("%.20f\n", g);
+        if (g == g1)
+            break;
+        g0 = g1; g1 = g;
+    }
+    return g1;
+}
+
 int main(int argc, char **argv)
 {
     double x = 1.0d;
@@ -95,7 +122,8 @@ int main(int argc, char **argv)
         }
 
     }
-    printf("gmp_version: %s\n", gmp_version);
+    
+    printf("GMP version: %s\n", gmp_version);
     mpf_init(exp);
     mpf_exp(exp, x, PREC);
 

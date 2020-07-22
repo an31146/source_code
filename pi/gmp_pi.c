@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <math.h>
 #include <time.h>
 #include <gmp.h>
@@ -135,9 +136,9 @@ void arctan_of_one(mpf_ptr sum, int N)
     int MUL = 1000000;
     // double sum2 = 1.0d, x, y;
 
-    for (int j=0; j<N*MUL; j+=MUL)
+    for (int j = 0; j < N*MUL; j += MUL)
     {
-        for (int i=j; i<j+MUL; i++)
+        for (int i = j; i < j+MUL; i++)
         {
             mpf_set_si(m, -1L);                 //
             mpf_div_ui(m, m, i*4+3);            // m = -1/3, -1/7, -1/11, etc
@@ -193,7 +194,7 @@ void lucas_formula(mpf_ptr sum, int N)
     mpf_mul_ui(sum, sum, 16L);
     //gmp_printf("%0.Ff\n", sum);
         
-    for (int k=0; k<N; k++)
+    for (int k = 0; k < N; k++)
     {
         mpf_set(n, ONE);                // initialize sum=1
         mpf_mul_ui(four_k, FOUR, k);    // four_k = 4*k
@@ -272,46 +273,53 @@ void gosper_formula(mpf_ptr sum, int N)
       π =  SUM  ---- x | ------ - ------ - ------ - ------ |
            k=0  16^k   └ (8k+1)   (8k+4)   (8k+5)   (8k+6) ┘
  *
- *          253 iterations accurate to 308 d.p. ~0.01 secs
- *          507 iterations accurate to 617 d.p. ~0.03 secs
- *         1021 iterations accurate to 1235 d.p. ~0.06 secs
- *         4091 iterations accurate to 4933 d.p. ~0.27 secs
- *         8183 iterations accurate to 9864 d.p. ~0.16 seconds
- *        16377 iterations accurate to 19729 d.p. ~0.64 seconds
- *       262141 iterations accurate to 315655 d.p. ~183.83 seconds
- *       262141 iterations accurate to 315660 d.p. ¬183.78 seconds
- */
-void bbp_formula(mpf_ptr sum, int N)
+ *        20474 iterations 19724 d.p. ~0.33 seconds
+ *        81913 iterations 78908 d.p. ~5.48 seconds
+ *       327672 iterations 315646 d.p. ~100.57 seconds
+ *      1038111 iterations 1000001 d.p. ~978.44 seconds
+d */
+void bbp_formula(mpf_ptr sum)
 {
-    mpf_t n, t;
-    mpf_inits(n, t, NULL);
-    
-    for (int k = 0; k < N; k++)
-    {
-        mpf_set_ui(t, 4UL);                     //       t = 4
-        mpf_div_ui(t, t, 8*k+1);                //         = 4/(8k+1)
-        mpf_set(n, t);                          //       n = 4/(8k+1)
-        
-        mpf_set_ui(t, 2UL);                     //       t = 2
-        mpf_div_ui(t, t, 8*k+4);                //         = 2/(8k+4)
-        mpf_sub(n, n, t);                       //       n -= 2/(8k+4)
-        
-        mpf_set_ui(t, 1UL);                     //       t = 1
-        mpf_div_ui(t, t, 8*k+5);                //         = 1/(8k+5)
-        mpf_sub(n, n, t);                       //       n -= 1/(8k+5)
-        
-        mpf_set_ui(t, 1UL);                     //       t = 1
-        mpf_div_ui(t, t, 8*k+6);                //         = 1/(8k+6)
-        mpf_sub(n, n, t);                       //       n -= 1/(8k+6)
+    mpf_t N, T, EPSILON, ABS_N;
+    mpf_inits(N, T, EPSILON, ABS_N, NULL);
 
-        mpf_div_2exp(n, n, 4*k);                //       n /= 2^(4*k)
-        mpf_add(sum, sum, n);                   //     sum += n
+    mpf_set_ui(EPSILON, 1);
+    int precision = (int)(mpf_get_default_prec());
+    mpf_div_2exp(EPSILON, EPSILON, precision + (precision >> 2));
+    
+    bool bBreak = false;
+    int k = 0;
+    
+    for (; !bBreak; k++)
+    {
+        mpf_set_ui(T, 4UL);                     //       t = 4
+        mpf_div_ui(T, T, 8*k+1);                //         = 4/(8k+1)
+        mpf_set(N, T);                          //       n = 4/(8k+1)
+        
+        mpf_set_ui(T, 2UL);                     //       t = 2
+        mpf_div_ui(T, T, 8*k+4);                //         = 2/(8k+4)
+        mpf_sub(N, N, T);                       //       n -= 2/(8k+4)
+        
+        mpf_set_ui(T, 1UL);                     //       t = 1
+        mpf_div_ui(T, T, 8*k+5);                //         = 1/(8k+5)
+        mpf_sub(N, N, T);                       //       n -= 1/(8k+5)
+        
+        mpf_set_ui(T, 1UL);                     //       t = 1
+        mpf_div_ui(T, T, 8*k+6);                //         = 1/(8k+6)
+        mpf_sub(N, N, T);                       //       n -= 1/(8k+6)
+
+        mpf_div_2exp(N, N, 4*k);                //       n /= 2^(4*k)
+        mpf_add(sum, sum, N);                   //     sum += n
+
+        mpf_abs(ABS_N, N);
+        bBreak = (mpf_cmp(ABS_N, EPSILON) < 0);
 
         //printf("%8d\r", k);                   // progress output adds significant time!
     }
+    printf("iterations: %d\n", k);
 
     //gmp_printf("%0.Ff\n", sum);
-    mpf_clears(n, t, NULL);
+    mpf_clears(N, T, EPSILON, ABS_N, NULL);
     
 }
 
@@ -320,20 +328,30 @@ void bbp_formula(mpf_ptr sum, int N)
  * https://en.wikipedia.org/wiki/Approximations_of_%CF%80#20th_and_21st_centuries
  *
  *
- *         1             1        ∞  ┌     (6k)!      (13591409 + 545140134k) ┐
- *       -----  =  ------------   Σ  | ------------ * ----------------------- |
- *         π       46880*√10005  k=0 └ (3k)!*(k!)^3        (-640320)^3k       ┘
+ *         1              1        ∞  ┌     (6k)!      (13591409 + 545140134k) ┐
+ *       -----  =  -------------   Σ  | ------------ X ----------------------- |
+ *         π       426880*√10005  k=0 └ (3k)!*(k!)^3        (-640320)^3k       ┘
  *
  */
- void chudnovsky_formula(mpf_ptr Sum, int Limit)
+ void chudnovsky_formula(mpf_ptr Sum)
  {
-    mpf_t C1, C2, M, N, D;
+    mpf_t C1, C2, M, N, D, EPSILON, ABS_N, LOG10_BASE2;
 	mpz_t L, M1, M2, X;
     
-    mpf_inits(C1, C2, M, N, D, NULL);
+    mpf_inits(C1, C2, M, N, D, EPSILON, ABS_N, NULL);
 	mpz_inits(L, M1, M2, X, NULL);
- 
-    for (unsigned int k = 0; k < Limit; k++)
+    
+    mpf_set_ui(EPSILON, 1);
+    mpf_init_set_d(LOG10_BASE2, log(10.0) / log(2.0));
+    int precision = (int)(mpf_get_default_prec());
+    mpf_div_2exp(EPSILON, EPSILON, precision + (precision >> 2));
+    mpf_div(EPSILON, EPSILON, LOG10_BASE2);
+    gmp_printf("EPSILON = %.80Fg\n\n", EPSILON);
+    
+    bool bBreak = false;
+    unsigned int k = 0;
+    
+    for (; !bBreak; k++)
     {
 		mpz_fac_ui(M1, 6*k);                    // M1` = (6k)!
 		mpz_fac_ui(M2, 3*k);					// M2  = (3k)!
@@ -359,14 +377,21 @@ void bbp_formula(mpf_ptr sum, int N)
 		mpf_set_z(D, X);						//
 		mpf_div(N, N, D);						// 
         
+		//gmp_printf("N%d = %0.Fg\n\n", k, N);
+        mpf_abs(ABS_N, N);
+
+        bBreak = (mpf_cmp(ABS_N, EPSILON) < 0);
+        //printf("bBreak: %d\n", bBreak);
+        
         // multiply by M1
         mpf_set_z(M, M1);
         mpf_mul(N, M, N);
 
-		//gmp_printf("N%d = %0.Fg\n\n", k, N);
 		
         mpf_add(Sum, Sum, N);
 	}
+    printf("iterations: %d\n", k);
+    
 	mpf_set_ui(C1, 426880);
     mpf_sqrt_ui(C2, 10005);
     
@@ -374,7 +399,7 @@ void bbp_formula(mpf_ptr sum, int N)
 	mpf_div(Sum, C1, Sum);
     //mpf_ui_div(Sum, 1, Sum);
 	
-	mpf_clears(C1, C2, M, N, D, NULL);
+	mpf_clears(C1, C2, M, N, D, ABS_N, EPSILON, LOG10_BASE2, NULL);
 	mpz_clears(L, M1, M2, X, NULL);
 }
 
@@ -453,27 +478,27 @@ void gauss_legendre_algorithm(mpf_ptr sum, int N)
 int main(int argc, char *argv[])
 {
     FILE *fs;
-    int prec, iter;
+    int prec, iter = 11;
     mpf_t sum;
     clock_t start, stop;
     
-    if (argc != 3)
+    if (argc != 2)
     {
         prec = 1024;
-        iter = 11;
     }
     else
     {
         prec = atoi(argv[1]);
-        iter = atoi(argv[2]);
     }
+    
+    printf("GMP version: %s\n", gmp_version);
     mpf_set_default_prec(prec);
     mpf_init(sum);
     
     
     start = clock();
-    // bbp_formula(sum, iter);
-	chudnovsky_formula(sum, iter);
+    bbp_formula(sum);
+	// chudnovsky_formula(sum);
     // gosper_formula(sum, iter);
     // machin_like(sum, iter);
     /*

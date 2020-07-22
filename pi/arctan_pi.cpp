@@ -181,13 +181,14 @@ int main(void)
     sin_power_series(PI/4.0);
     sin_power_series(PI/3.0);
     sin_power_series(PI/2.0);
-    //arctan_gmp();
     */
+    arctan_gmp();
+    
     euler(TERMS);             // need ten thousand terms!
-    euler2(TERMS);
+    //euler2(TERMS);
     
     ln2();
-    nlog(0.05);
+    //nlog(0.05);
     
     return EXIT_SUCCESS;
 }
