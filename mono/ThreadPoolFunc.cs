@@ -17,27 +17,34 @@ public class Program
         */
         
         ThreadPool.SetMinThreads(1, 1);
-        ThreadPool.SetMaxThreads(8, 4);
-
-        for (int i = 0; i < 5; i++)
+        ThreadPool.SetMaxThreads(12, 4);
+        WaitHandle[] waitHandles = new WaitHandle[8];
+ 
+        for (int i = 0; i < 8; i++)
         {
             Console.WriteLine("Queued {0}", i);
             try
             {
-                ThreadPool.QueueUserWorkItem(PoolFunc);
+                waitHandles[i] = new AutoResetEvent(false);
+                ThreadPool.QueueUserWorkItem(new WaitCallback(PoolFunc), waitHandles[i]);
             }
             catch (InvalidOperationException ex)
             {
                 Console.WriteLine(ex);
             }
         }
-        Console.Write("\n\nPress Enter:\n");
+        Console.WriteLine("Waiting for tasks to complete...");
+        WaitHandle.WaitAll(waitHandles);
+        
+        Console.Write("\nPress Enter: ");
         Console.ReadLine();
     }
 
     private static void PoolFunc(object state)
     {
         int workerThreads, IOcompletionPortThreads;
+        AutoResetEvent are = (AutoResetEvent) state;
+        
         ThreadPool.GetAvailableThreads(out workerThreads, out IOcompletionPortThreads);
         Console.WriteLine(
             "Available: WorkerThreads: {0}, CompletionPortThreads: {1}",
@@ -45,9 +52,9 @@ public class Program
             IOcompletionPortThreads);
         //Thread.Sleep(100);
         var cts = new CancellationTokenSource();
-        cts.CancelAfter(30);
+        cts.CancelAfter(2000);        // milliseconds
 
-        string url = "http://172.29.176.1:8000/";
+        string url = "http://localhost:8000/";
 
         //HttpWebRequest myHttpWebRequest;
         // Creates an HttpWebRequest for the specified URL.    
@@ -57,10 +64,10 @@ public class Program
         try
         {
             //var myHttpWebResponse = await myHttpWebRequest.GetResponseAsync();
-            Task<HttpResponseMessage> response = client.GetAsync(url, HttpCompletionOption.ResponseContentRead);
-            response.Wait(cts.Token);
-            //response.Wait(50);
-            //Console.WriteLine("Wait for response.");
+            Task<HttpResponseMessage> response = client.GetAsync(url, HttpCompletionOption.ResponseContentRead, cts.Token);
+            Console.WriteLine("Wait for response.");
+            // response.Wait(cts.Token);
+            response.Wait();
             //var myHttpWebResponse = await client.GetStringAsync(url);
             string strResponse = response.Result.Content.ReadAsStringAsync().Result;
             bSuccess = response.Result.IsSuccessStatusCode;
@@ -81,6 +88,7 @@ public class Program
         finally
         {
             Console.WriteLine("IsSuccessStatusCode: {0}", bSuccess);
+            are.Set();
         }
     }
 }
