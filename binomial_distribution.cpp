@@ -9,7 +9,7 @@
 #include <random>   
 
 #define STARS 108
-#define REPS 5000000
+#define REPS 10000000
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-﻿/*--------------------------------------------------------------------
+/*--------------------------------------------------------------------
 This source distribution is placed in the public domain by its author,
 Jason Papadopoulos. You may use it for any purpose, free of charge,
 without having to notify anyone. I disclaim any responsibility for any
@@ -70,6 +70,8 @@ static uint32_t init_one_fb_tiny(uint32_t fb_size, mpz_ptr n, tiny_fb *factor_ba
 	prime = 2;
 	factor_base[i].prime = prime;
 	mpz_init(tmp);
+	
+	//printf("Inside init_one_fb_tiny\n");
 
 	for (i++, j = 1; i < fb_size && j < NUM_PRIMES_TINY; j++) {
 
@@ -86,13 +88,13 @@ static uint32_t init_one_fb_tiny(uint32_t fb_size, mpz_ptr n, tiny_fb *factor_ba
 		}
 		else if (mpz_legendre_ui(nmodp, prime) == 1) {
 			fbptr->prime = (uint16_t)prime;
-			printf("%8" PRIu16, (uint16_t)prime);
+			//printf("%8" PRIu16, (uint16_t)prime);
 			fbptr->logprime = logprime_list[j];
 			fbptr->modsqrt = (uint16_t)sqrt(nmodp) % prime;
 			i++;
 		}
 	}
-	printf("\n\n");
+	//printf("\n\n");
 	
 	return i;
 }   // init_one_fb_tiny
@@ -234,13 +236,13 @@ static void check_sieve_val_tiny(tiny_qs_params *params, mpz_srcptr a, mpz_srcpt
 		j = sieve_offset % prime;
 
 		if (root1 == (uint16_t)(-1)) {
-			if (mpz_mod_ui(tmp, res, prime) == 0) {
+			if (mpz_fdiv_ui(res, prime) == 0) {
 				do {
 					if (num_factors >= MAX_FACTORS_TINY)
 						return;
 					bits += logprime;
 					fb_offsets[num_factors++] = i;
-					mpz_fdiv_r_ui(res, res, prime);
+					mpz_fdiv_q_ui(res, res, prime);
 					j = mpz_fdiv_ui(res, prime);
 				} while (j == 0);
 			}
@@ -259,7 +261,7 @@ static void check_sieve_val_tiny(tiny_qs_params *params, mpz_srcptr a, mpz_srcpt
 					return;
 				bits += logprime;
 				fb_offsets[num_factors++] = i;
-				mpz_fdiv_r_ui(res, res, prime);
+				mpz_fdiv_q_ui(res, res, prime);
 				j = mpz_fdiv_ui(res, prime);
 			} while (j == 0);
 		}
@@ -282,7 +284,7 @@ static void check_sieve_val_tiny(tiny_qs_params *params, mpz_srcptr a, mpz_srcpt
 					if (num_factors >= MAX_FACTORS_TINY)
 						return;
 					fb_offsets[num_factors++] = i;
-					mpz_fdiv_r_ui(res, res, prime);
+					mpz_fdiv_q_ui(res, res, prime);
 					j = mpz_fdiv_ui(res, prime);
 				} while (j == 0);
 			}
@@ -300,7 +302,7 @@ static void check_sieve_val_tiny(tiny_qs_params *params, mpz_srcptr a, mpz_srcpt
 				if (num_factors >= MAX_FACTORS_TINY)
 					return;
 				fb_offsets[num_factors++] = i;
-				mpz_fdiv_r_ui(res, res, (uint32_t)prime);
+				mpz_fdiv_q_ui(res, res, (uint32_t)prime);
 				j = mpz_fdiv_ui(res, prime);
 			} while (j == 0);
 		}
@@ -362,14 +364,14 @@ static void sieve_next_poly_tiny(tiny_qs_params *params)
 		mpz_add_ui(a, params->target_a, i);
 		mpz_nextprime(tmp1, a);
 		mpz_sub(tmp2, tmp1, a);
-		//gmp_printf("tmp2: %Zd\n", tmp2);
+		gmp_printf("tmp1: %Zd\ntmp2: %Zd\n", tmp1, tmp2);
 		i += tmp2->_mp_d[0];
 	} while(mpz_legendre(n, tmp1) != 1);
 
 	//	mp_modsqrt2(n, &tmp, &b, &params->seed1, &params->seed2);           // b*b ≡ n mod tmp
     mpz_sqrtrem(b, n, tmp1);
 	mpz_mul(a, tmp1, tmp1);
-        //gmp_printf("tmp1: %Zd\na: %Zd\n", tmp1, a);
+	gmp_printf("tmp1: %Zd\na: %Zd\nb: %d\n", tmp1, a, b);
 
 	params->curr_poly_offset = i;
 	params->poly_offset[poly_num] = i;
@@ -656,10 +658,10 @@ static uint32_t find_factors_tiny(tiny_qs_params *params, mpz_ptr factor1, mpz_p
 					m->_mp_alloc = 1; 
 					m->_mp_d[0] = params->multiplier;
 					mpz_gcd(t0, t1, m);
-					mpz_fdiv_r_ui(t1, t1, t0->_mp_d[0]);
+					mpz_fdiv_q_ui(t1, t1, t0->_mp_d[0]);
 				}
 				if (!mpz_cmp_ui(t1, 1) == 0) {
-					mpz_fdiv_r_ui(t0, n, params->multiplier);
+					mpz_fdiv_q_ui(n, t0, params->multiplier);
 					mpz_fdiv_q(factor1, t0, t1);
 					mpz_set(factor2, t1);
 					return 1;           // found both factors
@@ -695,6 +697,7 @@ uint32_t tinyqs(mpz_srcptr n, mpz_ptr factor1, mpz_ptr factor2)
 
 	init_fb_tiny(params);
 	bits = mpz_sizeinbase(params->n, 2);
+	printf("bitsize: %" PRIu32 "\n", bits);
 
 	if (bits < 70) {
 		fb_size = MIN(params->fb_size, 40);
@@ -725,15 +728,16 @@ uint32_t tinyqs(mpz_srcptr n, mpz_ptr factor1, mpz_ptr factor2)
 
 	mpz_add(tmp1, params->n, params->n);
 	mpz_sqrt(tmp2, tmp1);
-	mpz_fdiv_r_ui(tmp2, tmp2, (uint32_t)(params->num_sieve_blocks * SIEVE_BLOCK_SIZE_TINY));
+	mpz_fdiv_q_ui(tmp2, tmp2, (uint32_t)(params->num_sieve_blocks * 
+			SIEVE_BLOCK_SIZE_TINY));
 	mpz_sqrt(params->target_a, tmp2);
 
 	bound = params->factor_base[params->fb_size - 1].prime;
 	bound *= large_prime_mult;
 	params->large_prime_max = bound;
 	printf("params->large_prime_max = %" PRIu16 "\n", bound);
-	params->error_bits = (uint32_t)(LOGPRIME_SCALE_TINY * (log((double)bound) / M_LN2 + 1));
-
+	params->error_bits = (uint32_t)(LOGPRIME_SCALE_TINY * 
+					(log((double)bound) / M_LN2 + 1));
 	for (i = 0; i < (1 << LOG2_PARTIAL_TABLE_SIZE); i++)
 		params->partial_list[i].large_prime = 0;
 

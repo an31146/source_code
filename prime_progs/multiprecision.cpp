@@ -20,11 +20,11 @@ int main(int argc, char** argv)
 {
     using namespace boost::random;
     using namespace boost::multiprecision;
-
+	
     typedef mpz_int int_type;
     time_t time_seed = time(NULL);
     boost::random::mt11213b base_gen(time_seed);
-    boost::random::independent_bits_engine<mt11213b, 65536, int_type> gen(base_gen);
+    boost::random::independent_bits_engine<mt11213b, 256, int_type> gen(base_gen);
 
     // We must use a different generator for the tests and number generation, otherwise
     // we get false positives.
@@ -38,11 +38,11 @@ int main(int argc, char** argv)
         
     for (uint32_t i = 0; i < LIMIT; ++i)
     {
-        if (miller_rabin_test(n, 23, gen2))
+        if (miller_rabin_test(n, 13, gen2))
         {
             // Value n is probably prime, see if (n-1)/2 is also prime:
             cout << "probable prime: " << endl << hex << showbase << n << endl << endl;
-            if (miller_rabin_test((n-1)/2, 25, gen2))
+            if (miller_rabin_test((n-1)/2, 13, gen2))
             {
                 cout << "safe prime: " << endl << hex << showbase << n << endl << endl;
                 return 0;

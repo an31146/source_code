@@ -131,7 +131,7 @@ uint32_t squfof_one_cycle(squfof_data_t *data, uint32_t mult_idx,
 		uint32_t q, bits, tmp;
 
 		/* compute (sqrtn+p1)/q1; since this is unity
-		   more than half the time, special case the
+		   more than half the time, special-case the
 		   division to save some effort */
 
 		tmp = sqrtn + p1 - q1;
