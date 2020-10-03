@@ -1,8 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Threading.Tasks;
+
+using static System.Numerics.BigInteger;
 
 namespace TonelliShanks {
     class Solution {
@@ -172,7 +175,7 @@ namespace TonelliShanks {
 
 			// assumes p is an odd prime
 			p1 = (p - 1) >> 1;
-			l = BigInteger.ModPow(n, p1, p);
+			l = ModPow(n, p1, p);
 
 			if (l == 1)
 				return 1;
@@ -184,8 +187,7 @@ namespace TonelliShanks {
 
 		private static bool IsSmooth(BigInteger S, BigInteger pk)
         {
-			
-            BigInteger div = BigInteger.GreatestCommonDivisor(S, pk);
+            BigInteger div = GreatestCommonDivisor(S, pk);
 			if (div.IsZero || S.IsZero)
 				return false;
 			/*
@@ -194,15 +196,17 @@ namespace TonelliShanks {
 			else
 				return S.IsOne;
 			*/
-            while (!div.IsOne)
+			//Debug.Fail("attaching debugger.");
+            while (true)
             {
                 S /= div;
-				//Console.WriteLine("{0}", S);
-                div = BigInteger.GreatestCommonDivisor(S, pk);
+                div = GreatestCommonDivisor(S, pk);
+				if (S.IsOne || div.IsOne)
+					break;
             }
-			//Console.WriteLine("\n{0}", new String('=', 80));
+			//if (!S.IsOne)
+			//	Console.WriteLine("S: {0}\tdiv: {1}", S, div);
             return S.IsOne;         // smooth number with prime bound in factor_base
-			
         }
 
         private static bool GetPrimeFactorsII(BigInteger N, uint[] primes)
@@ -218,13 +222,13 @@ namespace TonelliShanks {
         private static bool GetPrimeFactorsII(BigInteger N, List<uint> primes)
         {
             int i = 0;
-			Console.Write("1 ");
+			Console.Write("\t1 ");
             foreach (uint pr in primes)
             {
-                BigInteger rem = BigInteger.Zero;
+                BigInteger rem = Zero;
                 while (true)    // divisible by prime in factor_base[]
                 {
-					BigInteger Q = BigInteger.DivRem(N, pr, out rem);
+					BigInteger Q = DivRem(N, pr, out rem);
 					if (rem.IsZero)
 					{
 						N = Q;
@@ -246,7 +250,7 @@ namespace TonelliShanks {
         static Solution Ts(BigInteger n, BigInteger p) 
 		{
 			// is n a quadratic residue of p, i.e. n|p = 1
-            if (BigInteger.ModPow(n, (p - 1) >> 1, p) != 1) {
+            if (ModPow(n, (p - 1) >> 1, p) != 1) {
                 return new Solution(0, 0, false);
             }
  
@@ -259,14 +263,14 @@ namespace TonelliShanks {
  
 			// https://www.rieselprime.de/ziki/Modular_square_root#Modulus_congruent_to_3_modulo_4
             if (S == 1) {
-                BigInteger r1 = BigInteger.ModPow(n, (p + 1) >> 2, p);
+                BigInteger r1 = ModPow(n, (p + 1) >> 2, p);
                 return new Solution(r1, p - r1, true);
             }
  
 			uint z = 2;
             foreach (uint zz in primes)
 			{
-				if (BigInteger.ModPow(zz, (p - 1) >> 1, p) == p - 1)
+				if (ModPow(zz, (p - 1) >> 1, p) == p - 1)
 				{
 					z = zz;
 					break;
@@ -274,9 +278,9 @@ namespace TonelliShanks {
                 //z += 1;
             }
 			// Console.WriteLine("{0,10}", z);
-            BigInteger c = BigInteger.ModPow(z, Q, p);
-            BigInteger r = BigInteger.ModPow(n, (Q + 1) >> 1, p);
-            BigInteger t = BigInteger.ModPow(n, Q, p);
+            BigInteger c = ModPow(z, Q, p);
+            BigInteger r = ModPow(n, (Q + 1) >> 1, p);
+            BigInteger t = ModPow(n, Q, p);
             BigInteger M = S;
  
             if (t == 0)
@@ -309,7 +313,7 @@ namespace TonelliShanks {
 
 		static BigInteger SquareRoot(BigInteger n)
 		{
-			double HalfLogXBase2 = BigInteger.Log(n, 2) / 2.0;
+			double HalfLogXBase2 = Log(n, 2) / 2.0;
 			BigInteger d = n >> (int)HalfLogXBase2;
 			BigInteger q, _d;
 			Stopwatch sw = new Stopwatch();
@@ -331,6 +335,32 @@ namespace TonelliShanks {
 			return q;
 		}
 		
+        public static BigInteger NthRoot(BigInteger @base, int n)
+        {
+            if (@base < 0 || n <= 0)
+            {
+                throw new ArgumentException();
+            }
+
+            int n1 = n - 1;
+            BigInteger n2 = n;
+            BigInteger n3 = n1;
+            BigInteger c = 1;
+            BigInteger d = (n3 + @base) / n2;
+            BigInteger e = ((n3 * d) + (@base / Pow(d, n1))) / n2;
+            while (c != d && c != e)
+            {
+                c = d;
+                d = e;
+                e = (n3 * e + @base / Pow(e, n1)) / n2;
+            }
+            if (d < e)
+            {
+                return d;
+            }
+            return e;
+        }
+
 		private static void FindSmooth(BigInteger S, BigInteger p, BigInteger r, BigInteger sqrt, BigInteger end, BigInteger primorial, List<uint> primes_list)
 		{
 			Debug.Assert( (S % p).IsZero );
@@ -341,7 +371,7 @@ namespace TonelliShanks {
 			k = sqrt / p * p + r;
 			//Debug.Fail("Attaching debugger...");
 			
-			for (int i = 0; i < 1000 && !smooth; i++, k += p)
+			for (int i = -2000; i < 2000 && !smooth; i++, k += p)
 			{
 				S = k * k - N;
 				Debug.Assert( (S % p).IsZero );
@@ -357,130 +387,12 @@ namespace TonelliShanks {
 				Debug.Assert(smooth_again);
 			}
 		}
- 
-        static void Main(string[] args) {
-            List<Tuple<long, long>> pairs = new List<Tuple<long, long>>() {
-                new Tuple<long, long>(10, 13),
-                new Tuple<long, long>(56, 101),
-				new Tuple<long, long>(800, 2923),
-                new Tuple<long, long>(1030, 10009),
-                new Tuple<long, long>(1032, 10009),
-                new Tuple<long, long>(44402, 100049),
-                new Tuple<long, long>(665820697, 1000000009),
-                new Tuple<long, long>(881398088036, 1000000000039),
-            };
- 
-            foreach (var pair in pairs) {
-                Solution sol = Ts(pair.Item1, pair.Item2);
-                Console.WriteLine("n = {0}", pair.Item1);
-                Console.WriteLine("p = {0}", pair.Item2);
-                if (sol.Exists()) {
-                    Console.WriteLine("root1 = {0}", sol.Root1());
-                    Console.WriteLine("root2 = {0}", sol.Root2());
-                } else {
-                    Console.WriteLine("No solution exists");
-                }
-                Console.WriteLine();
-            }
 
- 
-            BigInteger bn = BigInteger.Parse("41660815127637347468140745042827704103445750172002");
-            BigInteger bp = BigInteger.Pow(10, 50) + 577;
-            Solution bsol = Ts(bn, bp);
-            Console.WriteLine("n = {0}", bn);
-            Console.WriteLine("p = {0}", bp);
-            if (bsol.Exists()) {
-                Console.WriteLine("root1 = {0}", bsol.Root1());
-                Console.WriteLine("root2 = {0}", bsol.Root2());
-            } else {
-                Console.WriteLine("No solution exists");
-            }
-
-			Console.WriteLine();
-			
-			//bn = BigInteger.Parse("4611686217423659867");
-			//bn = BigInteger.Parse("64129570938443909002430768770483");
-			//bn = BigInteger.Parse("21036551414079632357885369941319079457");
-			//bn = BigInteger.Parse("38026600967337247697949761371326967247");
-			// bn = BigInteger.Parse("81639369383890472319083144055093154391");
-			bn = BigInteger.Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
-			Console.WriteLine("n = {0}", bn);
-
-			BigInteger a0 = SquareRoot(bn);
-			BigInteger a1 = SquareRoot(bn << 1);
-			BigInteger a2 = a0 + ((int)BigInteger.Log(a0) << 16);
-			Console.WriteLine("\n\na0 = {0}\na1 = {1}\na2 = {2}", a0, a1, a2);
-
-				BigInteger b0 = a0 | 1;
-				while (!BigInteger.ModPow(17, b0 - 1, b0).IsOne)
-				{
-					b0 += 2;
-				}
-				Console.WriteLine("b0 = {0}\n", b0);
-					
-
-			List<uint> pseudo_primes = new List<uint>();
-			pseudo_primes.Add(2);
-			for (uint pr1 = 3; pr1 < 1000000; pr1 += 2)
-			//foreach (uint pr1 in primes1)
-				if (Legendre(bn, pr1) == 1
-					&& !(pr1 % 3 == 0 || pr1 % 5 == 0 || pr1 % 7 == 0 || pr1 % 11 == 0)
-					|| (pr1 == 3 || pr1 == 5 || pr1 == 7 || pr1 == 11))
-				{
-					//Console.Write("{0,8}\r", pr1);
-					pseudo_primes.Add(pr1);
-				}
-
-			BigInteger fb_primorial = BigInteger.One;
-			foreach (uint pr in pseudo_primes)
-			{
-				Console.Write("{0,8}\r", pr);
-				fb_primorial *= pr;
-			}
-			Console.WriteLine();
-			
-			/*
-			List<BigInteger> large_primes = new List<BigInteger>();
-			bp = a0;
-			//while (!BigInteger.ModPow(7, bp - 1, bp).IsOne)
-			{
-				foreach (uint pr in primes3)
-				{
-					bp = BigInteger.ModPow(a0, pr-1, bn);
-					
-					if (BigInteger.ModPow(7, bp - 1, bp).IsOne)
-					{
-						large_primes.Add(bp);
-						Console.WriteLine("{0}", bp);
-					}
-				}
-			}
-
-			bool smooth = IsSmooth(2548736398, 113418769711);
-			Console.WriteLine("1. IsSmooth: {0}", smooth);
-			
-			smooth = IsSmooth(2548736398, 226837539422);
-			Console.WriteLine("2. IsSmooth: {0}", smooth);
-			
-			smooth = IsSmooth(10094270504279, 2548736398);
-			Console.WriteLine("3. IsSmooth: {0}", smooth);
-			
-			Debug.Assert(smooth);
-			Console.ReadLine();			
-			*/
-			//bp = BigInteger.One;
-
-			Console.Write("Press Enter: ");
-			Console.ReadLine();
-			Console.WriteLine();
-
-			BigInteger smooth_primorial = BigInteger.One;
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			
+		static void TonelliShanks_Test(BigInteger bn, uint[] pseudo_primes, BigInteger smooth_primorial)
+		{
 			foreach (uint p in pseudo_primes)
 			{
-				//if (p > 1000) continue;
+				if (p < 2000 || p > 100000) continue;
 				//Console.Write("p = ");
 				/*
 				uint pq = 1;
@@ -493,19 +405,27 @@ namespace TonelliShanks {
 					break;
 				}*/
 				//Console.Write("bp = {0}\r", bp);
-				uint px = 6 * p + 1;
+				//px |= 1;
 				
-				//if (Legendre(bn, px) != 1)
-				//	continue;
+				if (Legendre(bn, p) != 1)
+					continue;
+
+				uint px = p;
 				
-				bsol = Ts(bn, px);
+				if (!GreatestCommonDivisor(px, bn).IsOne)
+				{
+					Console.WriteLine("GCD: {0}", px);
+					break;
+				}
+				
+				Solution bsol = Ts(bn, px);
 
 				if (bsol.Exists())
 				{
 					BigInteger r1 = bsol.Root1();
 					BigInteger r2 = bsol.Root2();
 					Console.Write("legendre(bn, p) = {0}\t", Legendre(bn, px));
-					Console.Write("p = {0}\t", px);
+					Console.Write("p = {0}\np^2 % 20 = {1}\t", px, px * px % 20);
 					Console.Write("root1 = {0}\t", r1);
 					Console.WriteLine("root2 = {0}\n", r2);
 							
@@ -550,36 +470,342 @@ namespace TonelliShanks {
 					
 					Task.WaitAll(smooth.ToArray());
 					*/
+					BigInteger np1 = px + r1;
+					BigInteger np2 = px + r2;
+					
 					uint t1 = 0, t2 = 0;
+					string n1_factors = "1 ";
+					string n2_factors = "1 "; 
+					// bool even1 = false;
+					// bool even2 = false;
 					foreach (uint py in pseudo_primes)
 					{
 						if ((n1 % py).IsZero)
 						{
-							FindSmooth(n1, py, r1, a0, a2, fb_primorial, pseudo_primes);
+							int expo = 0;
+							while ((n1 % py).IsZero)
+							{
+								n1 /= py;
+								expo++;
+							}
+							// if (expo > 0 && (expo & 1) == 0)
+								// even1 = true;
+							n1_factors += String.Format("* {0}^{1} ", py, expo);
 							t1++;
 						}
+
 						if ((n2 % py).IsZero)
 						{
-							FindSmooth(n2, py, r2, a0, a2, fb_primorial, pseudo_primes);
+							int expo = 0;
+							while ((n2 % py).IsZero)
+							{
+								n2 /= py;
+								expo++;
+							}
+							// if (expo > 0 && (expo & 1) == 0)
+								// even2 = true;
+							n2_factors += String.Format("* {0}^{1} ", py, expo);
 							t2++;
 						}
 					}
-					//if (t1 != n1 && t2 != n2)
-						Console.WriteLine("\nn1 divisible by: {0} primes\nn2 divisible by: {1} primes", t1, t2);
+						Console.WriteLine("\nn1 divisible by: {0} primes\nn2 divisible by: {1} primes", n1_factors, n2_factors);
+						Console.WriteLine("\nn1: {0}\nn2: {1}", n1, n2);
 					
-					Console.WriteLine("\n{0}", new String('-', 80));
-				} 		// while
+						Console.WriteLine("\n{0}", new String('-', 80));
+					/*
+					if ( IsSmooth(n1, fb_primorial) || IsSmooth(n2, fb_primorial) )
+					{
+					}
+					np1 -= p; n1 = bn - np1 * np1;
+					Debug.Assert(n1 % p == 0);
+					np2 -= p; n2 = bn - np2 * np2;
+					Debug.Assert(n2 % p == 0);
+					*/
+				} 		// if (bsol.Exists )
 				else {
 					//Console.WriteLine("No solution exists\n");
 				}	
 			//}
 			}	// foreach | while
+		}
+		
+		static BigInteger[] C;
+
+		static BigInteger F(int x) => 	Pow(x, 5) 	+ C[0] * Pow(x, 4) 
+													+ C[1] * Pow(x, 3) 
+													+ C[2] * Pow(x, 2) 
+													+ C[3] * x 
+													+ C[4];
+
+		static BigInteger F(BigInteger x) => 	Pow(x, 5) +	
+												Pow(x, 4) * C[0] +
+												Pow(x, 3) * C[1] +
+												Pow(x, 2) * C[2] +
+													x * 	C[3] +
+															C[4];
+
+		static BigInteger F(int a, int b) => 	Pow(a, 5) 	- C[0] * Pow(a, 4) * b 
+															+ C[1] * Pow(a, 3) * Pow(b, 2) 
+															- C[2] * Pow(a, 2) * Pow(b, 3) 
+															+ C[3] 		* a 	* Pow(b, 4) 
+															- C[4] 				* Pow(b, 5);
+		
+		static BigInteger G(int a, int b, BigInteger m) =>	(a + b * m);
+		
+        static void Main(string[] args) {
+            List<Tuple<long, long>> pairs = new List<Tuple<long, long>>() {
+                new Tuple<long, long>(10, 13),
+                new Tuple<long, long>(56, 101),
+				new Tuple<long, long>(800, 2923),
+                new Tuple<long, long>(1030, 10009),
+                new Tuple<long, long>(1032, 10009),
+                new Tuple<long, long>(44402, 100049),
+                new Tuple<long, long>(665820697, 1000000009),
+                new Tuple<long, long>(881398088036, 1000000000039),
+            };
+ 
+            foreach (var pair in pairs) {
+                Solution sol = Ts(pair.Item1, pair.Item2);
+                Console.WriteLine("n = {0}", pair.Item1);
+                Console.WriteLine("p = {0}", pair.Item2);
+                if (sol.Exists()) {
+                    Console.WriteLine("root1 = {0}", sol.Root1());
+                    Console.WriteLine("root2 = {0}", sol.Root2());
+                } else {
+                    Console.WriteLine("No solution exists");
+                }
+                Console.WriteLine();
+            }
+ 
+            BigInteger bn = Parse("41660815127637347468140745042827704103445750172002");
+            BigInteger bp = Pow(10, 50) + 577;
+            Solution bsol = Ts(bn, bp);
+            Console.WriteLine("n = {0}", bn);
+            Console.WriteLine("p = {0}", bp);
+            if (bsol.Exists()) {
+                Console.WriteLine("root1 = {0}", bsol.Root1());
+                Console.WriteLine("root2 = {0}", bsol.Root2());
+            } else {
+                Console.WriteLine("No solution exists");
+            }
+
+			Console.WriteLine();
+			
+			//bn = Parse("4611686217423659867");
+			//bn = Parse("64129570938443909002430768770483");
+			//bn = Parse("1152656570285234495703667671274025629");
+			//bn = Parse("21036551414079632357885369941319079457");
+			//bn = Parse("38026600967337247697949761371326967247");
+			// bn = Parse("81639369383890472319083144055093154391");
+			// bn = Parse("213373250047292900922963491789292983262625983360017824143019");
+			bn = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
+			//bn = Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
+			Console.WriteLine("n = {0}", bn);
+
+			BigInteger a0 = SquareRoot(bn);
+			BigInteger a1 = SquareRoot(bn << 1);
+			BigInteger a2 = a0 + ((int)Log(a0) << 16);
+			Console.WriteLine("\n\na0 = {0}\na1 = {1}\na2 = {2}", a0, a1, a2);
+
+				BigInteger b0 = a0 | 1;
+				while (!ModPow(17, b0 - 1, b0).IsOne)
+				{
+					b0 -= 2;
+				}
+				Console.WriteLine("b0 = {0}\n", b0);
+					
+			BigInteger root = NthRoot(bn, 5);
+			root -= 1;
+			//while (!ModPow(31, root-1, root).IsOne)
+			//	root += 2;
+			Console.WriteLine("root (i.e. a + bm) = {0}\n", root);
+			
+			C = new BigInteger[] { Zero, Zero, Zero, Zero, Zero };
+			
+			
+			C[0] = bn - Pow(root, 5);
+			C[0] /= Pow(root, 4);
+			C[1] = bn - Pow(root, 5) - C[0] * Pow(root, 4);
+			C[1] /= Pow(root, 3);
+			C[2] = bn - Pow(root, 5) - C[0] * Pow(root, 4) - C[1] * Pow(root, 3);
+			C[2] /= root * root;
+			C[3] = bn - Pow(root, 5) - C[0] * Pow(root, 4) - C[1] * Pow(root, 3) - C[2] * root * root;
+			C[3] /= root;
+			C[4] = bn - Pow(root, 5) - C[0] * Pow(root, 4) - C[1] * Pow(root, 3) - C[2] * root * root - C[3] * root;
+
+			Debug.Assert( (Pow(root, 5) + C[0] * Pow(root, 4) + C[1] * Pow(root, 3) + C[2] * root * root + C[3] * root + C[4]).Equals(bn) );
+			/*
+			C[0] = bn - Pow(root, 5);
+			C[0] /= Pow(root, 4);
+			C[1] = bn - Pow(root, 5) - root * Pow(C[0], 4);
+			C[1] /= Pow(root, 3);
+			C[2] = bn - Pow(root, 5) - root * Pow(C[0], 4) - root * Pow(C[1], 3);
+			C[2] /= root * root;
+			C[3] = bn - Pow(root, 5) - root * Pow(C[0], 4) - root * Pow(C[1], 3) - root * C[2] * C[2];
+			C[3] /= root;
+			C[4] = bn - Pow(root, 5) - root * Pow(C[0], 4) - root * Pow(C[1], 3) - root * C[2] * C[2] - root * C[3];
+
+			Debug.Assert( (Pow(root, 5) + root * Pow(C[0], 4) + root * Pow(C[1], 3) + root * C[2] * C[2] + root * C[3] + C[4]).Equals(bn) );						
+			*/
+			Debug.Assert( F(root).Equals(bn) );
+			// Debug.Fail("Attaching debugger.");
+			
+			for (int i = 0; i < 4; i++)
+				for (int j = i+1; j < 5; j++)
+					Console.WriteLine("GCD(C[{0}], C[{1}]) = {2}", i, j, GreatestCommonDivisor(C[i], C[j]));
+			Console.WriteLine();
+
+			const uint LIMIT = 5000000;
+			uint[] primes = new uint[LIMIT];
+			uint p;
+			primes[0] = 2;
+			for (p = 0; primes[p] < LIMIT; ) 
+			{
+				for (uint i = primes[p]*primes[p]; i < LIMIT; i += primes[p])
+					primes[i] = 1;
+				primes[++p] = primes[p-1] + 1;
+				for (; primes[p] < LIMIT && primes[primes[p]] == 1; primes[p]++) ;     //find next prime (where s[p]==0)
+			}
+			Array.Resize(ref primes, (int)p);
+
+			List<uint> pseudo_primes = new List<uint>();
+			pseudo_primes.Add(2);
+			for (int i = 0; i < primes.Length; i++)
+			{
+				p = primes[i];
+				if (Legendre(bn, p) != 0)	 	// must be a quadratic residue
+				{
+					Console.Write("{0,8}\r", p);
+					pseudo_primes.Add(p);
+				}
+			}
+			
+			Console.Write("\nCalculating primorial...");
+			BigInteger fb_primorial = One;
+			double log_primes = 0.0;
+			foreach (uint pr in pseudo_primes)
+			{
+				//Console.Write("{0,8}\r", pr);
+				fb_primorial *= pr;
+				log_primes += Math.Log(pr);
+			}
+			Console.WriteLine("\npseudo_primes.Count: {0}\nlog_primes: {1}", pseudo_primes.Count, log_primes);
+			//Console.ReadLine();
+			/*
+			byte[] pswd_bytes = System.Convert.FromBase64String("NDM3Mjg5NDAwODAzMzcyNjA3Mjc0ODMzMTkyNw==");
+			string strPassword = "";
+			foreach (byte b in pswd_bytes)
+				strPassword += (char)b;
+			
+			Console.WriteLine("{0}\t{1}", IsSmooth(Parse("3914294452067337121529390594051069877"), fb_primorial), strPassword);
+			
+			List<BigInteger> large_primes = new List<BigInteger>();
+			bp = a0;
+			//while (!ModPow(7, bp - 1, bp).IsOne)
+			{
+				foreach (uint pr in primes3)
+				{
+					bp = ModPow(a0, pr-1, bn);
+					
+					if (ModPow(7, bp - 1, bp).IsOne)
+					{
+						large_primes.Add(bp);
+						Console.WriteLine("{0}", bp);
+					}
+				}
+			}
+
+			bool smooth = IsSmooth(2548736398, 113418769711);
+			Console.WriteLine("1. IsSmooth: {0}", smooth);
+			
+			smooth = IsSmooth(2548736398, 226837539422);
+			Console.WriteLine("2. IsSmooth: {0}", smooth);
+			
+			smooth = IsSmooth(10094270504279, 2548736398);
+			Console.WriteLine("3. IsSmooth: {0}", smooth);
+			
+			Debug.Assert(smooth);
+			Console.ReadLine();			
+			*/
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			for (int b = 1; b < 1000; b++)		// 
+			{
+				//Console.WriteLine("r: {0,8}\tp: {1}", x, p);
+
+				for (int a = -10000; a < 10000; a++)
+				{
+					if (!GreatestCommonDivisor(a, b).IsOne		// a coprime b
+						|| a % b == 0) 			// b doesn't divide a
+						continue;
+					
+					//Debug.Assert(GreatestCommonDivisor(a, b).IsOne);
+					//Debug.Assert(a % b == 0);
+					
+					BigInteger smooth1 = (int)Math.Pow(-b, 5.0) * F(-a / b);
+					BigInteger smooth3 = F(a, b);
+					/*
+					foreach (uint pr in pseudo_primes)
+					{
+						if ((smooth1 % pr).IsZero)
+							Console.Write("({0}, {1})\t", smooth1 / pr, pr);
+					}
+					*/
+					
+					if (a % b == 0)
+						Debug.Assert(smooth1.Equals(smooth3));
+					
+					BigInteger smooth2 = G(a, b, root);
+					
+				
+					bool bSmooth1 = IsSmooth(smooth1, fb_primorial);		// algebraic FB
+					bool bSmooth2 = IsSmooth(smooth2, fb_primorial);		// rational FB
+					bool bSmooth3 = IsSmooth(smooth3, fb_primorial);		// algebraic FB
+
+					if (a % b == 0)
+						Debug.Assert(bSmooth1 == bSmooth3);
+					//Console.Write("{0,8}{1,4}\t{2}, {3}\t{4}\r", a, b, bSmooth3, bSmooth2, smooth3);
+					//if (bSmooth3 || bSmooth2)
+					//{
+						Console.Write("{0,8}{1,4}\t{2,5} {3,5}\r", a, b, bSmooth1, bSmooth2);
+						
+						if (bSmooth1 && bSmooth3)
+						{
+							smooths_found++;
+							Console.WriteLine("\n{0,6}{1,4}\tsmooth3: {2}", a, b, smooth3);
+							bool smooth_again = GetPrimeFactorsII(smooth1, pseudo_primes);
+							Debug.Assert(smooth_again);
+						}
+
+						if (bSmooth2)
+						{
+							smooths_found++;
+							Console.WriteLine("\n{0,6}{1,4}\tsmooth2: {2}", a, b, smooth2);
+							bool smooth_again = GetPrimeFactorsII(smooth2, pseudo_primes);
+							Debug.Assert(smooth_again);
+						}
+					
+				}
+			}
 			sw.Stop();
 			Console.WriteLine("\nsmooth loop time elapsed: {0:F1}", sw.Elapsed.TotalSeconds);
+
+			Console.Write("Press Enter: ");
+			Console.ReadLine();
+			Console.WriteLine();
+
+			BitArray[] matrix = new BitArray[primes.Length];
 			
+			for (int i = 0; i < matrix.Length; i++)
+				matrix[i] = new BitArray(primes.Length);
+				
+
+			/*
+			*/
 			//bool smooth1 = IsSmooth(smooth_primorial, fb_primorial);
 			//if (smooth1)
-				//Console.WriteLine("IsSmooth({0}): {1}", smooth_primorial.ToByteArray().Length, smooth1);
+			//Console.WriteLine("IsSmooth({0}): {1}", smooth_primorial.ToByteArray().Length, smooth1);
 			/*
 			smooth = IsSmooth(n2, fb_primorial);
 			if (smooth)
@@ -594,12 +820,12 @@ namespace TonelliShanks {
 			sw.Restart();
 			{
 				int BigThree = (int)Math.Pow(3.0, 13.0);
-				BigInteger BigThird = BigInteger.Pow(3, BigThree);
+				BigInteger BigThird = Pow(3, BigThree);
 				BigThree *= 3;
-				BigThird += BigInteger.Pow(3, BigThree);
+				BigThird += Pow(3, BigThree);
 				BigThird += 1;
 				
-				Console.WriteLine("\n\nLog10(3^(3^14) + 3^(3^13) + 1): {0}", BigInteger.Log10(BigThird));
+				Console.WriteLine("\n\nLog10(3^(3^14) + 3^(3^13) + 1): {0}", Log10(BigThird));
 			}
 			sw.Stop();
 			Console.WriteLine("BigThird took {0:F1} secs.", sw.Elapsed.TotalSeconds);
