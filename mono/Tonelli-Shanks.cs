@@ -341,7 +341,7 @@ namespace TonelliShanks {
 			k = sqrt / p * p + r;
 			//Debug.Fail("Attaching debugger...");
 			
-			for (; k < end && !smooth; k += p)
+			for (int i = 0; i < 1000 && !smooth; i++, k += p)
 			{
 				S = k * k - N;
 				Debug.Assert( (S % p).IsZero );
@@ -402,19 +402,27 @@ namespace TonelliShanks {
 			//bn = BigInteger.Parse("64129570938443909002430768770483");
 			//bn = BigInteger.Parse("21036551414079632357885369941319079457");
 			//bn = BigInteger.Parse("38026600967337247697949761371326967247");
-			bn = BigInteger.Parse("81639369383890472319083144055093154391");
-			// bn = BigInteger.Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
+			// bn = BigInteger.Parse("81639369383890472319083144055093154391");
+			bn = BigInteger.Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
 			Console.WriteLine("n = {0}", bn);
 
 			BigInteger a0 = SquareRoot(bn);
 			BigInteger a1 = SquareRoot(bn << 1);
-			BigInteger a2 = a0 + SquareRoot(a0 >> 1);
-			Console.WriteLine("\n\na0 = {0}\na1 = {1}\n", a0, a1);
+			BigInteger a2 = a0 + ((int)BigInteger.Log(a0) << 16);
+			Console.WriteLine("\n\na0 = {0}\na1 = {1}\na2 = {2}", a0, a1, a2);
+
+				BigInteger b0 = a0 | 1;
+				while (!BigInteger.ModPow(17, b0 - 1, b0).IsOne)
+				{
+					b0 += 2;
+				}
+				Console.WriteLine("b0 = {0}\n", b0);
+					
 
 			List<uint> pseudo_primes = new List<uint>();
 			pseudo_primes.Add(2);
-			//for (uint pr1 = 3; pr1 < 100000; pr1 += 2)
-			foreach (uint pr1 in primes1)
+			for (uint pr1 = 3; pr1 < 1000000; pr1 += 2)
+			//foreach (uint pr1 in primes1)
 				if (Legendre(bn, pr1) == 1
 					&& !(pr1 % 3 == 0 || pr1 % 5 == 0 || pr1 % 7 == 0 || pr1 % 11 == 0)
 					|| (pr1 == 3 || pr1 == 5 || pr1 == 7 || pr1 == 11))
@@ -426,7 +434,7 @@ namespace TonelliShanks {
 			BigInteger fb_primorial = BigInteger.One;
 			foreach (uint pr in pseudo_primes)
 			{
-				Console.Write("{0,8}", pr);
+				Console.Write("{0,8}\r", pr);
 				fb_primorial *= pr;
 			}
 			Console.WriteLine();
@@ -466,12 +474,13 @@ namespace TonelliShanks {
 			Console.ReadLine();
 			Console.WriteLine();
 
+			BigInteger smooth_primorial = BigInteger.One;
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			
 			foreach (uint p in pseudo_primes)
 			{
-				//if (p > 10000) continue;
+				//if (p > 1000) continue;
 				//Console.Write("p = ");
 				/*
 				uint pq = 1;
@@ -484,54 +493,80 @@ namespace TonelliShanks {
 					break;
 				}*/
 				//Console.Write("bp = {0}\r", bp);
-				bsol = Ts(bn, p);
+				uint px = 6 * p + 1;
+				
+				//if (Legendre(bn, px) != 1)
+				//	continue;
+				
+				bsol = Ts(bn, px);
 
 				if (bsol.Exists())
 				{
 					BigInteger r1 = bsol.Root1();
 					BigInteger r2 = bsol.Root2();
-					Console.Write("legendre(bn, p) = {0}\t", Legendre(bn, p));
-					Console.Write("p = {0}\t", p);
+					Console.Write("legendre(bn, p) = {0}\t", Legendre(bn, px));
+					Console.Write("p = {0}\t", px);
 					Console.Write("root1 = {0}\t", r1);
 					Console.WriteLine("root2 = {0}\n", r2);
 							
-					BigInteger n1 = bn - (p + r1) * (p + r1);
-					Debug.Assert( (n1 % p).IsZero );
-					BigInteger q1 = n1 / p;
+					BigInteger n1 = bn - (px + r1) * (px + r1);
+					Debug.Assert( (n1 % px).IsZero );
+					BigInteger q1 = n1 / px;
+					smooth_primorial *= n1;
 
-					bool smooth = IsSmooth(n1, fb_primorial);
-					Console.WriteLine("n1 / p = {0}\nIsSmooth: {1}", q1, smooth);
-					if (smooth)
-						smooth = GetPrimeFactorsII(n1, pseudo_primes);
+					//bool smooth = IsSmooth(n1, fb_primorial);
+					//Console.WriteLine("n1 / p = {0}\nIsSmooth: {1}\n", q1, false);
+					//if (smooth)
+					//	smooth = GetPrimeFactorsII(n1, pseudo_primes);
 
-					Debug.Assert( (bn - p * q1) == (p + r1) * (p + r1) );
-					Debug.Assert( ((bn - n1) % (p + r1)).IsZero );
+					Debug.Assert( (bn - px * q1) == (px + r1) * (px + r1) );
+					Debug.Assert( ((bn - n1) % (px + r1)).IsZero );
 
-					BigInteger n2 = bn - (p + r2) * (p + r2);
-					Debug.Assert( (n2 % p).IsZero );
-					BigInteger q2 = n2 / p;
 
-					smooth = IsSmooth(n2, fb_primorial);
-					Console.WriteLine("n2 / p = {0}\nIsSmooth: {1}", q2, smooth);
-					if (smooth)
-						smooth = GetPrimeFactorsII(n2, pseudo_primes);
 
-					Debug.Assert( (bn - n2) == (p + r2) * (p + r2) );
-					Debug.Assert(((bn - n2) % (p + r2)).IsZero);
+					BigInteger n2 = bn - (px + r2) * (px + r2);
+					Debug.Assert( (n2 % px).IsZero );
+					BigInteger q2 = n2 / px;
+					smooth_primorial *= n2;
+
+					//smooth = IsSmooth(n2, fb_primorial);
+					//Console.WriteLine("n2 / p = {0}\nIsSmooth: {1}", q2, false);
+					//if (smooth)
+					//	smooth = GetPrimeFactorsII(n2, pseudo_primes);
+
+					Debug.Assert( (bn - n2) == (px + r2) * (px + r2) );
+					Debug.Assert( ((bn - n2) % (px + r2)).IsZero );
 
 					BigInteger sprod = n1 * n2;
-					Debug.Assert( (sprod % p).IsZero );
-					Debug.Assert( (sprod % p).IsZero );
+					Debug.Assert( (sprod % px).IsZero );
 
-					
-					
+
+					Debug.Assert((smooth_primorial % px).IsZero);
+
 					/*
 					List<Task> smooth = new List<Task>();
-					smooth.Add( Task.Run(() => { FindSmooth(n1, pq, r1, a0, a1, fb_primorial, pseudo_primes); }) );
-					smooth.Add( Task.Run(() => { FindSmooth(n2, pq, r2, a0, a1, fb_primorial, pseudo_primes); }) );
+					smooth.Add( Task.Run(() => { FindSmooth(n1, px, r1, a0, a2, fb_primorial, pseudo_primes); }) );
+					smooth.Add( Task.Run(() => { FindSmooth(n2, px, r2, a0, a2, fb_primorial, pseudo_primes); }) );
 					
 					Task.WaitAll(smooth.ToArray());
 					*/
+					uint t1 = 0, t2 = 0;
+					foreach (uint py in pseudo_primes)
+					{
+						if ((n1 % py).IsZero)
+						{
+							FindSmooth(n1, py, r1, a0, a2, fb_primorial, pseudo_primes);
+							t1++;
+						}
+						if ((n2 % py).IsZero)
+						{
+							FindSmooth(n2, py, r2, a0, a2, fb_primorial, pseudo_primes);
+							t2++;
+						}
+					}
+					//if (t1 != n1 && t2 != n2)
+						Console.WriteLine("\nn1 divisible by: {0} primes\nn2 divisible by: {1} primes", t1, t2);
+					
 					Console.WriteLine("\n{0}", new String('-', 80));
 				} 		// while
 				else {
@@ -541,11 +576,11 @@ namespace TonelliShanks {
 			}	// foreach | while
 			sw.Stop();
 			Console.WriteLine("\nsmooth loop time elapsed: {0:F1}", sw.Elapsed.TotalSeconds);
-			/*
-			bool smooth = IsSmooth(n1, fb_primorial);
-			if (smooth)
-				Console.WriteLine("IsSmooth({0}): {1}", n1, smooth);
 			
+			//bool smooth1 = IsSmooth(smooth_primorial, fb_primorial);
+			//if (smooth1)
+				//Console.WriteLine("IsSmooth({0}): {1}", smooth_primorial.ToByteArray().Length, smooth1);
+			/*
 			smooth = IsSmooth(n2, fb_primorial);
 			if (smooth)
 				Console.WriteLine("IsSmooth({0}): {1}", n2, smooth);

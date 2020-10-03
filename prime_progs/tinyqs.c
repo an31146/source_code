@@ -1,5 +1,5 @@
 /*
- * gcc.exe -Wall -O2 -std=c99 -g -I ..\..\Projects\msieve -o tinyqs.exe tinyqs.c ..\..\Projects\msieve\libmsieve.a
+ * gcc.exe -Wall -O2 -std=c99 -g -I ..\..\Projects\msieve\include -o tinyqs.exe tinyqs.c ..\..\Projects\msieve\libmsieve.a
 */
 #include <stdio.h>
 #include "mp.h"
@@ -10,7 +10,7 @@ uint32 tinyqs(mp_t *n, mp_t *factor1, mp_t *factor2);
 int main(int argc, char *argv[])
 {
     mp_t n, p, q;
-	char buffer[50];
+	char buffer[100];
     
     if (argc == 2)
     {
