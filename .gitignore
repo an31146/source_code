@@ -7,6 +7,7 @@
 .vscode/
 *.gz
 *.data
+/prime_progs/fast_sieve
 /mono/BinaryFileStreamIO.cs.orig
 /mono/BinaryFileStreamIO.cs.patchfile
 mono/Microsoft.Net.Compilers.Toolset.3.5.0/

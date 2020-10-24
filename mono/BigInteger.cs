@@ -3698,9 +3698,9 @@ public class BigInteger
         // Console.WriteLine("\nPowTest(ROUNDS={0})", ROUNDS);
         // BigInteger.PowTest(ROUNDS);
         
-        Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
-        BigInteger.SqrtTest(ROUNDS);
-
+        // Console.WriteLine("\nSqrtTest(ROUNDS={0})", ROUNDS);
+        // BigInteger.SqrtTest(ROUNDS);
+		
         // Console.WriteLine("\nSqrtTest2(ROUNDS={0})", ROUNDS);
         // BigInteger.SqrtTest2(ROUNDS);
 
