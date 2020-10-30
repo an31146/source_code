@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -204,13 +205,6 @@ namespace TonelliShanks {
             BigInteger div = GreatestCommonDivisor(S, pk);
 			if (div.IsZero || S.IsZero)
 				return false;
-			/*
-			if (!(div.IsOne || S.IsOne))
-				return IsSmooth(S / div, pk);
-			else
-				return S.IsOne;
-			*/
-			//Debug.Fail("attaching debugger.");
             while (true)
             {
                 S /= div;
@@ -218,8 +212,6 @@ namespace TonelliShanks {
 				if (S.IsOne || div.IsOne)
 					break;
             }
-			//if (!S.IsOne)
-			//	Console.WriteLine("S: {0}\tdiv: {1}", S, div);
             return S.IsOne;         // smooth number with prime bound in factor_base
         }
 
@@ -682,7 +674,7 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			const uint LIMIT = 100000;
+			const uint LIMIT = 1000000;
 			uint[] primes = new uint[LIMIT];
 			uint p;
 			primes[0] = 2;
@@ -706,74 +698,42 @@ namespace TonelliShanks {
 			rfb_primorial = pseudo_primes.Where(pr => pr < LIMIT/3).Aggregate(One, (a, b) => Multiply(a, b));
 			log_primes = pseudo_primes.Aggregate(0.0, (a, b) => a + Math.Log(b));
 
-			Console.WriteLine("\npseudo_primes.Count: {0}\nlog_primes: {1}\n", pseudo_primes.Count, log_primes);
+			Console.WriteLine("\nprimes.Length: {0}\npseudo_primes.Count: {1}\nlog_primes: {2}\n", primes.Length, pseudo_primes.Count, log_primes);
 
-			BigInteger[] F_of_x = new BigInteger[primes.Last()];
+			BigInteger[] F_of_x = new BigInteger[LIMIT];
 			for (int x = 0; x < primes.Last(); x++)
 				F_of_x[x] = F(x);
 
 			List<Tuple<int, uint>> AFB = new List<Tuple<int, uint>>();
-			
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
 			int b = 1;
-			for (int r = 1; r < LIMIT; r++)		// 
-			//Parallel.For(b, LIMIT, r =>
+			Stopwatch sw = new Stopwatch();
+
+			sw.Start();
+			//for (int r = 1; r < LIMIT; r++)		// 
+			Parallel.For(b, LIMIT, new ParallelOptions() { MaxDegreeOfParallelism = 4}, r =>
 			{
 				try
 				{
 					List<uint> result = primes.Where(p => (F_of_x[r] % p) == 0 && r < p).ToList();
 					//Console.WriteLine("\nresult.Count(): {0}", result.Count());
-					AFB.Add(new Tuple<int, uint>((int)r, result[0]));
+					if (result.Count > 0)
+					{
+						foreach (var rp in result)
+							AFB.Add(new Tuple<int, uint>((int)r, rp));
+					}
 
 					Console.Write($"algebraic factors: {AFB.Count()}\r");
 				}
 				catch (ArgumentOutOfRangeException ex)
 				{
-					Debug.WriteLine("Caught ArgumentOutOfRangeException: {0}", ex.Message);
+					Debug.WriteLine("Caught ArgumentOutOfRangeException r = {1}: {0}", ex.Message, r);
 				}
 				catch (IndexOutOfRangeException ex)
 				{
-					Debug.WriteLine("Caught IndexOutOfRangeException: {0}", ex.Message);
+					Debug.WriteLine("Caught IndexOutOfRangeException r = {1}: {0}", ex.Message, r);
 				}
 
-				/*				
-					Debug.Assert(GreatestCommonDivisor(a, b).IsOne);
-					//Debug.Assert(a % b == 0);
-					
-					BigInteger smooth1 = (int)Math.Pow(-b, 5.0) * F(-a / b);
-					BigInteger smooth2 = G(a, b, root);
-					BigInteger smooth3 = F(a, b);
-
-
-					bool bSmooth1 = IsSmooth(smooth1, afb_primorial);		// algebraic FB
-					bool bSmooth2 = IsSmooth(smooth2, rfb_primorial);		// rational FB
-					bool bSmooth3 = IsSmooth(smooth3, afb_primorial);		// algebraic FB
-
-					if (a % b == 0)
-					{
-						Debug.Assert(bSmooth1 == bSmooth3);
-						Debug.Assert(smooth1.Equals(smooth3));
-					}
-
-					
-					if (bSmooth3 && false)
-					{
-						smooths_found++;
-						Console.WriteLine("{0,6}{1,4}\tsmooth3: {2}", a, b, smooth3);
-						bool smooth_again = GetPrimeFactorsII(smooth3, pseudo_primes);
-						Debug.Assert(smooth_again);
-					}
-					
-					if (bSmooth2 && false)
-					{
-						smooths_found++;
-						Console.WriteLine("{0,6}{1,4}\tsmooth2: {2}", a, b, smooth2);
-						bool smooth_again = GetPrimeFactorsII(smooth2, pseudo_primes);
-						Debug.Assert(smooth_again);
-					}
-				*/
-			}		// for (smooths_found < pseudo_primes.Count)
+			});		// for (smooths_found < pseudo_primes.Count)
 			sw.Stop();
 			Console.WriteLine("\n\nsmooth loop time elapsed: {0:F1}", sw.Elapsed.TotalSeconds);
 
@@ -781,14 +741,18 @@ namespace TonelliShanks {
 				return A.Item2.CompareTo(B.Item2);
 			});
 			
-			
-			foreach (Tuple<int, uint> t in AFB)
-			{
-				int r = t.Item1;
-				p = t.Item2;
-				Console.Write("({0}, {1})\t", r, p);
-				//FindSmooth(r, p, afb_primorial, pseudo_primes);
-			}
+			int newline = 0, r;
+			FileStream fs = new FileStream("AFB.txt", FileMode.Create);
+			using (StreamWriter sw20 = new StreamWriter(fs))
+				foreach (Tuple<int, uint> t in AFB)
+				{
+					r = t.Item1;
+					p = t.Item2;
+					string strLine = String.Format("({0}, {1})\t", r, p);
+					if (newline++ % 8 == 0)
+						strLine += '\n';
+					sw20.WriteAsync(strLine).Wait();
+				}
 			
 			BitArray[] matrix = new BitArray[primes.Length];
 			
