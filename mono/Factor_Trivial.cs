@@ -31,6 +31,8 @@ class Program {
 		if (BigInteger.Abs(N).IsOne) 
 		{
 			factorStr = factorStr.Remove(factorStr.Length - 3, 3);
+			if (N.Sign == -1)
+				factorStr = "-" + factorStr;
 			return factorStr;		// smooth number with prime bound in factor_base
 		}
 		else
@@ -57,9 +59,9 @@ class Program {
 
 		Stopwatch sw = new Stopwatch();
 		string factors = "\u0000";
-
-		sw.Start();
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
+		
+		sw.Start();
 		for (int n = 0; n < 1000; n++)
 			factors = GetPrimeFactorsII(N, primes_list);		// 12595 ms		19448 ms	18122 ms
 		sw.Stop();

@@ -1,1 +1,1 @@
-@".\Microsoft.Net.Compilers.Toolset.3.5.0\tasks\net472\csc.exe" /target:exe /platform:AnyCPU /optimize+ /reference:%1.dll /out:%~n2.exe %2
+@".\Microsoft.Net.Compilers.Toolset.3.8.0-4.final\tools\csc.exe" /target:exe /platform:AnyCPU /optimize+ /reference:%1.dll /out:%~n2.exe %2
