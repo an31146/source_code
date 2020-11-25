@@ -937,7 +937,7 @@ namespace TonelliShanks {
 					if (gcd(a, b).IsOne || b == 1)
 					{
 						var F_of_ab = F(a, b);
-						var G_of_ab = G(a, b, root);
+						//var G_of_ab = G(a, b, root);
 						// if (IsSmooth(G_of_ab, rfb_primorial))
 						// {
 							// int g_count = primes.Where(p => F_of_ab % p == 0).Count();
@@ -949,7 +949,7 @@ namespace TonelliShanks {
 						{
 							///Console.WriteLine("F({0}, {1}): {2}\n# primes {3}", a, b, F_of_ab, p_count);
 							AFB.Add(new Tuple<BigInteger, int, int>(F_of_ab, a, b));
-							RFB.Add(new Tuple<BigInteger, int, int>(G_of_ab, a, b));
+							//RFB.Add(new Tuple<BigInteger, int, int>(G_of_ab, a, b));
 							//Console.WriteLine("{0}", F_of_ab);
 						}
 						continue;
@@ -1005,14 +1005,15 @@ namespace TonelliShanks {
 			});
 
 			sw.Restart();
-			Parallel.ForEach<Tuple<BigInteger, int, int>>(RFB, t =>
+			ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 2 };
+			Parallel.ForEach<Tuple<BigInteger, int, int>>(AFB, options, t =>
 			{
 				if (!GreatestCommonDivisor(t.Item1, thousand_primes).IsOne)
 				{
 					thousand_smooths++;
-					if (IsSmooth(t.Item1, rfb_primorial))
+					if (IsSmooth(t.Item1, afb_primorial))
 					{
-						Console.WriteLine("G({0}, {1}) =\t{2}", t.Item2, t.Item3, t.Item1);
+						Console.WriteLine("F({0}, {1}) =\t{2}", t.Item2, t.Item3, t.Item1);
 						smooths_found++;
 						//Debug.Assert(GetPrimeFactorsII(t.Item1, primes));
 					}
