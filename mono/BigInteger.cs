@@ -1980,9 +1980,9 @@ public class BigInteger
 
         for(int round = 0; round < confidence; round++)
         {
-            bool done = false;
+/*            bool done = false;
 
-            while(!done)        // generate a < n
+             while(!done)        // generate a < n
             {
                 int testBits = 0;
 
@@ -1998,7 +1998,9 @@ public class BigInteger
                 if(byteLen > 1 || (byteLen == 1 && a.data[0] != 1))
                     done = true;
             }
-
+ */
+			a = primesBelow2000[round];
+			
             // check whether a factor exists (fix for version 1.03)
             BigInteger gcdTest = a.gcd(thisVal);
             if(gcdTest.dataLength == 1 && gcdTest.data[0] != 1)
@@ -3629,6 +3631,42 @@ public class BigInteger
             0x0e, 0x49, 0xed, 0x2e, 0x5f, 0x4d, 0x3d, 0x9e, 0xb3, 0xb9, 0x18, 0x9f  
         };
     
+	private static List<int> pseudoPrimes =>
+		new List<int>() {
+			1941454657, 
+			1942608529, 
+			1943951041, 
+			1944125633, 
+			1947867361, 
+			1949584501, 
+			1949646601, 
+			1950276565, 
+			1951469101, 
+			1952968753, 
+			1953988345, 
+			1954174465, 
+			1955324449, 
+			1958102641, 
+			1958613601, 
+			1962804565, 
+			1966146451, 
+			1970097001, 
+			1973398141, 
+			1974420721, 
+			1976295241, 
+			1977147019, 
+			1977257441, 
+			1984089601, 
+			1984685185, 
+			1988071801, 
+			1989985453, 
+			1991063449, 
+			1992841201, 
+			1995830761, 
+			1999004365, 
+			1999743661
+		};
+		
     public static void Main(string[] args)
     {
         // Known problem -> these two pseudoprimes passes my implementation of
@@ -3661,34 +3699,37 @@ public class BigInteger
                 count++;
             }
         }
-        Console.WriteLine("\nCount = " + count);
+        Console.WriteLine("\nCount = {0}\n{1}", count, new String('-', 120) );
         
         // BigInteger c = new BigInteger(5777);        // false LucasStrongTest prime!
         // Console.WriteLine("LucasStrongTest: {0}", c.LucasStrongTest());
-        
-        BigInteger bigInt1 = new BigInteger(pseudoPrime4);
-        {
-            Console.WriteLine("\n\nPrimality testing for:\n" + bigInt1.ToString() + "\n");
-            Console.WriteLine("SolovayStrassenTest({0}) = {1}", confidence, bigInt1.SolovayStrassenTest(confidence));
-            Console.WriteLine("RabinMillerTest({0}) = {1}", confidence, bigInt1.RabinMillerTest(confidence));
-            Console.WriteLine("FermatLittleTest({0}) = {1}", confidence, bigInt1.FermatLittleTest(confidence));
-            Console.WriteLine("isProbablePrime() = {0}", bigInt1.isProbablePrime());
-        }
-                
-        /*
-        int randPrimeBits = 2048;
-        Console.Write("\n\nGenerating {0}-bits random pseudoprime.", randPrimeBits);
-        Random rand = new Random();
-        BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, confidence, rand);
-        Console.WriteLine("\nprime.GetHashCode(): 0x{0:X8}", prime.GetHashCode());
-        Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
-        */       
         
         //
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         int dwStart = Environment.TickCount;
         
         sw.Start();
+        
+		foreach (var pseudoPrime in pseudoPrimes)
+		{
+			BigInteger bigInt1 = pseudoPrime;
+			{
+				Console.WriteLine("\n\nPrimality testing for: \t" + bigInt1.ToString() + "\n");
+				Console.WriteLine("SolovayStrassenTest({0})  {1}", confidence, bigInt1.SolovayStrassenTest(confidence));
+				Console.WriteLine("RabinMillerTest({0}) \t {1}", confidence, bigInt1.RabinMillerTest(confidence));
+				Console.WriteLine("FermatLittleTest({0}) \t {1}", confidence, bigInt1.FermatLittleTest(confidence));
+				Console.WriteLine("LucasStrongTest() \t {0}", bigInt1.LucasStrongTest());
+				Console.WriteLine("isProbablePrime() \t {0}\n", bigInt1.isProbablePrime());
+			}
+		}
+        
+        int randPrimeBits = 2048;
+        Console.Write("\n\nGenerating {0}-bits random pseudoprime.", randPrimeBits);
+        Random rand = new Random();
+        BigInteger prime = BigInteger.genPseudoPrime(randPrimeBits, confidence, rand);
+        Console.WriteLine("\nprime.GetHashCode(): 0x{0:X8}", prime.GetHashCode());
+        Console.WriteLine("\n" + ByteArrayStruct(prime.ToByteArray()) + "\n");
+               
         
         //Print_Jacobi_Table(29, 31);
         

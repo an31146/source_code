@@ -30,13 +30,13 @@ class Program {
 		}
 		if (BigInteger.Abs(N).IsOne) 
 		{
-			factorStr = factorStr.Remove(factorStr.Length - 3, 3);
+			factorStr = factorStr.Remove(factorStr.Length - 3, 3);		// Truncate trailing multiplication operator
 			if (N.Sign == -1)
 				factorStr = "-" + factorStr;
 			return factorStr;		// smooth number with prime bound in factor_base
 		}
 		else
-			return "";
+			return "No factors found.";
 	}
 
 	static void Main(string[] args) {

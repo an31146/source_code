@@ -89,7 +89,7 @@ void segmented_sieve(int64_t limit, int segment_size = L1D_CACHE_SIZE)
 int main(int argc, char** argv)
 {
   // generate the primes below this number
-  int64_t limit = 100000000;
+  int64_t limit = 1000000000;
   int start, stop;
   
   if (argc >= 2)
