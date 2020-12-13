@@ -24,7 +24,7 @@
 #include <limits.h> /* ULONG_MAX */
 #include <sys/time.h>
 #include <sys/types.h>
-#include "gmp.h"
+#include "mpir.h"
 
 #define FBASE    ".fbase"
 #define FULLS    ".fulls"
@@ -68,9 +68,9 @@ void output_relation (FILE *, relation);
 void output_relation_without_q (FILE *, relation);
 void output_relation2 (FILE *, relation, mpz_t, mpz_t);
 void count_odd_exponents (int*, unsigned long, relation*, unsigned long);
-void read_params (mpz_t, unsigned long*, unsigned long*, char*);
+void read_params (mpz_t, unsigned int*, unsigned int*, char*);
 void multiply_relation (relation, relation, relation, mpz_t);
-unsigned long read_factor_base (int *, char *, unsigned long);
+unsigned int read_factor_base (int *, char *, unsigned int);
 int check_relation (relation, unsigned int *, mpz_t);
 int cputime (void);
 unsigned long nextprime (unsigned long);

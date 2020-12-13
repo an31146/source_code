@@ -25,12 +25,12 @@ double
 getprime (double pp)
 {
   static double offset = 0.0; /* offset for current primes */
-  static long int current = -1; /* index of previous prime */
+  static int current = -1; /* index of previous prime */
   static unsigned *primes = NULL; /* table of small primes up to sqrt(p) */
-  static unsigned long int nprimes = 0; /* length of primes[] */
+  static unsigned int nprimes = 0; /* length of primes[] */
   static unsigned char *sieve = NULL; /* sieving table */
-  static long int len = 0; /* length of sieving table */
-  static unsigned long int *moduli = NULL; /* offset for small primes */
+  static int len = 0; /* length of sieving table */
+  static unsigned int *moduli = NULL; /* offset for small primes */
 
   if (pp == 0.0) /* free the tables, and reinitialize */
     {
@@ -70,14 +70,12 @@ getprime (double pp)
 	if (nprimes == 0) /* initialization */
 	  {
 	    nprimes = 1;
-	    primes = (unsigned *) malloc (nprimes * sizeof(unsigned long int));
+	    primes = (unsigned *) malloc (nprimes * sizeof(unsigned int));
 	    /* assume this "small" malloc will not fail in normal usage */
-	    moduli = (long unsigned int *) malloc (nprimes *
-                                                   sizeof(unsigned long int));
+	    moduli = (unsigned int *) malloc (nprimes * sizeof(unsigned int));
 	    /* assume this "small" malloc will not fail in normal usage */
 	    len = 1;
-	    sieve = (unsigned char *) malloc(len *
-                                       sizeof(unsigned char)); /* len=1 here */
+	    sieve = (unsigned char *) malloc(len * sizeof(unsigned char)); /* len=1 here */
 	    /* assume this "small" malloc will not fail in normal usage */
 	    offset = 5.0;
 	    sieve[0] = 1; /* corresponding to 5 */
@@ -88,14 +86,12 @@ getprime (double pp)
 	  }
 	else
 	  {
-	    unsigned long int i, p, j, ok;
+	    unsigned int i, p, j, ok;
 
 	    i = nprimes;
 	    nprimes *= 2;
-	    primes = (unsigned *) realloc (primes, nprimes *
-                                           sizeof(unsigned long int));
-	    moduli = (unsigned long int *) realloc (moduli, nprimes *
-                                                    sizeof(unsigned long int));
+	    primes = (unsigned *) realloc (primes, nprimes * sizeof(unsigned long int));
+	    moduli = (unsigned int *) realloc (moduli, nprimes * sizeof(unsigned long int));
 	    /* assume those "small" realloc's will not fail in normal usage */
 	    for (p = primes[i-1]; i < nprimes; i++)
 	      {
@@ -467,7 +463,7 @@ count_odd_exponents (int *fb, unsigned long fbn, relation *rels,
 
 /* read number to factor from 'params' file */
 void
-read_params (mpz_t N, unsigned long *B, unsigned long *LP, char *params)
+read_params (mpz_t N, unsigned int *B, unsigned int *LP, char *params)
 {
   FILE *fp;
   mpz_t lp, bb;
@@ -481,7 +477,7 @@ read_params (mpz_t N, unsigned long *B, unsigned long *LP, char *params)
       fprintf (stderr, "Error, cannot read number to factor\n");
       exit (1);
     }
-  if (fscanf (fp, "%lu", B) == EOF)
+  if (fscanf (fp, "%u", B) == EOF)
     {
       fprintf (stderr, "Error, cannot read factor base bound\n");
       exit (1);
@@ -571,11 +567,11 @@ multiply_relation (relation r, relation s, relation t, mpz_t N)
    starting by index 1 (by convention, fb[0] represents -1).
    Return the number of primes in 'fbase' (-1 not counted).
 */
-unsigned long
-read_factor_base (int *fb, char *fbase, unsigned long fbn)
+unsigned int
+read_factor_base (int *fb, char *fbase, unsigned int fbn)
 {
   FILE *fp;
-  unsigned long n = 0;
+  unsigned int n = 0;
   int p;
 
   fb[0] = -1; /* implicit */
@@ -591,7 +587,7 @@ read_factor_base (int *fb, char *fbase, unsigned long fbn)
       if (n > fbn)
         {
           fprintf (stderr, "Error, too many primes in factor base\n");
-          fprintf (stderr, "fbn=%lu n=%lu p=%d\n", fbn, n, p);
+          fprintf (stderr, "fbn=%u n=%u p=%d\n", fbn, n, p);
           exit (1);
         }
       fb[n] = p;
@@ -642,6 +638,7 @@ cputime (void)
 	struct timeval ts;
 	
     gettimeofday(&ts, NULL);
+	//printf("%ld %ld\n", ts.tv_sec, ts.tv_usec);
 	return ts.tv_sec * 1000 + ts.tv_usec / 1000;
 }
 

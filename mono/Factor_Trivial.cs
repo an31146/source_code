@@ -7,14 +7,14 @@ using System.Numerics;
 
 class Program {
 
-	private static string GetPrimeFactorsII(BigInteger N, uint[] primes)
+	private static string Factors(BigInteger N, uint[] primes)
 	{
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
 			
-		return GetPrimeFactorsII(N, primes_list);
+		return Factors(N, primes_list);
 	}
 
-	private static string GetPrimeFactorsII(BigInteger N, List<uint> primes)
+	private static string Factors(BigInteger N, List<uint> primes)
 	{
 		int i = 0;
 		string factorStr = "";
@@ -43,7 +43,7 @@ class Program {
 		
 		BigInteger N = BigInteger.Parse(args[0]);
 		
-		const uint LIMIT = 2000000;
+		const uint LIMIT = 1000000;
 		uint[] primes = new uint[LIMIT];
 		uint p;
 		
@@ -58,13 +58,14 @@ class Program {
 		Array.Resize(ref primes, (int)p);
 
 		Stopwatch sw = new Stopwatch();
+		sw.Start();
+
 		string factors = "\u0000";
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
 		
-		sw.Start();
-		for (int n = 0; n < 1000; n++)
-			factors = GetPrimeFactorsII(N, primes_list);		// 12595 ms		19448 ms	18122 ms
+		//for (int n = 0; n < 1000; n++)
+			factors = Factors(N, primes_list);		// 12595 ms		19448 ms	18122 ms
 		sw.Stop();
-		Console.WriteLine($"1000 rounds of GetPrimeFactorsII() took: {sw.ElapsedMilliseconds} ms\n{factors}");
+		Console.WriteLine($"Factors() took: {sw.ElapsedMilliseconds} ms\n{factors}");
 	}
 }
