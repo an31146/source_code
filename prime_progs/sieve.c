@@ -198,12 +198,13 @@ trial_divide (int index, int sd[100], int sdc)
 
 	mpz_mul_si (ztemp1, a2, index);
 	mpz_add (ztemp2, ztemp1, b);
-	gmp_printf("ztemp1: %Zd...\nztemp2: %Zd...\nu: %Zd\n", ztemp1, ztemp2, u);
+	gmp_printf("ztemp1: %Zd...\nztemp2: %Zd...\nb: %Zd...\n", ztemp1, ztemp2, b);
 	mpz_mul (u, ztemp2, ainv);
 	mpz_mod (u, u, N);
 	mpz_mul (residue, u, u);
 	mpz_mod (residue, residue, N);  /* probably can do this faster */
-	gmp_printf("residue: %Zd...\na2: %Zd...\nainv: %Zd...\ntsdc: %d...", residue, a2, ainv, tsdc);
+	gmp_printf("residue: %Zd...\na2: %Zd...\nainv: %Zd...\ntsdc: %d...\nu: %Zd\n", 
+		residue, a2, ainv, tsdc, u);
 
 	if (mpz_cmp (residue, Nby2) > 0)
 	{
@@ -279,12 +280,16 @@ trial_divide (int index, int sd[100], int sdc)
 
 		smc ++;
 		gmp_sprintf (buffer, "%Zd ", u);
-		fprintf(fsmooth, "%s", buffer);
+		fprintf(stdout, "\n%s", buffer);
 		if (sign == -1)
-            fprintf (fsmooth, "-1 1 ");
+		{
+            fprintf (stdout, "-1 1 ");
+		}
 		for (j = 0; j < allc; j++)
-            fprintf (fsmooth, "%d %d ", all[j], exp[j]);
-		fprintf (fsmooth, "0\n");
+		{
+            fprintf (stdout, "%d %d ", primes[all[j]], exp[j]);
+		}
+		fprintf (stdout, "0\n");
 	}
 	else if (mpz_cmp_ui (residue, LP) < 0)
         {
@@ -401,14 +406,14 @@ sieve (void)
 				register int j;
 
 				for (j = 0; j < CHAR_PER_LONG; j++) {
-						printf("scan[%d]: %d...", j, scan[j]);
+					//	printf("scan[%d]: %d...", j, scan[j]);
 					if (scan[j] & comp)
 					{
 						unsigned int test;
 
 						sdc = 0;
 						index = (int) (scan-accum);
-						index = index + j + k * BLOCK_LENGTH;
+						index += j + k * BLOCK_LENGTH;
 
 						for (i = 0; i < START; i++)
 							if (mprimes[i] == 0) {
@@ -424,7 +429,7 @@ sieve (void)
 						if (scan[j] >= thresh2) 	/* try it */
 						{
 							sd[sdc] = 0;
-							printf("index: %d\tsdc: %d...", index, sdc);
+							//printf("index: %d\tsdc: %d...", index, sdc);
 							trial_divide (index, sd, sdc);
 						}
 					}
@@ -495,9 +500,9 @@ sieve (void)
 			register LONG *fscan=( LONG *) accum;
 			register LONG *lim= (fscan+(BLOCK_LENGTH>>LOG2_CHAR_PER_LONG));
 
-			printf("sizeof(fscan): %I64d\n", sizeof(fscan));
+			printf("\nsizeof(fscan): %I64d\n", sizeof(fscan));
 			printf("sizeof(unsigned char): %I64d\n", sizeof(unsigned char));
-			printf("sizeof(accum): %I64d\n", sizeof(accum));
+			printf("sizeof(accum): %I64d\n\n", sizeof(accum));
 			for (; fscan <= lim; fscan++ ) {
 				/* scan array CHAR_PER_LONG cells at a time */
 				if ((*fscan) & COMP) {		/* find hit */
@@ -510,10 +515,10 @@ sieve (void)
 						if (scan[j] & comp) {
 							register int test;
 
-							sdc=0;
-							index= (int) (scan-accum);
-							index= index + j + k*BLOCK_LENGTH;
-							index= -index;
+							sdc = 0;
+							index = (int) (scan-accum);
+							index += j + k * BLOCK_LENGTH;
+							index = -index;
 
 							for (i = 0; i < START; i++)
 								//printf("mprimes[%d]: %d...j: %d...", i, mprimes[i], j);
@@ -525,15 +530,15 @@ sieve (void)
 									//printf("test: %d...i: %d...", test, i);
 									if (test == soln1[i] || test == soln2[i]) {
 										//printf("i: %d...soln1[i]: %d...soln2[i]: %d\n", i, soln1[i], soln2[i]);
-										sd[sdc++]= i; /* save index */
+										sd[sdc++]= i; 		/* save index */
 										scan[j] +=log_p[i];
 									}
 								}
 
-							printf("scan[%d]: %d...", j, scan[j]);
+							//printf("scan[%d]: %d...", j, scan[j]);
 							if (scan[j] >= thresh2) {	// try it
 								sd[sdc] = 0;
-								printf("index: %d...sdc: %d...", index, sdc);
+								//printf("index: %d...sdc: %d...", index, sdc);
 								trial_divide (index, sd, sdc);
 							}	// for (i
 							assert(i == START);
@@ -872,12 +877,12 @@ zsqrtp2 (mpz_t x, mpz_t p, mpz_t p2, mpz_t res)
 	mpz_mod (xmodp, x, p);
 	mpz_mod (xmodp2, x, p2);
 
-	mpz_sqrtmod (rr, xmodp, p);              /* rr^2 == x mod p */
+	mpz_sqrtmod (rr, xmodp, p);				/* rr^2 == x mod p */
 
 	mpz_mul (ztemp1, rr, rr);
-	mpz_sub (ztemp1, ztemp1, xmodp2); /* ztemp1 is rr^2 - x mod p^2 */
+	mpz_sub (ztemp1, ztemp1, xmodp2); 		/* ztemp1 is rr^2 - x mod p^2 */
 	mpz_mul_ui (ztemp3, rr, 2);
-	mpz_invert (ztemp2, ztemp3, p);   /* ztemp2 is (2*ztemp1)^-1 mod p */
+	mpz_invert (ztemp2, ztemp3, p);			/* ztemp2 is (2*ztemp1)^-1 mod p */
 	mpz_mul (ztemp3, ztemp1, ztemp2);
 	mpz_sub (ztemp1, rr, ztemp3);
 	mpz_mod (res, ztemp1, p2);
@@ -939,8 +944,8 @@ loop:
 
 	mpz_set (a, ztemp1);
 	mpz_mul (a2, a, a);             /* a2 = a * a */
-	mpz_invert (ainv, a, N);        /* a^-1 mod N */
-	zsqrtp2 (N, a, a2, b);
+	mpz_invert (ainv, a, N);		/* a^-1 mod N */
+	zsqrtp2 (N, a, a2, b);			/* b^2 == N mod a^2 */
 
 	/* make sure b is between 0 and a^2/2 */
 
@@ -1166,7 +1171,7 @@ main (int argc, char *argv[])
 		comp += i;
 	if (comp != (COMP& 0xff)) {
 		printf("please recompile with COMP = 0x%x%x%x%x\n",
-			comp,comp,comp,comp);
+			comp, comp, comp, comp);
 		exit(1);
 	}
 	printf("comp: %d\n", comp);
@@ -1248,7 +1253,7 @@ main (int argc, char *argv[])
 					exit(1);
 				}
 				rootN[p_count]=sqrtmod(j, p);
-				//printf("%8d", rootN[p_count]);
+				//printf("primes[%d]: %d...\n", primes[p_count], rootN[p_count]);
 			}
 			//printf("primes[%d]: %d\n", p_count, primes[p_count]);
 			p_count++;
@@ -1316,9 +1321,8 @@ main (int argc, char *argv[])
 					mprimes[p_count] = 0;
 				}
 			}
-			printf("enter sqrtmod...");
 			rootN[p_count] = sqrtmod (j, p);
-			printf("exit...");
+			//printf("primes[%d]: %d...", primes[p_count], rootN[p_count]);
 			log_p[p_count] = (unsigned char) (log ((double) p) + 0.5);
 			p_count++;
 		}

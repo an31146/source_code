@@ -12,6 +12,9 @@
 /mono/BinaryFileStreamIO.cs.patchfile
 mono/Microsoft.Net.Compilers.Toolset.3.5.0/
 mono/Microsoft.Net.Compilers.Toolset.3.8.0-4.final/
+/prime_progs/mpz_powm_neg-exp
+/prime_progs/sieve.c.orig
+/prime_progs/c60*
 *.obj
 *.pdb
 *.ini
@@ -26,3 +29,4 @@ gamma
 *.n
 *.fb
 *.poly
+c37*

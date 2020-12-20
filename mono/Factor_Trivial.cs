@@ -43,7 +43,7 @@ class Program {
 		
 		BigInteger N = BigInteger.Parse(args[0]);
 		
-		const uint LIMIT = 1000000;
+		const uint LIMIT = 2000000;
 		uint[] primes = new uint[LIMIT];
 		uint p;
 		
