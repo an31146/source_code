@@ -189,7 +189,8 @@ trial_divide (int index, int sd[100], int sdc)
 		assert(test >= 0);
 		if (test == soln1[i] || test == soln2[i])
 		{
-			printf("test: %5d...soln1[%5d]: %5d...soln1[%5d]: %5d...\n", test, i, soln1[i], i, soln2[i]);
+			printf("test: %5d ... soln1[%5d]: %5d ... soln2[%5d]: %5d ... index: %5d ... primes[%5d]: %5d ...\n", 
+					test, i, soln1[i], i, soln2[i], index, i, primes[i]);
 			sd[tsdc++]=i;
 		}
 	}
@@ -198,19 +199,19 @@ trial_divide (int index, int sd[100], int sdc)
 
 	mpz_mul_si (ztemp1, a2, index);
 	mpz_add (ztemp2, ztemp1, b);
-	gmp_printf("ztemp1: %Zd...\nztemp2: %Zd...\nb: %Zd...\n", ztemp1, ztemp2, b);
+	gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
 	mpz_mul (u, ztemp2, ainv);
 	mpz_mod (u, u, N);
 	mpz_mul (residue, u, u);
 	mpz_mod (residue, residue, N);  /* probably can do this faster */
-	gmp_printf("residue: %Zd...\na2: %Zd...\nainv: %Zd...\ntsdc: %d...\nu: %Zd\n", 
-		residue, a2, ainv, tsdc, u);
 
 	if (mpz_cmp (residue, Nby2) > 0)
 	{
 		mpz_sub (residue, N, residue);
 		sign = -1;
 	}
+	gmp_printf("residue: %Zd ...\na2:   %Zd ...\nainv: %Zd ...\ntsdc: %d ...\nu: %Zd\n", 
+		residue, a2, ainv, tsdc, u);
 
 	/* now trial divide and also check the primes which divide
 	the multiplier.  Put all prime divisors into the all array.
@@ -221,8 +222,8 @@ trial_divide (int index, int sd[100], int sdc)
 		/* if there are still multiplier primes to check
 		and the next is smaller than the next prime in the
 		sd array... */
-		printf("i: %d...mp[%d]: %d...mpc: %d...sd[%d]: %d...", i, mi, mp[mi], mpc, i, sd[i]);
-		printf("mi < mpc: %d...mp[mi] < sd[i]: %d...\n", mi < mpc, mp[mi] < sd[i]);
+		//printf("i: %d...mp[%d]: %d...mpc: %d...sd[%d]: %d...", i, mi, mp[mi], mpc, i, sd[i]);
+		//printf("mi < mpc: %d...mp[mi] < sd[i]: %d...\n", mi < mpc, mp[mi] < sd[i]);
 		if ((mi< mpc) && (mp[mi] < sd[i])) {
 			int p = primes[mp[mi]];
 			j = mpz_tdiv_q_ui (ztemp1, residue, p);
@@ -243,7 +244,7 @@ trial_divide (int index, int sd[100], int sdc)
 		else {
 			unsigned int p = primes[sd[i]];
 			j = mpz_tdiv_q_ui (residue, residue, p);
-			gmp_printf("residue: %Zd...tsdc: %d...", residue, tsdc);
+			gmp_printf("residue: %Zd ... tsdc: %d ...\n", residue, tsdc);
 			if (j != 0) {
 				printf("\nERROR:\n");
 				gmp_printf("u= %Zd\n", u);
@@ -287,7 +288,7 @@ trial_divide (int index, int sd[100], int sdc)
 		}
 		for (j = 0; j < allc; j++)
 		{
-            fprintf (stdout, "%d %d ", primes[all[j]], exp[j]);
+            fprintf (stdout, "%d %d ", all[j], exp[j]);
 		}
 		fprintf (stdout, "0\n");
 	}
@@ -436,7 +437,7 @@ sieve (void)
 				}
 			}
 		}
-    }	// for (k
+    }	// for (k < NUM_BLOCKS
 	
 	/* now sieve to the left */
 	for (k=p_count-1; k>=0; k--) {
@@ -500,9 +501,11 @@ sieve (void)
 			register LONG *fscan=( LONG *) accum;
 			register LONG *lim= (fscan+(BLOCK_LENGTH>>LOG2_CHAR_PER_LONG));
 
+			/*
 			printf("\nsizeof(fscan): %I64d\n", sizeof(fscan));
 			printf("sizeof(unsigned char): %I64d\n", sizeof(unsigned char));
 			printf("sizeof(accum): %I64d\n\n", sizeof(accum));
+			*/
 			for (; fscan <= lim; fscan++ ) {
 				/* scan array CHAR_PER_LONG cells at a time */
 				if ((*fscan) & COMP) {		/* find hit */
@@ -557,16 +560,16 @@ static int
 inverse (int s, int t)
 {
 	register int u1,v1,q;
-        register int u2,v2;
+	register int u2,v2;
  
-	u1=1; v1=0;
-        u2=s; v2=t;
+	u1 = 1; v1 = 0;
+	u2 = s; v2 = t;
 
 	while (v2 != 0) {
-	  /* unroll twice and swap u/v */
+	    /* unroll twice and swap u/v */
 		q = u2 / v2;
-		u1 = u1 - q * v1;
-		u2 = u2 - q * v2;
+		u1 -= q * v1;
+		u2 -= q * v2;
 
 		if (u2 == 0)
 		  {
@@ -575,12 +578,12 @@ inverse (int s, int t)
 		  }
 
 		q = v2 / u2;
-		v1 = v1 - q * u1;
-		v2 = v2 - q * u2;
-        }
+		v1 -= q * u1;
+		v2 -= q * u2;
+	}
  
 	if (u1 < 0)
-		u1=u1-t*(-u1/t-1);
+		u1 = v1 + t;
  
 	return u1;
 }
@@ -603,12 +606,14 @@ compute_roots () {
 		bmodp = mpz_tdiv_ui (b, p);
 
 		x = rootN[i] - bmodp;
-		if (x < 0) x += p;
+		if (x < 0) 
+			x += p;
 		inv = inverse (amodp, p);
 		soln1[i] = (((x * inv) % p) * inv) % p;
 
 		x = p - rootN[i] - bmodp;
-		if (x < 0) x += p;
+		if (x < 0) 
+			x += p;
 		soln2[i] = (((x * inv) % p) * inv) % p;
 
 		if (soln2[i] < soln1[i]) {	/* swap 'em */
@@ -878,15 +883,23 @@ zsqrtp2 (mpz_t x, mpz_t p, mpz_t p2, mpz_t res)
 	mpz_mod (xmodp2, x, p2);
 
 	mpz_sqrtmod (rr, xmodp, p);				/* rr^2 == x mod p */
+    //gmp_printf("x: %Zd ... p: %Zd ... p2: %Zd ... rr: %Zd ...\n", x, p, p2, rr);
 
 	mpz_mul (ztemp1, rr, rr);
 	mpz_sub (ztemp1, ztemp1, xmodp2); 		/* ztemp1 is rr^2 - x mod p^2 */
 	mpz_mul_ui (ztemp3, rr, 2);
-	mpz_invert (ztemp2, ztemp3, p);			/* ztemp2 is (2*ztemp1)^-1 mod p */
-	mpz_mul (ztemp3, ztemp1, ztemp2);
-	mpz_sub (ztemp1, rr, ztemp3);
-	mpz_mod (res, ztemp1, p2);
+	//gmp_printf("ztemp1: %Zd ... ztemp3: %Zd ...\n", ztemp1, ztemp3);
 
+	mpz_invert (ztemp2, ztemp3, p);			/* ztemp2 is (2*ztemp1)^-1 mod p */
+	
+	//gmp_printf("ztemp2: %Zd ...\n", ztemp2);
+	
+	mpz_mul (ztemp3, ztemp1, ztemp2);		/* rr^2 - x mod p^2 * ztemp2 */
+	mpz_sub (ztemp1, rr, ztemp3);			/* rr - ztemp3 */
+	mpz_mod (res, ztemp1, p2);				/* ztemp1 mod p^2 */
+
+	//gmp_printf("res: %Zd ...\n", res);
+	
 	mpz_clears (rr, xmodp, xmodp2, NULL);
 }
 
@@ -903,7 +916,6 @@ get_coeffs ()
 
 	static char array[99];
 	register int i,j,k,p;
-	FILE *fp;
 
 loop:
 
@@ -925,7 +937,8 @@ loop:
 
 	for (i=0; i < 99; i++) {
 		if (array[i]) continue;
-			mpz_add_ui (ztemp1, a, i);
+		
+		mpz_add_ui (ztemp1, a, i);
 		if (mpz_probab_prime_p (ztemp1, 1))
 		{
 			if (mpz_jacobi (N, ztemp1) == 1)
@@ -955,14 +968,14 @@ loop:
 
 	/* record this a */
 	{
-		fp = fopen (AVAL_FILE, "w");
+		FILE *FP = fopen (AVAL_FILE, "w");
 		//mpz_out_str (fp, 10, a);
 		//printf("writing to %s...", AVAL_FILE);
 	
 		char buffer[100];
-		gmp_sprintf (buffer, "%Zd\n", a);
-		fprintf(fp, "%s", buffer);
-		fclose (fp);
+		gmp_sprintf (buffer, "%Zd", a);
+		fprintf(FP, "%s", buffer);
+		fclose (FP);
 
 		//mpz_out_str (fadata, 10, a);
 		//printf("writing to %s...", ADATA_FILE);
