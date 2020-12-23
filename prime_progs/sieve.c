@@ -197,14 +197,14 @@ trial_divide (int index, int sd[100], int sdc)
 
 	/* compute the residue */
 
-	mpz_mul_si (ztemp1, a2, index);
-	mpz_add (ztemp2, ztemp1, b);
+	mpz_mul_si (ztemp1, a2, index);			// A^2 * x
+	mpz_add (ztemp2, ztemp1, b);			// A^2 + b
 	gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
-	mpz_mul (u, ztemp2, ainv);
-	mpz_mod (u, u, N);
-	mpz_mul (residue, u, u);
-	mpz_mod (residue, residue, N);  /* probably can do this faster */
-
+	mpz_mul (u, ztemp2, ainv);				// u = (A^2 + b) * A^-1
+	mpz_mod (u, u, N);						//   = u mod N
+	mpz_mul (residue, u, u);				// r = u^2
+	mpz_mod (residue, residue, N);  		//   = u^2 mod N
+											/* probably can do this faster */
 	if (mpz_cmp (residue, Nby2) > 0)
 	{
 		mpz_sub (residue, N, residue);
