@@ -463,7 +463,7 @@ namespace TonelliShanks {
 			tmp2 = InverseMod(root << 1, p);
 			tmp1 *= tmp2;
 
-			return (Abs(root - tmp1) % p_sqrd);
+			return (root - tmp1) % p_sqrd;
 		}
 		
 		static BigInteger SquareRoot(BigInteger n)
@@ -912,14 +912,14 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			bigN = Parse("1152656570285234495703667671274025629");
-			// bigN = Parse("1427307451730912531117185238095045051");
+			// bigN = Parse("1152656570285234495703667671274025629");
+			bigN = Parse("1427307451730912531117185238095045051");
 			//bigN = Parse("21036551414079632357885369941319079457");
 			//bigN = Parse("38026600967337247697949761371326967247");
 			// bigN = Parse(72226396695506400745356705296866543219);
 			// bigN = Parse("81639369383890472319083144055093154391");
 			// bigN = Parse("6105535576754234603308185580298776327");
-			// bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			// bigN = 7 * Parse("213373250047292900922963491789292983262625983360017824143019");
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			//bigN = Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
 			Console.WriteLine("n = {0}", bigN);
@@ -987,7 +987,7 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			const long LIMIT = 20000;
+			const long LIMIT = 10000;
 			uint[] primes = new uint[LIMIT];
 			uint p;
 			primes[0] = 2;
@@ -1063,7 +1063,7 @@ namespace TonelliShanks {
 			Console.WriteLine();
 			*/
 			
-			const int LIMIT2 = 2000000;
+			const int LIMIT2 = 1000000;
 			double[] thresholds1 = new double[LIMIT2];
 			double[] thresholds2 = new double[LIMIT2];
 			BigInteger[] residues1 = new BigInteger[LIMIT2];
@@ -1072,7 +1072,7 @@ namespace TonelliShanks {
 			int smooths_found = 0;
 			int thresholds1_c = 0;
 			int thresholds2_c = 0;
-			BigInteger A, B1, B2, A_inv_modN, A_sqrd;
+			BigInteger A, B, A_inv_modN, A_sqrd;
 
 			A = SquareRoot(2 * bigN) / LIMIT2;
 			A = SquareRoot(A) | 1;
@@ -1090,22 +1090,15 @@ namespace TonelliShanks {
 				A_sqrd = A * A;
 				
 				A_inv_modN = InverseMod(A, bigN);		// A^-1 = 1 mod N
-				Debug.Assert( (A * A_inv_modN % bigN).IsOne );
+				B = SqrtModSqrd(bigN, A_sqrd);			// b^2 = N mod A_sqrd
 				
-				// 1st root
-				B1 = SqrtModSqrd(bigN, A_sqrd);			// b^2 = N mod A_sqrd
-				Debug.Assert( (B1 * B1 % A_sqrd).Equals(bigN % A_sqrd) );
-				// 2nd root
-				B2 = A_sqrd - B1;
-				Debug.Assert( (B2 * B2 % A_sqrd).Equals(bigN % A_sqrd) );
-				
-				Console.WriteLine("\nA: {0} ... B1: {1} ... B2: {2} ...\nA_inv_modN: {3} ...", A, B1, B2, A_inv_modN);
+				//Console.WriteLine("\nA: {0} ... B: {1} ... A_inv_modN: {2} ...", A, B, A_inv_modN);
 				
 				var t0 = sw.ElapsedMilliseconds;
 				foreach (var obj in log_primes)
 				{
 					uint res_p = obj.Item1;
-					if (res_p < 89) continue;
+					if (res_p < 169) continue;
 				
 					Debug.Assert(ModPow(bigN, (res_p - 1) >> 1, res_p).IsOne);
 					// if (res_p == 17)
