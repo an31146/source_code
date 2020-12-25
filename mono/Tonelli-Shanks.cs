@@ -912,8 +912,8 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			// bigN = Parse("1152656570285234495703667671274025629");
-			bigN = Parse("1427307451730912531117185238095045051");
+			bigN = Parse("1152656570285234495703667671274025629");
+			//bigN = Parse("1427307451730912531117185238095045051");
 			//bigN = Parse("21036551414079632357885369941319079457");
 			//bigN = Parse("38026600967337247697949761371326967247");
 			// bigN = Parse(72226396695506400745356705296866543219);
@@ -987,7 +987,7 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			const long LIMIT = 10000;
+			const long LIMIT = 24000;
 			uint[] primes = new uint[LIMIT];
 			uint p;
 			primes[0] = 2;
@@ -1063,7 +1063,7 @@ namespace TonelliShanks {
 			Console.WriteLine();
 			*/
 			
-			const int LIMIT2 = 1000000;
+			const int LIMIT2 = 2000000;
 			double[] thresholds1 = new double[LIMIT2];
 			double[] thresholds2 = new double[LIMIT2];
 			BigInteger[] residues1 = new BigInteger[LIMIT2];
@@ -1098,7 +1098,7 @@ namespace TonelliShanks {
 				foreach (var obj in log_primes)
 				{
 					uint res_p = obj.Item1;
-					if (res_p < 169) continue;
+					if (res_p < 167) continue;
 				
 					Debug.Assert(ModPow(bigN, (res_p - 1) >> 1, res_p).IsOne);
 					// if (res_p == 17)
@@ -1143,16 +1143,24 @@ namespace TonelliShanks {
 				a0 += LIMIT2;
 				A += 2;
 			
-				double threshold = Log(bigN) / 2.0 - Math.Log(LIMIT2);
-				threshold /= 2.3;
-				//Console.WriteLine("threshold: {0}\n", threshold);
+				double threshold = Math.Log(Math.Sqrt((double)bigN / 2) * LIMIT2 
+											/ Math.Pow(quad_residue_primes.Last(), 3.7));
+				//double threshold = Log(bigN) / 2.0 + Math.Log(LIMIT2);
+				//threshold /= 2.0;
+				Console.WriteLine("threshold: {0}\n", threshold);
 				
 				t0 = sw.ElapsedMilliseconds;
 				for (int i = 0; i < LIMIT2; i++) 
 				{
-					
-					if (thresholds1[i] > threshold &&
-						GreatestCommonDivisor(residues1[i], afb_primorial) > a0)
+					/*
+						var res1 = A_sqrd * i + B;
+						res1 *= A_inv_modN;
+						res1 = res1 * res1 % bigN;
+						if (res1 > (bigN >> 1))
+							res1 = bigN - res1; */
+						
+					if (thresholds1[i] > threshold
+						 && GreatestCommonDivisor(residues1[i], afb_primorial) > a0)
 					{
 						thresholds1_c++;
 						var expos = IsSmooth(residues1[i], afb_primorial);
