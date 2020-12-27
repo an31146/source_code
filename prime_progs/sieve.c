@@ -197,22 +197,21 @@ trial_divide (int index, int sd[100], int sdc)
 
 	/* compute the residue */
 
-	mpz_mul_si (ztemp1, a2, index);			// A² * x
-	mpz_add (ztemp2, ztemp1, b);			// A² + b
-	// gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
-	mpz_mul (u, ztemp2, ainv);				// u = (A² + b) * A¹
-	//mpz_mod (u, u, N);						//   = u mod N
-	mpz_mul (residue, u, u);				// r = u²
-	mpz_mod (residue, residue, N);  		//   = u² mod N
-											/* probably can do this faster */
+	mpz_mul_si (ztemp1, a2, index);
+	mpz_add (ztemp2, ztemp1, b);
+	gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
+	mpz_mul (u, ztemp2, ainv);
+	mpz_mod (u, u, N);
+	mpz_mul (residue, u, u);
+	mpz_mod (residue, residue, N);  /* probably can do this faster */
 
 	if (mpz_cmp (residue, Nby2) > 0)
 	{
 		mpz_sub (residue, N, residue);
 		sign = -1;
 	}
-	gmp_printf("residue: %Zd ...\na2:   %Zd ...\nb:    %Zd\nainv: %Zd ...\ntsdc: %d ...\nu: %Zd\n", 
-		residue, a2, b, ainv, tsdc, u);
+	gmp_printf("residue: %Zd ...\na2:   %Zd ...\nainv: %Zd ...\ntsdc: %d ...\nu: %Zd\n", 
+		residue, a2, ainv, tsdc, u);
 
 	/* now trial divide and also check the primes which divide
 	the multiplier.  Put all prime divisors into the all array.
