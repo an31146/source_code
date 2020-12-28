@@ -48,7 +48,7 @@ namespace TonelliShanks {
     class Program {
 		static uint[] primes = new uint[] {
 			   2,   3,   5,  11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,  61,  67,  71,  73,  83,  87,  89,  91,  97,
-			 101, 107, 127, 131, 139, 163, 173, 179, 191, 193, 197, 199, 211, 
+			 101, 103, 107, 109, 113, 127, 131, 139, 163, 167, 173, 179, 191, 193, 197, 199, 211, 
 			 229, 233, 257, 263, 269, 277, 281, 283, 307, 313, 317, 331, 337, 347, 349, 353, 373, 383, 389, 401, 419, 421, 
 			 431, 433, 449, 463, 487, 491, 499, 509, 523, 569, 571, 577, 587, 593, 613, 619, 631, 653, 659, 661, 673, 677, 
 			 683, 701, 733, 739, 743, 751, 761, 769, 787, 809, 811, 823, 829, 853, 859, 877, 881, 887, 911, 929, 953, 967, 
@@ -657,7 +657,7 @@ namespace TonelliShanks {
 						}
 					}	// if (H(a) % pr == 0)
 				}		// Parallel.For<int>(a, LIMIT
-			}			// for (; b <  -- while (smooths_found < quad_residue_primes.Count)
+			}			// for (; b <  -- while (smooths_found < factor_base.Count)
 			sw.Stop();
 			Console.WriteLine("\n\nF+G(a, b) loop time: {0:F1} s\n\n", sw.Elapsed.TotalSeconds);
 
@@ -950,14 +950,19 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			//bigN = Parse("1152656570285234495703667671274025629");
+			// bigN = Parse("1152656570285234495703667671274025629");
 			// bigN = Parse("1427307451730912531117185238095045051");
-			//bigN = Parse("21036551414079632357885369941319079457");
+			// bigN = Parse("21036551414079632357885369941319079457");
 			//bigN = Parse("38026600967337247697949761371326967247");
-			// bigN = Parse(72226396695506400745356705296866543219);
+			// bigN = Parse("72226396695506400745356705296866543219");
 			// bigN = Parse("81639369383890472319083144055093154391");
 			// bigN = Parse("6105535576754234603308185580298776327");
-			bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			bigN = Parse("40868700382277490531899048610847526324724937757");
+			// bigN = Parse("91056427671115356393514677020931719553248640007");
+			// bigN = Parse("239839767617610098930908899950873465446895582536986952273");
+			// bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			// bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");
+			// bigN = Parse("616339703815629101560895976525701529857730949205622007176648521221");
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			//bigN = Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
 			Console.WriteLine("n = {0}", bigN);
@@ -1025,7 +1030,9 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			const long LIMIT = 60000;
+			double logN = Log(bigN);
+			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.45);
+			const long LIMIT = 28216;
 			uint[] primes = new uint[LIMIT];
 			uint p;
 			primes[0] = 2;
@@ -1038,13 +1045,13 @@ namespace TonelliShanks {
 			}
 			Array.Resize(ref primes, (int)p);
 
-			List<uint> quad_residue_primes = primes
-				.Where(qr => Legendre(bigN, qr) == 1).ToList();	// qr != 2 && 
+			List<uint> factor_base = primes
+				.Where(qr => qr != 2 && Legendre(bigN, qr) == 1).ToList();	// include evens?
 			
-			var log_primes = quad_residue_primes
+			var log_primes = factor_base
 				.Select( p => new Tuple<uint, double>(p, Math.Log((double)p)) );
 				
-			var mod_sqrts = quad_residue_primes
+			var mod_sqrts = factor_base
 				.Select( p => new Tuple<uint, uint>(p, (uint)ShanksTonelli(bigN, p)) );
 			
 			var dict_log_primes = log_primes
@@ -1054,9 +1061,10 @@ namespace TonelliShanks {
 				.ToDictionary(x => x.Item1);
 
 			// foreach (var obj in log_primes)
-			if (dict_log_primes.ContainsKey(9931))
+			p = 9931;
+			if (dict_log_primes.ContainsKey(p))
 			{
-				Console.WriteLine("p: {0} ... log_p: {1} ... ", 9931, dict_log_primes[9931].Item2);
+				Console.WriteLine("p: {0} ... log_p: {1} ... ", p, dict_log_primes[p].Item2);
 				//Console.WriteLine("p: {0} ... log_p: {1} ... ", obj.Item1, dict_log_primes[obj.Item1].Item2);
 			}
 			// Console.Write("\nCtrl-C: ");
@@ -1067,15 +1075,15 @@ namespace TonelliShanks {
 			
 			// https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.aggregate
 			
-			afb_primorial = quad_residue_primes
+			afb_primorial = factor_base
 				.Aggregate(One, (a, b) => Multiply(a, b));
 			
 			rfb_primorial = primes
 				.Where(pr => pr < LIMIT)
 				.Aggregate(One, (a, b) => Multiply(a, b));
 			
-			Console.WriteLine("\nprimes.Count: {0}\nquad_residue_primes.Count: {1}\nlog_primes.Sum(): {2}\n", 
-				primes.Length, quad_residue_primes.Count, log_primes.Select( log_p => log_p.Item2).Sum() );
+			Console.WriteLine("\nprimes.Count: {0}\nfactor_base.Count: {1}\nlog_primes.Sum(): {2}\n", 
+				primes.Length, factor_base.Count, log_primes.Select( log_p => log_p.Item2).Sum() );
 
 			BigInteger[] F_of_x = new BigInteger[primes.Last()];
 			for (int x = 0; x < primes[primes.Length-1]; x++)
@@ -1110,16 +1118,19 @@ namespace TonelliShanks {
 			int smooths_found = 0;
 			int thresholds1_c = 0;
 			int thresholds2_c = 0;
+			
 			BigInteger A, B, A_inv_modN, A_sqrd;
 
 			A = SquareRoot(2 * bigN) / LIMIT2;
 			A = SquareRoot(A) | 1;
-							
+
 			sw.Restart();
 			while (smooths_found < log_primes.Count())
 			{
 				thresholds1 = new double[LIMIT2];
 				thresholds2 = new double[LIMIT2];
+				Dictionary<uint, long> root_offsets1 = new Dictionary<uint, long>();
+				Dictionary<uint, long> root_offsets2 = new Dictionary<uint, long>();
 
 				// find A where A is prime and is a q.r. of N
 				while (primes.Where(p => A % p == 0).Count() > 0 || Legendre(bigN, A) == -1)
@@ -1130,7 +1141,33 @@ namespace TonelliShanks {
 				A_inv_modN = InverseMod(A, bigN);		// A^-1 = 1 mod N
 				B = SqrtModSqrd(bigN, A_sqrd);			// b^2 = N mod A_sqrd
 				
-				//Console.WriteLine("\nA: {0} ... B: {1} ... A_inv_modN: {2} ...", A, B, A_inv_modN);
+				//Console.WriteLine("\nA: {0} ... B: {1,20} ... A_inv_modN: {2} ...", A, B, A_inv_modN);
+
+				foreach (var res_p in factor_base)
+				{
+					if (res_p == 2) continue;
+
+					int A_modp = (int)(A % res_p);
+					int B_modp = (int)(B % res_p);
+					long inv_A_modp = InverseMod(A_modp, (int)res_p);
+					Debug.Assert(inv_A_modp * inv_A_modp < long.MaxValue);
+					Debug.Assert(inv_A_modp * A_modp % res_p == 1);
+
+					int x = (int)dict_mod_sqrts[res_p].Item2 - B_modp;
+					long ix1 = x * inv_A_modp * inv_A_modp % res_p;
+					if (ix1 < 0)
+						ix1 += (int)res_p;
+					root_offsets1.Add(res_p, ix1);
+					
+					//Debugger.Break();
+					//Console.Write("ix1: {0} ... res_p: {1} ... ", ix1, res_p);
+					
+					x = (int)(res_p - dict_mod_sqrts[res_p].Item2 - B_modp);
+					long ix2 = x * inv_A_modp * inv_A_modp % res_p;
+					if (ix2 < 0)
+						ix2 += (int)res_p;
+					root_offsets2.Add(res_p, ix2);
+				}
 				
 				var t0 = sw.ElapsedMilliseconds;
 				foreach (var obj in log_primes)
@@ -1143,15 +1180,20 @@ namespace TonelliShanks {
 						// Debugger.Break();
 						
 					//root = mod_sqrts.Where(r => r.Item1 == res_p).First().Item2;
+					/*
 					root = dict_mod_sqrts[res_p].Item2;
 					int r1 = (int) root;
 					int r2 = (int)(res_p - root);
 					Debug.Assert (!root.IsZero);
+					*/
 
 					//Console.WriteLine("prime = {0}, root1 = {1}\troot2 = {2}\n", res_p, r1, r2);
 					//bool bBreak = false;
 
 					double log_p = dict_log_primes[res_p].Item2;
+					int ix1 = (int)root_offsets1[res_p];
+					int ix2 = (int)root_offsets2[res_p];
+					/*
 					BigInteger index1 = r1 + a0 - a0 % res_p;
 					index1 += res_p; // * (LIMIT2 / res_p);
 					int ix1 = (int)(index1 % LIMIT2);
@@ -1159,24 +1201,8 @@ namespace TonelliShanks {
 					BigInteger index2 = r2 + a0 - a0 % res_p;
 					index2 += res_p; // * (LIMIT2 / res_p);
 					int ix2 = (int)(index2 % LIMIT2);
+					*/
 					
-					
-					int A_modp = (int)(A % res_p);
-					int B_modp = (int)(B % res_p);
-					long inv_A_modp = InverseMod(A_modp, (int)res_p);
-					Debug.Assert(inv_A_modp * inv_A_modp < long.MaxValue);
-					Debug.Assert(inv_A_modp * A_modp % res_p == 1);
-
-					int x = (int)dict_mod_sqrts[res_p].Item2 - B_modp;
-					ix1 = (int)(x * inv_A_modp * inv_A_modp % res_p);
-					if (ix1 < 0)
-						ix1 += (int)res_p;
-					//Console.Write("ix1: {0} ... res_p: {1} ... ", ix1, res_p);
-					x = (int)(res_p - dict_mod_sqrts[res_p].Item2 - B_modp);
-					ix2 = (int)(x * inv_A_modp * inv_A_modp % res_p);
-					if (ix2 < 0)
-						ix2 += (int)res_p;
-
 					while (ix1 < LIMIT2 && ix2 < LIMIT2)
 					{
 						//residues1[ix1] = -bigN + index1 * index1;
@@ -1196,7 +1222,7 @@ namespace TonelliShanks {
 				//Console.WriteLine("thresholds[] fill time: {0:F1} s", (t1 - t0) / 1000.0);
 				
 				//double threshold = Math.Log(Math.Sqrt((double)bigN / 2) * LIMIT2 
-				//							/ Math.Pow(quad_residue_primes.Last(), 4.0));
+				//							/ Math.Pow(factor_base.Last(), 4.0));
 				double threshold = Log(bigN) / 2.0 + Math.Log(LIMIT2);
 				threshold /= 2.0;
 				//Console.WriteLine("threshold: {0}\n", threshold);
@@ -1218,6 +1244,7 @@ namespace TonelliShanks {
 						}
 
 						List<uint> divisors = new List<uint>();
+						/*
 						foreach (var m in dict_mod_sqrts.Keys)
 						{
 							var res_p = m;
@@ -1235,25 +1262,39 @@ namespace TonelliShanks {
 							long test2 = x * inv_A_modp * inv_A_modp % (int)res_p;
 							if (test2 < 0)
 								test2 += (int)res_p;
-								
+							
 							if (i % res_p == test1 || i % res_p == test2)
 							{
 								divisors.Add(res_p);
 							}
 						}
-
+						*/
+						// use lists created above to check if roots exist
+						
 						var residue = (A_sqrd * i + B) * A_inv_modN;
 						residue *= residue;
 						residue %= bigN;
 						if ( residue > (bigN >> 1) )
 							residue = bigN - residue;
-													
-						var expos = GetPrimeFactors(residue, divisors);
+
+						if (residue.IsEven)
+							divisors.Add(2);
+							
+						foreach (var m in root_offsets1.Keys)
+						{
+							if ( !divisors.Contains(m) 
+								 && (root_offsets1[m] == i % m || root_offsets2[m] == i % m) )
+							{
+								divisors.Add(m);
+							}
+						}
+						
+						var expos = IsSmooth(residue, divisors);
 						if (expos)
 						{
-							//Console.WriteLine("residue: {0} ... i: {1} ...\n", residue, i);
+							Console.WriteLine("residue: {0} ... i: {1} ...\n", residue, i);
 							
-							Console.Write('.');
+							//Console.Write('.');
 							smooths_found++;
 							//break;
 						}
@@ -1283,7 +1324,7 @@ namespace TonelliShanks {
 			}
 			sw.Stop();
 			
-			Console.WriteLine("\nsmooths_found: {0}", smooths_found);
+			Console.WriteLine("\n\nsmooths_found: {0}", smooths_found);
 			Console.WriteLine("thresholds1_c: {0}...thresholds2_c: {1}...", thresholds1_c, thresholds2_c);
 			Console.WriteLine("time elapsed: {0:F1} s", sw.Elapsed.TotalSeconds);
 			Console.WriteLine("speed: {0:F1} #/sec\n\n{1}", smooths_found / sw.Elapsed.TotalSeconds, new String('-', 80));
