@@ -305,6 +305,36 @@ namespace TonelliShanks {
 			return t;
 		}
 
+        private static int InverseMod(int a, int x)
+		{
+			// fail if both inputs are even, then inverse doesn't exist
+			Debug.Assert ( !((x & 1) == 0 && (a & 1) == 0) );
+
+			int r = x;
+			int _r = a;
+			int t = 0;
+			int _t = 1;
+			int q, u, v;
+			
+			while (_r != 0)
+			{
+				q = r / _r;
+				
+				u = t - q * _t;
+				t = _t; _t = u; 
+				
+				v = r - q * _r;
+				r = _r; _r = v;
+			}
+			
+			if (r > 1)
+				return 0;
+			if (t < 0)
+				t += x;
+				
+			return t;
+		}
+
 		private static bool IsSmooth(BigInteger S, BigInteger pk)
         {
             BigInteger div = Zero;
@@ -335,18 +365,26 @@ namespace TonelliShanks {
 
         private static bool GetPrimeFactors(BigInteger N, List<uint> primes)
         {
-            int i = 0;
+			string expos = "";
             foreach (uint pr in primes)
             {
+				int i = 0;
                 while ((N % pr).IsZero)    // divisible by prime in factor_base[]
                 {
 					N /= pr;
 					i++;
 				}
-
+				expos += pr.ToString();
+				if (i == 1) expos += "¹ ";
+				if (i == 2) expos += "² ";
+				if (i == 3) expos += "³ ";
+				if (i > 3) expos += '↑' + i.ToString() + ' ';
             }
 			if (Abs(N).IsOne)
+			{
+				Console.WriteLine(expos);
 				return true;		// smooth number with prime bound in factor_base
+			}
 			else
 				return false;
         }
@@ -912,14 +950,14 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			bigN = Parse("1152656570285234495703667671274025629");
-			//bigN = Parse("1427307451730912531117185238095045051");
+			//bigN = Parse("1152656570285234495703667671274025629");
+			// bigN = Parse("1427307451730912531117185238095045051");
 			//bigN = Parse("21036551414079632357885369941319079457");
 			//bigN = Parse("38026600967337247697949761371326967247");
 			// bigN = Parse(72226396695506400745356705296866543219);
 			// bigN = Parse("81639369383890472319083144055093154391");
 			// bigN = Parse("6105535576754234603308185580298776327");
-			// bigN = 7 * Parse("213373250047292900922963491789292983262625983360017824143019");
+			bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			//bigN = Parse("11856709568161319777256699463960232875462515121528753344650215884157160101089405170365490797307403087297576659916158742948759781687782873850490456812393873");
 			Console.WriteLine("n = {0}", bigN);
@@ -987,7 +1025,7 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			const long LIMIT = 24000;
+			const long LIMIT = 60000;
 			uint[] primes = new uint[LIMIT];
 			uint p;
 			primes[0] = 2;
@@ -1001,7 +1039,7 @@ namespace TonelliShanks {
 			Array.Resize(ref primes, (int)p);
 
 			List<uint> quad_residue_primes = primes
-				.Where(qr => qr != 2 && Legendre(bigN, qr) == 1).ToList();
+				.Where(qr => Legendre(bigN, qr) == 1).ToList();	// qr != 2 && 
 			
 			var log_primes = quad_residue_primes
 				.Select( p => new Tuple<uint, double>(p, Math.Log((double)p)) );
@@ -1063,7 +1101,7 @@ namespace TonelliShanks {
 			Console.WriteLine();
 			*/
 			
-			const int LIMIT2 = 2000000;
+			const int LIMIT2 = 1000000;
 			double[] thresholds1 = new double[LIMIT2];
 			double[] thresholds2 = new double[LIMIT2];
 			BigInteger[] residues1 = new BigInteger[LIMIT2];
@@ -1122,57 +1160,107 @@ namespace TonelliShanks {
 					index2 += res_p; // * (LIMIT2 / res_p);
 					int ix2 = (int)(index2 % LIMIT2);
 					
+					
+					int A_modp = (int)(A % res_p);
+					int B_modp = (int)(B % res_p);
+					long inv_A_modp = InverseMod(A_modp, (int)res_p);
+					Debug.Assert(inv_A_modp * inv_A_modp < long.MaxValue);
+					Debug.Assert(inv_A_modp * A_modp % res_p == 1);
+
+					int x = (int)dict_mod_sqrts[res_p].Item2 - B_modp;
+					ix1 = (int)(x * inv_A_modp * inv_A_modp % res_p);
+					if (ix1 < 0)
+						ix1 += (int)res_p;
+					//Console.Write("ix1: {0} ... res_p: {1} ... ", ix1, res_p);
+					x = (int)(res_p - dict_mod_sqrts[res_p].Item2 - B_modp);
+					ix2 = (int)(x * inv_A_modp * inv_A_modp % res_p);
+					if (ix2 < 0)
+						ix2 += (int)res_p;
+
 					while (ix1 < LIMIT2 && ix2 < LIMIT2)
 					{
-						residues1[ix1] = -bigN + index1 * index1;
-						Debug.Assert( (residues1[ix1] % res_p).IsZero );
+						//residues1[ix1] = -bigN + index1 * index1;
+						//Debug.Assert( (residues1[ix1] % res_p).IsZero );
 						thresholds1[ix1] += log_p;
 						ix1 +=  (int)res_p;
-						index1 += (int)res_p;
+						// index1 += (int)res_p;
 
-						residues2[ix2] = -bigN + index2 * index2;
-						Debug.Assert( (residues2[ix2] % res_p).IsZero );
+						//residues2[ix2] = -bigN + index2 * index2;
+						//Debug.Assert( (residues2[ix2] % res_p).IsZero );
 						thresholds2[ix2] += log_p;
 						ix2 +=  (int)res_p;
-						index2 -= (int)res_p;
+						// index2 -= (int)res_p;
 					}
 				}
 				var t1 = sw.ElapsedMilliseconds;
-				Console.WriteLine("thresholds[] fill time: {0:F1} s", (t1 - t0) / 1000.0);
+				//Console.WriteLine("thresholds[] fill time: {0:F1} s", (t1 - t0) / 1000.0);
 				
-				a0 += LIMIT2;
-				A += 2;
-			
-				double threshold = Math.Log(Math.Sqrt((double)bigN / 2) * LIMIT2 
-											/ Math.Pow(quad_residue_primes.Last(), 3.7));
-				//double threshold = Log(bigN) / 2.0 + Math.Log(LIMIT2);
-				//threshold /= 2.0;
-				Console.WriteLine("threshold: {0}\n", threshold);
+				//double threshold = Math.Log(Math.Sqrt((double)bigN / 2) * LIMIT2 
+				//							/ Math.Pow(quad_residue_primes.Last(), 4.0));
+				double threshold = Log(bigN) / 2.0 + Math.Log(LIMIT2);
+				threshold /= 2.0;
+				//Console.WriteLine("threshold: {0}\n", threshold);
 				
 				t0 = sw.ElapsedMilliseconds;
 				for (int i = 0; i < LIMIT2; i++) 
 				{
-					/*
-						var res1 = A_sqrd * i + B;
-						res1 *= A_inv_modN;
-						res1 = res1 * res1 % bigN;
-						if (res1 > (bigN >> 1))
-							res1 = bigN - res1; */
-						
-					if (thresholds1[i] > threshold
-						 && GreatestCommonDivisor(residues1[i], afb_primorial) > a0)
+					
+					if (thresholds1[i] > threshold || thresholds2[i] > threshold)
+						// && GreatestCommonDivisor(residues1[i], afb_primorial) > a0)
 					{
-						thresholds1_c++;
-						var expos = IsSmooth(residues1[i], afb_primorial);
+						if (thresholds1[i] > threshold)
+						{
+							//Console.Write("thresholds1[{0}]: {1,7:F4} ...", i, thresholds1[i]);
+							thresholds1_c++;
+						} else {
+							//Console.Write("thresholds2[{0}]: {1,7:F4} ...", i, thresholds2[i]);
+							thresholds2_c++;
+						}
+
+						List<uint> divisors = new List<uint>();
+						foreach (var m in dict_mod_sqrts.Keys)
+						{
+							var res_p = m;
+							int A_modp = (int)(A % res_p);	
+							int B_modp = (int)(B % res_p);
+							int x = (int)dict_mod_sqrts[res_p].Item2 - B_modp;
+							long inv_A_modp = InverseMod(A_modp, (int)res_p);
+							Debug.Assert(inv_A_modp * A_modp % res_p == 1);
+							
+							long test1 = x * inv_A_modp * inv_A_modp % (int)res_p;
+							if (test1 < 0)
+								test1 += (int)res_p;
+						
+							x = (int)(res_p - dict_mod_sqrts[res_p].Item2 - B_modp);
+							long test2 = x * inv_A_modp * inv_A_modp % (int)res_p;
+							if (test2 < 0)
+								test2 += (int)res_p;
+								
+							if (i % res_p == test1 || i % res_p == test2)
+							{
+								divisors.Add(res_p);
+							}
+						}
+
+						var residue = (A_sqrd * i + B) * A_inv_modN;
+						residue *= residue;
+						residue %= bigN;
+						if ( residue > (bigN >> 1) )
+							residue = bigN - residue;
+													
+						var expos = GetPrimeFactors(residue, divisors);
 						if (expos)
 						{
-							Console.Write("{0,7:F4} ...", thresholds1[i]);
-							Console.WriteLine("residues1[{0}]: {1} ...", i, residues1[i]);
+							//Console.WriteLine("residue: {0} ... i: {1} ...\n", residue, i);
+							
+							Console.Write('.');
 							smooths_found++;
+							//break;
 						}
 					}
-					if (thresholds2[i] > threshold &&
-						GreatestCommonDivisor(residues2[i], afb_primorial) > a0)
+					/*
+					if (thresholds2[i] == threshold
+						&& GreatestCommonDivisor(residues2[i], afb_primorial) > a0)
 					{
 						thresholds2_c++;
 						var expos = IsSmooth(residues2[i], afb_primorial);
@@ -1183,10 +1271,15 @@ namespace TonelliShanks {
 							smooths_found++;
 						}
 					}
-				}
+					*/
+				}	// for (int
 				t1 = sw.ElapsedMilliseconds;
-				Console.WriteLine("thresholds[] scan time: {0:F1} s", (t1 - t0) / 1000.0);
-				Console.WriteLine(new String('-', 120));
+				//Console.WriteLine("thresholds[] scan time: {0:F1} s", (t1 - t0) / 1000.0);
+				//Console.WriteLine(new String('-', 120));
+
+				a0 += LIMIT2;
+				A += 2;
+			
 			}
 			sw.Stop();
 			

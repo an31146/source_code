@@ -200,7 +200,7 @@ trial_divide (int index, int sd[100], int sdc)
 	mpz_mul_si (ztemp1, a2, index);			// A² * x
 	mpz_add (ztemp2, ztemp1, b);			// A² + b
 	// gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
-	mpz_mul (u, ztemp2, ainv);				// u = (A² + b) * A¹
+	mpz_mul (u, ztemp2, ainv);				// u = (A² + b) * Aˉ¹
 	//mpz_mod (u, u, N);						//   = u mod N
 	mpz_mul (residue, u, u);				// r = u²
 	mpz_mod (residue, residue, N);  		//   = u² mod N
@@ -610,12 +610,14 @@ compute_roots () {
 		if (x < 0) 
 			x += p;
 		inv = inverse (amodp, p);
-		soln1[i] = (((x * inv) % p) * inv) % p;
+		soln1[i] = (x * inv * inv) % p;
+		//printf("soln1[%d]: %d ... p: %d ... ", i, soln1[i], p);
 
 		x = p - rootN[i] - bmodp;
 		if (x < 0) 
 			x += p;
-		soln2[i] = (((x * inv) % p) * inv) % p;
+		soln2[i] = (x * inv * inv) % p;
+		//printf("soln2[%d]: %d ...\n", i, soln2[i]);
 
 		if (soln2[i] < soln1[i]) {	/* swap 'em */
 			p = soln1[i];
@@ -1204,14 +1206,14 @@ main (int argc, char *argv[])
 	fp = fopen (AVAL_FILE, "r");
 	if (fp == NULL) {
 		mpz_mul_ui (ztemp1, N, 2);
-		mpz_sqrtrem (ztemp2, ztemp3, ztemp1); /* ztemp2 = sqrt(2*N) */
-		mpz_div_ui (ztemp1, ztemp2, M); /* ztemp1 = sqrt(2*N)/M */
-		mpz_sqrtrem (a, ztemp2, ztemp1); /* a = sqrt(sqrt(2*N)/M) */
-		mpz_sqrtrem (ztemp1, ztemp2, a);
-		mpz_div_ui (ztemp1, ztemp1, 100); /* ztemp1 will be the adjustment
-											 "distance" for parallelizing. */
+		mpz_sqrtrem (ztemp2, ztemp3, ztemp1); 		/* ztemp2 = √(2*N) 		*/
+		mpz_div_ui (ztemp1, ztemp2, M); 			/* ztemp1 = √(2*N)/M 	*/
+		mpz_sqrtrem (a, ztemp2, ztemp1); 			/* a = √(√(2*N)/M) 		*/
+		mpz_sqrtrem (ztemp1, ztemp2, a);			/* ztemp1 = √(√(2*N) / M  */
+		mpz_div_ui (ztemp1, ztemp1, 100); 			/* ztemp1 will be the adjustment
+													   "distance" for parallelizing. */
 		mpz_mul_ui (ztemp2, ztemp1, MACHINE_NO);
-		mpz_add (a, a, ztemp2); /* this should prevent overlap */
+		mpz_add (a, a, ztemp2); 					/* this should prevent overlap */
 	}
 	else
 	{
