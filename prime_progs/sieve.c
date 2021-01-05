@@ -135,17 +135,17 @@ factor (unsigned int *p, mpz_t n)
 	mpz_set (y, x);
 	while (1)
     {
-		mpz_mul (x, x, x);
-		mpz_add_ui (x, x, a);
-		mpz_mod (x, x, n);
-		mpz_mul (y, y, y);
-		mpz_add_ui (y, y, a);
-		mpz_mod (y, y, n);
-		mpz_mul (y, y, y);
-		mpz_add_ui (y, y, a);
-		mpz_mod (y, y, n);
-		mpz_sub (t, x, y);
-		mpz_gcd (t, t, n);
+		mpz_mul (x, x, x);				// x = x²
+		mpz_add_ui (x, x, a);			//   = x² + a
+		mpz_mod (x, x, n);				//   = (x² + a) mod n
+		mpz_mul (y, y, y);				// y = y²
+		mpz_add_ui (y, y, a);			//   = y² + a
+		mpz_mod (y, y, n);				//   = (y² + a) mod n
+		mpz_mul (y, y, y);				//   = ((y² + a) mod n)² 
+		mpz_add_ui (y, y, a);			//   = y² + a
+		mpz_mod (y, y, n);				//   = (y² + a) mod n
+		mpz_sub (t, x, y);				// t = x - y
+		mpz_gcd (t, t, n);				//   = gcd(t | n)
 		if (mpz_cmp_ui (t, 1))
 			break;
     }
@@ -157,7 +157,7 @@ factor (unsigned int *p, mpz_t n)
 		if (mpz_fits_ulong_p (t))
 			p[1] = mpz_get_ui (t);
 		else
-		res = 0;
+			res = 0;
     }
 	mpz_clears (x, y, t, NULL);
 	return res;
@@ -201,7 +201,7 @@ trial_divide (int index, int sd[100], int sdc)
 	mpz_add (ztemp2, ztemp1, b);			// A² + b
 	// gmp_printf("\nztemp1: %Zd ...\nztemp2: %Zd ...\nb:      %Zd ...\n", ztemp1, ztemp2, b);
 	mpz_mul (u, ztemp2, ainv);				// u = (A² + b) * Aˉ¹
-	//mpz_mod (u, u, N);						//   = u mod N
+	mpz_mod (u, u, N);						//   = u mod N
 	mpz_mul (residue, u, u);				// r = u²
 	mpz_mod (residue, residue, N);  		//   = u² mod N
 											/* probably can do this faster */
@@ -662,19 +662,19 @@ jacobi (int m, int n)
  
 	int t;
  
-	if (m>n) m=m%n;
-	if (m==0) return 0;
-	if (m==1) return 1;
-	if (m==2) {
+	if (m > n) m %= n;
+	if (m <= 1) return m;
+	if (m == 2) {
 		if ((n & 1) == 0) return 0;
-		t=n&7;                                  /* t = n % 8 */
-		if (t==1 || t==7) return 1;
+		t = n & 7;                                  /* t = n % 8 */
+		if (t == 1 || t == 7) return 1;
 		return -1;
 	}
-	if ((m&1)==0)
-		return jacobi((m>>1),n)*jacobi(2,n);
-	if ((m&3)==3 && (n&3)==3) return -jacobi(n,m);
-	return jacobi(n,m);
+	if ((m & 1) == 0)
+		return jacobi((m>>1), n) * jacobi(2, n);
+	if ((m & 3) == 3 && (n & 3) == 3) 
+		return -jacobi(n, m);
+	return jacobi(n, m);
 	 
 }
 
@@ -1006,7 +1006,7 @@ main (int argc, char *argv[])
 	int loopc = 0;
 	char *params = NULL;
 	unsigned int B; /* largest prime in factor base */
-	double LPn; /* number of large primes */
+	double LPn; 	/* number of large primes */
 	double S1, S2;
 	double T = 2.5;
 	double cputime_t0 = (double) cputime() / 1000;
@@ -1209,7 +1209,7 @@ main (int argc, char *argv[])
 		mpz_sqrtrem (ztemp2, ztemp3, ztemp1); 		/* ztemp2 = √(2*N) 		*/
 		mpz_div_ui (ztemp1, ztemp2, M); 			/* ztemp1 = √(2*N)/M 	*/
 		mpz_sqrtrem (a, ztemp2, ztemp1); 			/* a = √(√(2*N)/M) 		*/
-		mpz_sqrtrem (ztemp1, ztemp2, a);			/* ztemp1 = √(√(2*N) / M  */
+		mpz_sqrtrem (ztemp1, ztemp2, a);			/* ztemp1 = √(√(2*N)/M  */
 		mpz_div_ui (ztemp1, ztemp1, 100); 			/* ztemp1 will be the adjustment
 													   "distance" for parallelizing. */
 		mpz_mul_ui (ztemp2, ztemp1, MACHINE_NO);
@@ -1395,7 +1395,7 @@ main (int argc, char *argv[])
 		   We have S1 ~ log(log(L)) - log(log(B))
 		   and sum(1/p^2, p=B..L) ~ 1/B/log(B) - 1/L/log(L) */
 
-		if ((loopc & 63) == 0)
+		if ((loopc & 0x7f) == 0)
 		{
 			double d = (double) FSS;
 			d = d * d * S2;

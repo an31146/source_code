@@ -265,6 +265,7 @@ read_partial (relation r, FILE *fp, int with_q)
   unsigned long q;
   unsigned int n = 0, e;
   int p;
+  char buffer[500];
 
   if (with_q)
     {
@@ -272,8 +273,10 @@ read_partial (relation r, FILE *fp, int with_q)
 	return EOF;
       r->q = q;
     }
-  if (mpz_inp_str (r->x, fp, 10) == 0)
+  //if (mpz_inp_str (r->x, fp, 10) == 0)
+  if (fscanf(fp, "%s", buffer) == 0)
     return EOF;
+  gmp_sscanf(buffer, "%Zd", r->x);
 
   while (!feof (fp))
     {
@@ -328,22 +331,25 @@ int
 read_full (relation r, FILE *fp, unsigned long fbn)
 {
   unsigned int n = 0, e;
-  int p;
+  unsigned long p;
+  char buffer[500];
 
   r->q = 0;
-  if (mpz_inp_str (r->x, fp, 10) == 0)
+  //if (mpz_inp_str (r->x, fp, 10) == 0)
+  if (fscanf(fp, "%s", buffer) == 0)
     return EOF;
+  gmp_sscanf(buffer, "%Zd", r->x);
 
   while (!feof (fp))
     {
-      if (fscanf (fp, "%d", &p) == EOF)
+      if (fscanf (fp, "%lu", &p) == EOF)
         return EOF;
       if (p == 0) /* end of line */
         return 0;
       /* check prime index */
-      if (p != -1 && (p <= 0 || fbn < (unsigned long) p))
+      if (p != -1 && (p <= 0 || fbn < p))
         {
-          fprintf (stderr, "Error, wrong prime index in full: %d\n", p);
+          fprintf (stderr, "Error, wrong prime index in .fulls: %lu\n", p);
           exit (1);
         }
       if (fscanf (fp, "%u", &e) == EOF)
@@ -411,9 +417,13 @@ void
 output_relation (FILE *fp, relation r)
 {
   unsigned int i;
+  char buffer[500];
 
   fprintf (fp, "%lu ", r->q);
-  mpz_out_str (fp, 10, r->x);
+  //mpz_out_str (fp, 10, r->x);
+	gmp_sprintf (buffer, "%Zd", r->x);
+	fprintf (fp, "%s ", buffer);
+  
   for (i = 0; i < r->n; i++)
     fprintf (fp, " %d %u", r->p[i], r->e[i]);
   fprintf (fp, " 0\n");
@@ -423,10 +433,13 @@ void
 output_relation_without_q (FILE *fp, relation r)
 {
   unsigned int i;
+  char buffer[100];
 
-  mpz_out_str (fp, 10, r->x);
+	//mpz_out_str (fp, 10, r->x);
+	gmp_sprintf (buffer, "%Zd", r->x);
+	fprintf (fp, "%s ", buffer);
   for (i = 0; i < r->n; i++)
-    fprintf (fp, " %d %u", r->p[i], r->e[i]);
+    fprintf (fp, "%d %u ", r->p[i], r->e[i]);
   fprintf (fp, " 0\n");
 }
 
@@ -434,12 +447,15 @@ void
 output_relation2 (FILE *fp, relation r, mpz_t q, mpz_t N)
 {
   unsigned int i;
+  char buffer[100];
 
   mpz_invert (q, q, N);
   mpz_mul (q, q, r->x);
   mpz_mod (r->x, q, N);
   mpz_set_ui (q, 1);
-  mpz_out_str (fp, 10, r->x);
+  //mpz_out_str (fp, 10, r->x);
+	gmp_sprintf (buffer, "%Zd", r->x);
+	fprintf (fp, "%s ", buffer);
   for (i = 0; i < r->n; i++)
     fprintf (fp, " %d %u", r->p[i], r->e[i]);
   fprintf (fp, " 0\n");
@@ -448,8 +464,7 @@ output_relation2 (FILE *fp, relation r, mpz_t q, mpz_t N)
 /* for each prime index fb[0..fbn], count the number of occurrences of 
    an odd exponent in the relations */
 void
-count_odd_exponents (int *fb, unsigned long fbn, relation *rels,
-		     unsigned long nrels)
+count_odd_exponents (int *fb, unsigned long fbn, relation *rels, unsigned long nrels)
 {
   unsigned long i, j;
   
@@ -457,8 +472,11 @@ count_odd_exponents (int *fb, unsigned long fbn, relation *rels,
     fb[i] = 0;
   for (i = 0; i < nrels; i++)
     for (j = 0; j < rels[i]->n; j++)
+	{
       if (rels[i]->e[j] % 2)
         fb[INDEX(rels[i]->p[j])] ++;
+	  //printf("p[%lu]: %d ... e[%lu]: %d ... ", j, rels[i]->p[j], j, rels[i]->e[j]);
+	}
 }
 
 /* read number to factor from 'params' file */
