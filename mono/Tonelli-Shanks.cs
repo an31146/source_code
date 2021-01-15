@@ -397,31 +397,28 @@ namespace TonelliShanks {
 				in factor_base 
 				where (N % prime == 0) 
 				select prime;
-			uint[] expos = new uint[factor_base.Length];
+			
 			Dictionary<uint, uint> exponents = factors.ToDictionary(x => x);
+			uint[] expos = new uint[factor_base.Length];
 
 			foreach (uint p in factors)
 			{
+				exponents[p] = 0;		// must initialize dictionary value
 				while ((N % p).IsZero)
 				{
 					N /= p;
 					
-					if (!exponents.ContainsKey(p))
-						exponents.Add(p, 1);
-					else
+					// if (!exponents.ContainsKey(p))
+						// exponents.Add(p, 1);
+					// else
 						exponents[p]++;
+						expos[factor_base.ToList().IndexOf(p)]++;
 				}
-				Console.Write("{0,8}^{1}...", p, exponents[p]);
+				//Console.Write("{0,8}^{1}...", p, exponents[p]);
 			}
 
 			if (N.IsOne)
-            {
-				foreach (uint p in exponents.Keys)
-                {
-					expos[factor_base.ToList().IndexOf(p)] = exponents[p];
-                }
 				return expos;
-			}
 			else
 				return null;
 		}
@@ -606,14 +603,15 @@ namespace TonelliShanks {
 						M[i] = tmpRow;
 						row_swaps++;
 					}
-					if (M[i].Get(p)) {     // Add these rows if value in pivot column is true
+					if (M[i].Get(p)) {
+						// Add these rows if value in pivot column is true
 #if DEBUG				
 						Debug.WriteLine($"Add row: {p,4} to row: {i,4}");
 #endif
 						M[i].Xor(M[p]);	// row i is the result of row p being added
 						row_adds++;
-					}
-				}   // for i
+					}   // for i
+				}
 			}     // for p - NOT: Parallel.For p
 			sw.Stop();
 #if DEBUG
@@ -725,7 +723,7 @@ namespace TonelliShanks {
 						}
 					}	// if (H(a) % pr == 0)
 				}		// Parallel.For<int>(a, LIMIT
-			}			// for (; b <  -- while (smooths_found < factor_base.Count)
+			}			// for (; b <  -- while (smooths_found < FB_count)
 			sw.Stop();
 			Console.WriteLine("\n\nF+G(a, b) loop time: {0:F1} s\n\n", sw.Elapsed.TotalSeconds);
 
@@ -966,6 +964,7 @@ namespace TonelliShanks {
 															+ C[2];
 
 //---------------------------------------------------------------------------------------------------													
+		
         static void Main(string[] args) {
             List<Tuple<long, long>> pairs = new List<Tuple<long, long>>() {
                 new Tuple<long, long>(10, 13),
@@ -1018,7 +1017,7 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			bigN = Parse("1152656570285234495703667671274025629");
+			// bigN = Parse("1152656570285234495703667671274025629");
 			// bigN = Parse("1427307451730912531117185238095045051");
 			// bigN = Parse("6105535576754234603308185580298776327");
 			// bigN = Parse("12715078484521083242869458867824574151");
@@ -1029,9 +1028,10 @@ namespace TonelliShanks {
 			// bigN = Parse("81639369383890472319083144055093154391");
 			// bigN = Parse("40868700382277490531899048610847526324724937757");
 			// bigN = Parse("91056427671115356393514677020931719553248640007");
+			// bigN = Parse("116385100850127761864925743997768788238692710790449");
 			// bigN = Parse("239839767617610098930908899950873465446895582536986952273");
-			// bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
-			// bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");
+			bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			// bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");		// NOT a semiprime
 			// bigN = Parse("616339703815629101560895976525701529857730949205622007176648521221");
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			Console.WriteLine("n = {0} ...\nn (mod 4): {1} ...", bigN, bigN & 3);
@@ -1101,8 +1101,12 @@ namespace TonelliShanks {
 
 			double logN = Log(bigN);
 			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.45);
-			const long LIMIT = 19581;
+			
+			const long LIMIT = 125707;
 			uint[] primes = new uint[LIMIT];
+			
+			
+			// Eratosthenes sieve
 			uint p;
 			primes[0] = 2;
 			for (p = 0; primes[p] < LIMIT; ) 
@@ -1110,9 +1114,11 @@ namespace TonelliShanks {
 				for (uint i = primes[p]; i < LIMIT; i += primes[p])
 					primes[i] = 1;
 				primes[++p] = primes[p-1] + 1;
-				for (; primes[p] < LIMIT && primes[primes[p]] == 1; primes[p]++) ;     //find next prime (where s[p]==0)
+				//find next prime (where s[p]==0)
+				for (; primes[p] < LIMIT && primes[primes[p]] == 1; primes[p]++) ;
 			}
 			Array.Resize(ref primes, (int)p);
+
 
 			List<uint> factor_base = primes
 				.Where(qr => Legendre(bigN, qr) == 1).ToList();	// qr != 2 && include evens?
@@ -1128,6 +1134,8 @@ namespace TonelliShanks {
 				
 			var dict_mod_sqrts = mod_sqrts
 				.ToDictionary(x => x.Item1);
+
+			int FB_count = factor_base.Count;
 
 			// foreach (var obj in log_primes)
 			p = 9931;
@@ -1152,7 +1160,7 @@ namespace TonelliShanks {
 				.Aggregate(One, (a, b) => Multiply(a, b));
 			
 			Console.WriteLine("\nprimes.Count: {0}\nfactor_base.Count: {1}\nlog_primes.Sum(): {2}\n", 
-				primes.Length, factor_base.Count, log_primes.Select( log_p => log_p.Item2).Sum() );
+				primes.Length, FB_count, log_primes.Select( log_p => log_p.Item2).Sum() );
 
 			BigInteger[] F_of_x = new BigInteger[primes.Last()];
 			for (int x = 0; x < primes[primes.Length-1]; x++)
@@ -1177,7 +1185,7 @@ namespace TonelliShanks {
 			Console.WriteLine("{1} rounds of IsSmooth(S, afb_primorial) time: {0} ms", sw.ElapsedMilliseconds, LIMIT >> 1);
 			Console.WriteLine();
 			*/
-			
+
 			const int LIMIT2 = 1000000;
 			double[] thresholds1 = new double[LIMIT2];
 			double[] thresholds2 = new double[LIMIT2];
@@ -1188,22 +1196,39 @@ namespace TonelliShanks {
 			int partials_found = 0;
 			int thresholds1_c = 0;
 			int thresholds2_c = 0;
+			int cycles = 0;
 			
 			BigInteger A, B, A_inv_modN, A_sqrd;
 
 			List<BitArray> matrix = new List<BitArray>();
 			List<BigInteger> Q_values = new List<BigInteger>();
 			List<BigInteger> roots = new List<BigInteger>();
-			Dictionary<long, int> L_primes = new Dictionary<long, int>();
+			
+			Dictionary<long, List<string>> L_primes = new Dictionary<long, List<string>>();
+			List<BigInteger> L_residues = new List<BigInteger>();
+			List<BitArray> L_matrix = new List<BitArray>();
+			
 			
 
 			A = SquareRoot(4 * bigN) / LIMIT2;
 			A = SquareRoot(A) | 1;
 
-			var fp = new StreamWriter("c37.fulls");
-			Console.WriteLine("sieving... ");
+			int bigN_len = bigN.ToString().Length;
+			var fp = new StreamWriter(string.Format("c{0}.fulls", bigN_len));
+
+
+				var fp3 = new StreamWriter(string.Format("c{0}.fbase", bigN_len));
+				foreach (var res_p in factor_base)
+				{
+					fp3.WriteLine("{0}", res_p);
+				}
+				fp3.Close();
+
+
+			Console.Write("Sieving...");
 			sw.Restart();
-			while (smooths_found < log_primes.Count() + 100)
+			while ( (smooths_found + partials_found/4) < FB_count )
+				//L_primes.Where(l => l.Value.Count() > 1).Count() < log_primes.Count())
 			{
 				thresholds1 = new double[LIMIT2];
 				thresholds2 = new double[LIMIT2];
@@ -1375,11 +1400,11 @@ namespace TonelliShanks {
 							}
 						}
 						
-						BitArray expo_bits = new BitArray((int)(factor_base.Count * 2));
+						BitArray expo_bits = new BitArray((int)(FB_count * 2));
 						foreach (var div in divisors)
 						{
 							int fb_offset = factor_base.IndexOf(div);
-							Debug.Assert(fb_offset < factor_base.Count);
+							Debug.Assert(fb_offset < FB_count);
 							int e = 0;
 							while ((residue % div).IsZero)
 							{
@@ -1388,7 +1413,7 @@ namespace TonelliShanks {
 								residue /= div;
 							}
 							// factor_base array offset is 1-based
-							expo += string.Format("{0} {1} ", fb_offset + 1, e);
+							expo += string.Format("{0} {1} ", fb_offset+1, e);
 						}
 						if (residue.IsOne)
 						{
@@ -1398,18 +1423,37 @@ namespace TonelliShanks {
 							smooths_found++;
 							//Console.WriteLine("Q: {0} ... residue: {1} ... i: {2} ...\n", Q, save_residue, i);
 							fp.WriteLine("{0} {1} 0", Q % bigN, expo);
-							//Console.Write('.');
+							Console.Write('.');
 						}
 						else if (residue < A)
 						{
 							long large_prime = (long)residue;
+							
+							if (Legendre(large_prime, bigN) == 1)
+								continue;
+								
 							if (!L_primes.ContainsKey(large_prime))
-								L_primes.Add(large_prime, 1);
+							{
+								var relation = new Tuple<BigInteger, BitArray>(save_residue, expo_bits);
+								var list = new List<string>();
+								L_primes.Add(large_prime, list);
+								L_primes[large_prime].Add(string.Format("{0}\t{1} {2} 0", large_prime, Q % bigN, expo));
+								
+								L_residues.Add(save_residue);
+								L_matrix.Add(expo_bits);
+								//fp2.WriteLine("{0}\t{1} {2} 0", large_prime, Q % bigN, expo);
+							}
 							else
 							{
-								L_primes[large_prime]++;
+								var relation = new Tuple<BigInteger, BitArray>(save_residue, expo_bits);
+								// add prime exponents to list for large_prime
+								L_primes[large_prime].Add(string.Format("{0}\t{1} {2} 0", large_prime, Q % bigN, expo));
+
+								L_residues.Add(save_residue);
+								L_matrix.Add(expo_bits);
+								//fp2.WriteLine("{0}\t{1} {2} 0", large_prime, Q % bigN, expo);
 								partials_found++;
-								//Console.Write('+');
+								Console.Write('+');
 							}
 						}
 							/*
@@ -1456,30 +1500,88 @@ namespace TonelliShanks {
 				A += 2;
 			
 			}
-			fp.Close();
-			sw.Stop();
+			var T_smooths = sw.Elapsed.TotalSeconds;
+
+			Console.WriteLine("\n\nL_primes.List<>().Count(): {0} ... ", L_primes
+				.Where(l => l.Value.Count() > 1).Count());
 			
-			Console.WriteLine();
-			/*
-			foreach (var large_prime in L_primes.Keys)
+
+			var fp2 = new StreamWriter(string.Format("c{0}.partials", bigN_len));
+			var fp4 = new StreamWriter(string.Format("c{0}.cycles", bigN_len));
+			
+			foreach (var lp in L_primes.Keys)
 			{
-				if (L_primes[large_prime] > 1)
+				if (L_primes[lp].Count == 2)
 				{
-					Console.WriteLine("L_primes[{0}]: {1} ... ", large_prime, L_primes[large_prime]);
+					BigInteger Qa = One;
+					foreach (var str in L_primes[lp])
+					{
+						fp2.WriteLine("{0}", str);
+						
+						var tab_pos = str.IndexOf('\t');
+						var spc_pos = str.IndexOf(' ');
+						Qa *= Parse(str.Substring(tab_pos+1, spc_pos - tab_pos));
+						Debug.Assert(!Qa.IsOne);
+					}
+					Qa *= InverseMod(lp, bigN);
+					Qa %= bigN;
+					
+					var Qa_residue = Qa * Qa % bigN;
+					string sign = "\t";
+					if (Qa > (bigN >> 1))
+					{
+						Qa_residue = bigN - Qa_residue;
+						sign = "-1 1 ";
+					}
+					
+					var expos = GetPrimeFactors(Qa_residue, factor_base.ToArray());
+					// Debug.Assert(expos != null);
+					
+					if (expos != null)
+					{
+						var expo_bits =  new BitArray((int)(FB_count * 2));
+						
+						fp4.Write("{0}\t{1}", Qa, sign);
+						for (int i = 0; i < expos.Length; i++)
+						{
+							if (expos[i] > 0)
+								fp4.Write("{0} {1} ", i+1, expos[i]);
+								
+							// set exponent values' bit, true if odd
+							expo_bits.Set(i, (expos[i] & 1) == 1);	
+						}
+						fp4.WriteLine("0");
+						cycles++;
+
+						// Debugger.Break();
+						Q_values.Add(Qa);
+						roots.Add(Qa_residue);
+						//expo_bits.Set(FB_count + matrix.Count, true);			// identity bit
+						matrix.Add(expo_bits);
+					}
+					
 				}
-			}*/
+			}
+			var T_sieve = sw.Elapsed.TotalSeconds;
+
+			fp4.Close();
+			fp2.Close();
+			fp.Close();
 			
-			Console.WriteLine("\n\nsmooths_found:      {0} ...\npartials_found:     {1} ...", smooths_found, partials_found);
+			
+		
+			Console.WriteLine("\nsmooths_found:      {0} ...\npartials_found:     {1} ...", smooths_found, partials_found);
+			Console.WriteLine("full cycles:        {0} ...", cycles);
 			Console.WriteLine("thresholds1_c:      {0} ...\nthresholds2_c:      {1} ... ", thresholds1_c, thresholds2_c);
 			Console.WriteLine("matrix.Length:      {0} ... ", matrix.Count);
 			Console.WriteLine("matrix[0].Length:   {0} ... ", matrix[0].Length);
-			Console.WriteLine("sieve time elapsed: {0:F1} s", sw.Elapsed.TotalSeconds);
-			Console.WriteLine("full relations:     {0:F1} #/sec", smooths_found / sw.Elapsed.TotalSeconds);
-			Console.WriteLine("partial relations:  {0:F1} #/sec\n\n{1}", partials_found / sw.Elapsed.TotalSeconds, new String('-', 80));
+			Console.WriteLine("sieve time elapsed: {0:F1} s", T_sieve);
+			Console.WriteLine("full relations:     {0:F1} #/sec", smooths_found / T_smooths);
+			Console.WriteLine("recycled relations: {0:F1} #/sec\n\n{1}", cycles / (T_sieve - T_smooths), new String('-', 80));
 			
 			
 			/*
-			BitArray bits = new BitArray(factor_base.Count * 2);
+			BitArray bits = new BitArray(FB_count * 2);
 			foreach (var m_row in matrix)
 			{
 				bits.Xor(m_row);
@@ -1488,27 +1590,27 @@ namespace TonelliShanks {
 				Console.Write("{0}", bits[n] ? '1' : '.');
 			Console.WriteLine();
 			*/
+			Console.WriteLine("Processing matrix ... ");
 			
 			int mc = matrix.Count;
-			int fbc = factor_base.Count;
 			
 			for (int i = 0; i < mc; i++)
 			{
-				if (matrix[i].Count < mc + fbc)
-					matrix[i].Length = mc + fbc;
-				matrix[i].Set(fbc + i, true);         // set identity column value = true
+				if (matrix[i].Count < mc + FB_count)
+					matrix[i].Length = mc + FB_count;		// extend num columns in matrix row
+				matrix[i].Set(FB_count + i, true);         // set identity column value = true
 			}
 			
-			
+			/*
 			int discard = 0;
-			int[] expo_counts = new int[fbc];
+			int[] expo_counts = new int[FB_count];
 			foreach (var m in matrix)
 			{
-				for (int fb_offset = 0; fb_offset < fbc; fb_offset++)
+				for (int fb_offset = 0; fb_offset < FB_count; fb_offset++)
 					expo_counts[fb_offset] += m.Get(fb_offset) ? 1 : 0; 
 			}
 
-			for (int i = 0; i < factor_base.Count; i++)
+			for (int i = 0; i < FB_count; i++)
 			{
 				if (expo_counts[i] == 1)
 				{
@@ -1517,8 +1619,8 @@ namespace TonelliShanks {
 						if (matrix[j].Get(i))
 						{
 							//matrix.RemoveAt(j);
-							Console.WriteLine("expo_counts[{0}]: {1} ...", i, expo_counts[i]);
-							Console.WriteLine("discarding relation[{0}] ... ", j);
+							//Console.WriteLine("expo_counts[{0}]: {1} ...", i, expo_counts[i]);
+							//Console.WriteLine("discarding relation[{0}] ... ", j);
 						}
 					}
 					discard++;
@@ -1526,23 +1628,23 @@ namespace TonelliShanks {
 					
 			}
 			Console.WriteLine("{0} relations discarded ... ", discard);
-			
+			*/
 
 			
 			Gauss_Elimination(matrix);
+			var T_matrix = sw.Elapsed.TotalSeconds;
+			
+			Console.WriteLine("matrix processing time: {0:F1} s\n", T_matrix - T_sieve);
 
 			//Dump_Matrix(matrix);
 
-			for (int i = matrix.Count - 1; i >= 0; i--)			// number of rows
+			for (int i = mc-1; i >= 0; i--)			// number of rows
 			{
 				bool bNonNullFound = false;
-				for (int j = 0; j < fbc; j++)
+				for (int j = 0; j < FB_count && !bNonNullFound; j++)
 				{
-					if (matrix[i].Get(j))					// test for null vector: all columns must be zero
-					{
-						bNonNullFound = true;
-						break;
-					}
+					// test for null vector: all columns must be zero
+					bNonNullFound |= matrix[i].Get(j);
 				}
 				
 				//Console.WriteLine();
@@ -1550,17 +1652,21 @@ namespace TonelliShanks {
 				
 				if (!bNonNullFound)
 				{
+					var T_depends = sw.Elapsed.TotalSeconds;
+					
+					Console.WriteLine($"trying dependency row [{i}]");
 					// calculate smooth number from exponents, should be a perfect square
 					BigInteger x = BigInteger.One, y = BigInteger.One;
-					for (int j = 0; j < fbc; j++)
+					for (int j = 0; j < FB_count; j++)
 					{
-						//Console.Write("{0}", matrix[i].Get(j + factor_base.Count) ? '1' : '.');
-						if (matrix[i].Get(j + fbc))
+						//Console.Write("{0}", matrix[i].Get(j + FB_count) ? '1' : '.');
+						if (matrix[i].Get(j + FB_count))
 						{
 							y *= Q_values[j];
 							x *= roots[j];
 						}
 					}
+					var T_sqrt = sw.Elapsed.TotalSeconds;
 					
 					if (!y.IsOne)
 					{
@@ -1574,9 +1680,13 @@ namespace TonelliShanks {
 							if ( !(P.IsOne || Q.IsOne || P.Equals(bigN) || Q.Equals(bigN)) )
 							{
 								Console.WriteLine("Factors are P: {0} ... Q: {1} ... ", P, Q);
+								break;
 							}
 						}
 					}
+					var T_sqrt2 = sw.Elapsed.TotalSeconds;
+					Console.WriteLine("T_sqrt - T_depends: {0} s\nT_sqrt2 - T_sqrt: {1} s", 
+						T_sqrt - T_depends, T_sqrt2 - T_sqrt);
 				}
 			}
 			Console.Write("\n\nCtrl-C: ");
