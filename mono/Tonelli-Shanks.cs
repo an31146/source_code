@@ -527,7 +527,7 @@ namespace TonelliShanks {
 		{
 			double HalfLogXBase2 = Log(n, 2) / 2.0;
 			BigInteger d = n >> (int)HalfLogXBase2;
-			BigInteger q, _d;
+			BigInteger q;
 			Stopwatch sw = new Stopwatch();
 
 			int i = 0;
@@ -536,7 +536,6 @@ namespace TonelliShanks {
 			do
 			{
 				q = n / d + d;
-				_d = d;
 				q >>= 1;
 				d = q;
 				i++;
@@ -1017,7 +1016,7 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			// bigN = Parse("1152656570285234495703667671274025629");
+			//bigN = Parse("1152656570285234495703667671274025629");
 			// bigN = Parse("1427307451730912531117185238095045051");
 			// bigN = Parse("6105535576754234603308185580298776327");
 			// bigN = Parse("12715078484521083242869458867824574151");
@@ -1030,9 +1029,12 @@ namespace TonelliShanks {
 			// bigN = Parse("91056427671115356393514677020931719553248640007");
 			// bigN = Parse("116385100850127761864925743997768788238692710790449");
 			// bigN = Parse("239839767617610098930908899950873465446895582536986952273");
-			bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
-			// bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");		// NOT a semiprime
+			// bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			// NOT a semiprime!  bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");
+			// bigN = Parse("3291009398659388310141151606474459623481709140484117055265322371");
 			// bigN = Parse("616339703815629101560895976525701529857730949205622007176648521221");
+			bigN = Parse("388308733305151697913542826646443043299408009003244602914653817783");
+			// Value was either too large or too small for an Int64.
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			Console.WriteLine("n = {0} ...\nn (mod 4): {1} ...", bigN, bigN & 3);
 
@@ -1102,7 +1104,7 @@ namespace TonelliShanks {
 			double logN = Log(bigN);
 			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.45);
 			
-			const long LIMIT = 125707;
+			const long LIMIT = 126781;
 			uint[] primes = new uint[LIMIT];
 			
 			
@@ -1212,6 +1214,7 @@ namespace TonelliShanks {
 
 			A = SquareRoot(4 * bigN) / LIMIT2;
 			A = SquareRoot(A) | 1;
+			
 
 			int bigN_len = bigN.ToString().Length;
 			var fp = new StreamWriter(string.Format("c{0}.fulls", bigN_len));
@@ -1227,7 +1230,7 @@ namespace TonelliShanks {
 
 			Console.Write("Sieving...");
 			sw.Restart();
-			while ( (smooths_found + partials_found/4) < FB_count )
+			while ( (smooths_found + partials_found/4) < FB_count + 200 )
 				//L_primes.Where(l => l.Value.Count() > 1).Count() < log_primes.Count())
 			{
 				thresholds1 = new double[LIMIT2];
@@ -1667,11 +1670,14 @@ namespace TonelliShanks {
 						}
 					}
 					var T_sqrt = sw.Elapsed.TotalSeconds;
+					double T_sqrt2 = 0;
 					
 					if (!y.IsOne)
 					{
 						var sqrt_x = SquareRoot(x);
-						if ( (sqrt_x * sqrt_x).Equals(x) )
+						T_sqrt2 = sw.Elapsed.TotalSeconds;
+
+						if (x.Equals(sqrt_x * sqrt_x))
 						{
 							Debug.Assert(x.Equals(sqrt_x * sqrt_x));
 							var P = BigInteger.GreatestCommonDivisor(bigN, y - sqrt_x);
@@ -1683,9 +1689,8 @@ namespace TonelliShanks {
 								break;
 							}
 						}
-					}
-					var T_sqrt2 = sw.Elapsed.TotalSeconds;
-					Console.WriteLine("T_sqrt - T_depends: {0} s\nT_sqrt2 - T_sqrt: {1} s", 
+					}					
+					Console.WriteLine("T_sqrt - T_depends: {0:F1} s\nT_sqrt2 - T_sqrt:   {1:F1} s", 
 						T_sqrt - T_depends, T_sqrt2 - T_sqrt);
 				}
 			}

@@ -139,7 +139,7 @@ public class Example
         int lineCount = 0;
         
         // StreamReader sr = new StreamReader(@"C:\Users\richa\Google Drive\Documents\Text Files\IRC01.txt");
-        string fileName = @"C:\Users\richa\Google Drive\Documents\Text Files\iManO2k.AutoMacro module.txt";
+        string fileName = @"C:\Users\richa\Google Drive\Documents\Text Files\strings.txt";
         
         // Why do things the easy way?  ;-)
         string [] args2 = System.Diagnostics.Process.GetCurrentProcess().StartInfo.Arguments.Split('"');
