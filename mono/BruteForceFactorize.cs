@@ -15,6 +15,7 @@
 */
 
 using System;
+using System.Numerics;
 
 public class BruteForceFactorize
 {
@@ -55,6 +56,25 @@ public class BruteForceFactorize
         }
         Console.WriteLine("P = {0}\nQ = {1}\n", P, Q);
     }
+	
+	static void Fibonacci()
+	{
+		BigInteger a = BigInteger.One;
+		BigInteger b = BigInteger.One;
+		
+		while (true)
+		{
+			BigInteger f = a + b;
+			b = a;
+			a = f;
+			var fib = f.ToString();
+			if (fib.Length > 100)
+				Console.Write("{0}\r", fib.Substring(fib.Length-100, 100));
+			else
+				Console.Write("{0}\r", fib);
+		}
+	}
+	
     
     public static void Main(string[] args)
     {
@@ -66,6 +86,7 @@ public class BruteForceFactorize
         Console.WriteLine(semiPrime);
         
         string P = "", Q = "";
-        recursive(P, Q, semiPrime.Length-1);
+        //recursive(P, Q, semiPrime.Length-1);
+		Fibonacci();
     }
 }

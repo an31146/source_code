@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using System.Media;
 using System.Numerics;
 using System.Threading.Tasks;
+using Mpir.NET;
 
+using static Mpir.NET.mpir;
 using static System.Numerics.BigInteger;
 
 namespace TonelliShanks {
@@ -1016,7 +1019,8 @@ namespace TonelliShanks {
 			//bigN = 45113;
 			//bigN = Parse("4611686217423659867");
 			//bigN = Parse("64129570938443909002430768770483");
-			//bigN = Parse("1152656570285234495703667671274025629");
+			// bigN = Parse("1152656570285234495703667671274025629");
+			// bigN = Parse("5017456652398115554349459772527061767");
 			// bigN = Parse("1427307451730912531117185238095045051");
 			// bigN = Parse("6105535576754234603308185580298776327");
 			// bigN = Parse("12715078484521083242869458867824574151");
@@ -1029,12 +1033,13 @@ namespace TonelliShanks {
 			// bigN = Parse("91056427671115356393514677020931719553248640007");
 			// bigN = Parse("116385100850127761864925743997768788238692710790449");
 			// bigN = Parse("239839767617610098930908899950873465446895582536986952273");
-			// bigN = Parse("213373250047292900922963491789292983262625983360017824143019");
+			// bigN = Parse("233787386871577757701404125889258824964262803438427655660909");
 			// NOT a semiprime!  bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");
-			// bigN = Parse("3291009398659388310141151606474459623481709140484117055265322371");
+			//bigN = Parse("3291009398659388310141151606474459623481709140484117055265322371");
+			bigN = Parse("279900655313838713637712148388471874550421888076841718672547");
 			// bigN = Parse("616339703815629101560895976525701529857730949205622007176648521221");
-			bigN = Parse("388308733305151697913542826646443043299408009003244602914653817783");
-			// Value was either too large or too small for an Int64.
+			// bigN = Parse("388308733305151697913542826646443043299408009003244602914653817783");
+			// error below: Value was either too large or too small for an Int64.
 			// bigN = Parse("6121149868564177516789267858123628666058719298150814090183132869931525893881272355067160797193977749");
 			Console.WriteLine("n = {0} ...\nn (mod 4): {1} ...", bigN, bigN & 3);
 
@@ -1101,10 +1106,17 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			double logN = Log(bigN);
-			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.45);
+			mpz_t f = new mpz_t("200000000000000000000000001");
+			mpz_t r1 = new mpz_t(0);
+			mpz_sqrt(r1, f);
+			BigInteger b1 = r1.ToBigInteger();
+			// 14142135623730
+			Console.WriteLine($"b1 = {b1}");
 			
-			const long LIMIT = 126781;
+			double logN = Log(bigN);
+			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.4522);
+			
+			const long LIMIT = 113879;
 			uint[] primes = new uint[LIMIT];
 			
 			
@@ -1188,6 +1200,11 @@ namespace TonelliShanks {
 			Console.WriteLine();
 			*/
 
+			SoundPlayer player = new SoundPlayer();
+			player.SoundLocation = @"C:\Windows\Media\Ring06.wav";
+			player.Load();
+
+			
 			const int LIMIT2 = 1000000;
 			double[] thresholds1 = new double[LIMIT2];
 			double[] thresholds2 = new double[LIMIT2];
@@ -1230,7 +1247,7 @@ namespace TonelliShanks {
 
 			Console.Write("Sieving...");
 			sw.Restart();
-			while ( (smooths_found + partials_found/4) < FB_count + 200 )
+			while ( (smooths_found + partials_found*0) < FB_count - 400 )
 				//L_primes.Where(l => l.Value.Count() > 1).Count() < log_primes.Count())
 			{
 				thresholds1 = new double[LIMIT2];
@@ -1244,7 +1261,7 @@ namespace TonelliShanks {
 				
 				A_sqrd = A * A;
 				
-				A_inv_modN = InverseMod(A, bigN);		// A^-1 = 1 mod N
+				A_inv_modN = InverseMod(A, bigN);		// A¯¹ = 1 mod N
 				B = SqrtModSqrd(bigN, A_sqrd);			// b^2 = N mod A_sqrd
 				
 				if (B.IsEven) B = A_sqrd - B;
@@ -1641,6 +1658,7 @@ namespace TonelliShanks {
 
 			//Dump_Matrix(matrix);
 
+			sw.Restart();
 			for (int i = mc-1; i >= 0; i--)			// number of rows
 			{
 				bool bNonNullFound = false;
@@ -1659,13 +1677,14 @@ namespace TonelliShanks {
 					
 					Console.WriteLine($"trying dependency row [{i}]");
 					// calculate smooth number from exponents, should be a perfect square
-					BigInteger x = BigInteger.One, y = BigInteger.One;
+					BigInteger x = One, y = One;
 					for (int j = 0; j < FB_count; j++)
 					{
 						//Console.Write("{0}", matrix[i].Get(j + FB_count) ? '1' : '.');
 						if (matrix[i].Get(j + FB_count))
 						{
 							y *= Q_values[j];
+							y %= bigN;
 							x *= roots[j];
 						}
 					}
@@ -1674,14 +1693,17 @@ namespace TonelliShanks {
 					
 					if (!y.IsOne)
 					{
-						var sqrt_x = SquareRoot(x);
+						//var sqrt_x = SquareRoot(x);
+						mpz_t rx1 = new mpz_t(x);
+						mpz_sqrt(rx1, rx1);
+						BigInteger sqrt_x = rx1.ToBigInteger();
 						T_sqrt2 = sw.Elapsed.TotalSeconds;
 
 						if (x.Equals(sqrt_x * sqrt_x))
 						{
 							Debug.Assert(x.Equals(sqrt_x * sqrt_x));
-							var P = BigInteger.GreatestCommonDivisor(bigN, y - sqrt_x);
-							var Q = BigInteger.GreatestCommonDivisor(bigN, y + sqrt_x);
+							var P = GreatestCommonDivisor(bigN, y - sqrt_x);
+							var Q = GreatestCommonDivisor(bigN, y + sqrt_x);
 
 							if ( !(P.IsOne || Q.IsOne || P.Equals(bigN) || Q.Equals(bigN)) )
 							{
@@ -1694,9 +1716,15 @@ namespace TonelliShanks {
 						T_sqrt - T_depends, T_sqrt2 - T_sqrt);
 				}
 			}
+			sw.Stop();
+			Console.WriteLine("\nmatrix dependency calculation: {0:F1} s\n", sw.Elapsed.TotalSeconds);
+			
+            player.Play();
+
 			Console.Write("\n\nCtrl-C: ");
 			Console.ReadLine();
 
+            player.Stop();
 
 			
 			sw.Restart();

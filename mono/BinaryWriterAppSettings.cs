@@ -16,7 +16,7 @@ class ConsoleApplication
         using (BinaryWriter writer = new BinaryWriter(File.Open(fileName, FileMode.Create)))
         {
             writer.Write(1.250F);
-            writer.Write(@"c:\Temp");
+            writer.Write(@"C:\Temp");
             writer.Write(10);
             writer.Write(true);
         }
