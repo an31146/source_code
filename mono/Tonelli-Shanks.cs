@@ -51,8 +51,8 @@ namespace TonelliShanks {
  
     class Program {
 		static uint[] primes = new uint[] {
-			   2,   3,   5,  11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,  61,  67,  71,  73,  83,  87,  89,  91,  97,
-			 101, 103, 107, 109, 113, 127, 131, 139, 163, 167, 173, 179, 191, 193, 197, 199, 211, 
+			   2,   3,   5,   7,  11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,  61,  67,  71,  73,  79, 
+			  83,  87,  89,  97, 101, 103, 107, 109, 113, 127, 131, 139, 163, 167, 173, 179, 191, 193, 197, 199, 211, 
 			 229, 233, 257, 263, 269, 277, 281, 283, 307, 313, 317, 331, 337, 347, 349, 353, 373, 383, 389, 401, 419, 421, 
 			 431, 433, 449, 463, 487, 491, 499, 509, 523, 569, 571, 577, 587, 593, 613, 619, 631, 653, 659, 661, 673, 677, 
 			 683, 701, 733, 739, 743, 751, 761, 769, 787, 809, 811, 823, 829, 853, 859, 877, 881, 887, 911, 929, 953, 967, 
@@ -507,6 +507,7 @@ namespace TonelliShanks {
 			return Min(R, p - R);
         }
 
+		// returns r^2 = n mod p_sqrd
 		static BigInteger SqrtModSqrd(BigInteger n, BigInteger p_sqrd)
 		{
 			BigInteger p, n_modp, n_modp_sqrd, root;
@@ -1035,8 +1036,9 @@ namespace TonelliShanks {
 			// bigN = Parse("239839767617610098930908899950873465446895582536986952273");
 			// bigN = Parse("233787386871577757701404125889258824964262803438427655660909");
 			// NOT a semiprime!  bigN = Parse("1571984925348300291324522060374542225976425353660133984883023");
-			//bigN = Parse("3291009398659388310141151606474459623481709140484117055265322371");
-			bigN = Parse("279900655313838713637712148388471874550421888076841718672547");
+			// bigN = Parse("3291009398659388310141151606474459623481709140484117055265322371");
+			// bigN = Parse("279900655313838713637712148388471874550421888076841718672547");
+			bigN = Parse(args[0]);
 			// bigN = Parse("616339703815629101560895976525701529857730949205622007176648521221");
 			// bigN = Parse("388308733305151697913542826646443043299408009003244602914653817783");
 			// error below: Value was either too large or too small for an Int64.
@@ -1106,17 +1108,22 @@ namespace TonelliShanks {
 			Console.WriteLine("Aggregate(C[], GCD): {0}", Enumerable.Aggregate<BigInteger>(C, GreatestCommonDivisor));
 			Console.WriteLine();
 
-			mpz_t f = new mpz_t("200000000000000000000000001");
+			mpz_t f = new mpz_t("200000000000000000000000000000001");
 			mpz_t r1 = new mpz_t(0);
 			mpz_sqrt(r1, f);
-			BigInteger b1 = r1.ToBigInteger();
-			// 14142135623730
-			Console.WriteLine($"b1 = {b1}");
+			var b1 = r1.ToString();
+			var bytes = r1.ToByteArray(-1);
+			//foreach (byte b in bytes)
+			//	Console.Write("{0:x2} ", b);
+			Array.Resize(ref bytes, bytes.Length+1);
+			var b2 = new BigInteger(bytes);
+			// 14142135623730950
+			Console.WriteLine($"b2 = {b2}");
 			
 			double logN = Log(bigN);
 			long PrimeB = (long)Math.Exp(Math.Sqrt(logN * Math.Log(logN)) * 0.4522);
 			
-			const long LIMIT = 113879;
+			long LIMIT = Int32.Parse(args[1]);
 			uint[] primes = new uint[LIMIT];
 			
 			
@@ -1132,7 +1139,7 @@ namespace TonelliShanks {
 				for (; primes[p] < LIMIT && primes[primes[p]] == 1; primes[p]++) ;
 			}
 			Array.Resize(ref primes, (int)p);
-
+			//Debugger.Break();
 
 			List<uint> factor_base = primes
 				.Where(qr => Legendre(bigN, qr) == 1).ToList();	// qr != 2 && include evens?
@@ -1201,7 +1208,7 @@ namespace TonelliShanks {
 			*/
 
 			SoundPlayer player = new SoundPlayer();
-			player.SoundLocation = @"C:\Windows\Media\Ring06.wav";
+			player.SoundLocation = @"C:\Windows\Media\Ring07.wav";
 			player.Load();
 
 			
@@ -1247,7 +1254,7 @@ namespace TonelliShanks {
 
 			Console.Write("Sieving...");
 			sw.Restart();
-			while ( (smooths_found + partials_found*0) < FB_count - 400 )
+			while ( smooths_found < FB_count * 1.0 )
 				//L_primes.Where(l => l.Value.Count() > 1).Count() < log_primes.Count())
 			{
 				thresholds1 = new double[LIMIT2];
@@ -1650,6 +1657,7 @@ namespace TonelliShanks {
 			Console.WriteLine("{0} relations discarded ... ", discard);
 			*/
 
+			// Dump_Matrix(matrix);
 			
 			Gauss_Elimination(matrix);
 			var T_matrix = sw.Elapsed.TotalSeconds;

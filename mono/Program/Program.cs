@@ -103,6 +103,7 @@ namespace Program
 			primorial = primes.Aggregate(One, (a, b) => Multiply(a, b));;
 			var hundred_primes = primes.Where(pr => pr < 100).Aggregate(One, (a, b) => Multiply(a, b));
 				
+			/*
 			DateTime start = DateTime.Now;
 			Console.WriteLine("Start: {0}", start.ToLongTimeString());
 			AFB_relations(primorial, hundred_primes);
@@ -110,6 +111,7 @@ namespace Program
 			Console.WriteLine("Stop:  {0}\nTime:  {1:F1} s", stop.ToLongTimeString(), stop.Subtract(start).TotalSeconds);
 			
 			return;
+			*/
 			
             BigInteger bi = new BigInteger();
             var stype = bi.GetType();

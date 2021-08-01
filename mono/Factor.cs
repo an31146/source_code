@@ -16,24 +16,24 @@ class Program {
 
 	private static string Factors(BigInteger N, List<uint> primes)
 	{
-		int i = 0;
-		string factorStr = "";
+		string factorStr = "[";
 		foreach (uint pr in primes)
 		{
+			int i = 0;
 			while ((N % pr).IsZero)    // divisible by prime in factor_base[]
 			{
 				N /= pr;
-				factorStr += pr.ToString() + " * ";
 				i++;
 			}
-
+			if (i > 0)
+				factorStr += $"{pr}, {i}; ";
 		}
 		if (BigInteger.Abs(N).IsOne) 
 		{
-			factorStr = factorStr.Remove(factorStr.Length - 3, 3);		// Truncate trailing multiplication operator
+			factorStr = factorStr.Remove(factorStr.Length - 2, 2);		// Truncate trailing multiplication operator
 			if (N.Sign == -1)
 				factorStr = "-" + factorStr;
-			return factorStr;		// smooth number with prime bound in factor_base
+			return factorStr + "]";		// smooth number with prime bound in factor_base
 		}
 		else
 			return "No factors found.";

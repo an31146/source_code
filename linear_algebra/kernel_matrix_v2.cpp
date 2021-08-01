@@ -2,6 +2,8 @@
 // g++.exe -Wall -O2 -std=c++11 kernel_matrix_v2.cpp -o kernel_matrix_v2.exe
 
 #include <iostream>
+#include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <ctime>
 #include <random>
@@ -37,7 +39,8 @@ public:
 	class BoundsViolation { };
 
 private: 
-	unsigned nrows_, ncols_; T* data_;
+	unsigned nrows_, ncols_;
+	T* data_;
 };
 
 template<typename T>
@@ -55,20 +58,26 @@ inline const T& Matrix<T>::operator() (unsigned row, unsigned col) const
 	return data_[row*ncols_ + col];
 }
 template<typename T>
-inline Matrix<T>::Matrix(unsigned nrows, unsigned ncols) : nrows_ (nrows) , ncols_ (ncols)
+inline Matrix<T>::Matrix(unsigned nrows, unsigned ncols) : nrows_ (nrows), ncols_ (ncols)
 //, data_ ← initialized below after the if...throw statement
 { 
 	if (nrows == 0 || ncols == 0) 
 		throw BadSize();
-	data_ = new T[nrows * ncols];
+	data_ = static_cast<T*>(new T[nrows * ncols]);
+	assert(data_ != NULL);
+	cout << "fill_n: " << sizeof(T)*nrows*ncols << " bytes" << endl;
+	// fill_n((T*)data_, sizeof(T)*nrows*ncols, 0);
 	::memset(data_, 0, sizeof(T)*nrows*ncols);
 }
 template<typename T>
-inline Matrix<T>::Matrix(void *array, unsigned nrows, unsigned ncols) : nrows_ (nrows) , ncols_ (ncols)
+inline Matrix<T>::Matrix(void *array, unsigned nrows, unsigned ncols) : nrows_ (nrows), ncols_ (ncols)
 {
 	if (nrows == 0 || ncols == 0) 
 		throw BadSize();
-	data_ = new T[nrows * ncols];
+	data_ = static_cast<T*>(new T[nrows * ncols]);
+	assert(data_ != NULL);
+	cout << "copy_n: " << sizeof(T)*nrows*ncols << " bytes" << endl;
+	// copy_n((T*)array, sizeof(T)*nrows*ncols, data_);
 	::memcpy(data_, array, sizeof(T)*nrows*ncols);
 }
 template<typename T>
@@ -77,29 +86,39 @@ inline Matrix<T>::~Matrix()
 	delete[] data_;
 }
 template<typename T>
-inline Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
+inline Matrix<T>::Matrix(const Matrix<T>& m)
 {
 	delete[] data_;
-	data_ = new T[m.nrows_ * m.ncols_];
+	data_ = static_cast<T*>(new T[m.nrows_ * m.ncols_]);
 	::memcpy(data_, m.data_, sizeof(T)*m.nrows_*m.ncols_);
 	nrows_ = m.nrows_;
 	ncols_ = m.ncols_;
 }
+template<typename T>
+inline Matrix<T>& Matrix<T>::operator= (const Matrix<T>& m)
+{
+	delete[] data_;
+	data_ = static_cast<T*>(new T[m.nrows_ * m.ncols_]);
+	::memcpy(data_, m.data_, sizeof(T)*m.nrows_*m.ncols_);
+	nrows_ = m.nrows_;
+	ncols_ = m.ncols_;
+	return (Matrix<T>&)data_;
+}
 
-/*
-#define SIZE 6
-int A[SIZE][SIZE] = { {1,1,0,0,1,1},
-					  {0,1,0,0,1,1},
-					  {1,0,1,0,0,0},
-					  {0,0,1,0,0,0},
-					  {0,0,0,0,0,0},
-					  {0,0,0,1,0,1} };
+#define SIZE 20
+int A[SIZE][SIZE]	= { {1,1,0,0,1,1},
+					    {0,1,0,0,1,1},
+					    {1,0,1,0,0,0},
+					    {0,0,1,0,0,0},
+					    {0,0,0,0,0,0},
+					    {0,0,0,1,0,1} };
 Matrix<int> M = Matrix<int>(A, SIZE, SIZE);
-*/
 
-#define DEBUG 0
+
+#define DEBUG 1
                             
-#define SIZE 2000
+/*
+#define SIZE 10
 int A[SIZE][SIZE] = { {1,0,1,0,0,0,0,1,0,0},
 					  {0,0,0,0,1,0,0,0,0,1},
 					  {1,0,0,0,0,1,1,0,0,0},
@@ -111,6 +130,7 @@ int A[SIZE][SIZE] = { {1,0,1,0,0,0,0,1,0,0},
 					  {1,1,0,0,0,0,0,0,0,0},
 					  {1,0,0,1,1,0,0,0,1,0} };
 Matrix<int> M = Matrix<int>(A, SIZE, SIZE);
+*/
 
 
 void gauss(Matrix<int>& m)
@@ -152,7 +172,6 @@ void gauss(Matrix<int>& m)
 #endif        
     } // for p
     printf("row swaps: %d\nrow adds: %d\n", swaps, adds);
-    getchar();
 }
 
 void dump(Matrix<int>& m)
@@ -198,7 +217,7 @@ void initial(Matrix<int>& m)
     bernoulli_distribution d(0.5f);
     
     gen.seed(time(NULL));
-	m = Matrix<int>(SIZE*2, SIZE);
+	m = Matrix<int>(SIZE, SIZE);
 
 	for (unsigned i=0; i<m.rows(); i++)
 		for (unsigned j=0; j<m.cols(); j++)

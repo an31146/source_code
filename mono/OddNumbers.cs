@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 class Solution {
 
@@ -25,11 +26,15 @@ class Solution {
         
         Console.WriteLine($"{l}\n{r}");
 
-        List<int> res = oddNumbers(l, r);
+		Stopwatch sw1 = new Stopwatch();
+        sw1.Start();
+		List<int> res = oddNumbers(l, r);
+		sw1.Stop();
 
         textWriter.WriteLine(String.Join("\n", res));
-
-        textWriter.Flush();
+		Console.WriteLine("{0} ms", sw1.ElapsedMilliseconds);
+		
+		textWriter.Flush();
         textWriter.Close();
     }
 }
