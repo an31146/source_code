@@ -36,9 +36,64 @@ class Program {
 			return factorStr + "]";		// smooth number with prime bound in factor_base
 		}
 		else
-			return "No factors found.";
+			return "No factors found, probable prime.";
 	}
 
+	private static List<uint> Divisors(BigInteger N, List<uint> primes)
+	{
+		string divisorStr = "[";
+		List<uint> divisors = new List<uint>() { 1 };
+		uint primorial = 1;
+		//while (divisor < N)
+		{
+			foreach (uint pr in primes)
+			{
+				uint divisor = pr;
+				primorial *= pr;
+				while ((N % divisor).IsZero && !divisors.Contains(divisor))
+				{
+					divisors.Add(divisor);
+					divisorStr += $"{divisor} ";
+					divisor *= pr;
+				}
+			}
+			//divisors.Add(primorial);
+			//divisorStr += $"{primorial} ";
+
+			List<uint> quotients = new List<uint>();
+			foreach (uint d in divisors)
+			{	
+				if (!divisors.Contains((uint)N/d))
+				{
+					quotients.Add((uint)N/d);
+					divisorStr += $"{N/d} ";
+				}
+			}
+			divisors.AddRange(quotients);
+		}
+		divisorStr = divisorStr.Remove(divisorStr.Length - 1, 1) + "]"; 
+		divisors.Sort();
+		return divisors;
+	}
+	
+	private static ulong EulerPhi(BigInteger N, List<uint> primes)
+	{
+		ulong phi = 1;
+		foreach (uint pr in primes)
+		{
+			int i = 0;
+			while ((N % pr).IsZero)    // divisible by prime in factor_base[]
+			{
+				N /= pr;
+				i++;
+			}
+			if (i > 1)
+				phi *= (ulong)Math.Pow(pr, i-1);
+			phi *= pr - 1;
+		}
+		return phi;
+	}
+	
 	static void Main(string[] args) {
 		
 		BigInteger N = BigInteger.Parse(args[0]);
@@ -63,9 +118,15 @@ class Program {
 		string factors = "\u0000";
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
 		
-		//for (int n = 0; n < 1000; n++)
-			factors = Factors(N, primes_list);		// 12595 ms		19448 ms	18122 ms
+			factors = Factors(N, primes);
 		sw.Stop();
-		Console.WriteLine($"Factors() took: {sw.ElapsedMilliseconds} ms\n{factors}");
+		Console.WriteLine($"Factors() took: {sw.ElapsedMilliseconds} ms\n{factors}\n");
+		
+		sw.Restart();
+			string divisors = string.Join<uint>(" ", Divisors(N, primes_list));
+		sw.Stop();
+		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n{divisors}\n");
+		
+		Console.WriteLine($"EulerPhi(): {EulerPhi(N, primes_list)}");
 	}
 }

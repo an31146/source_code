@@ -1,5 +1,7 @@
 /*
  * gcc -Wall -O2 -std=c99 -IC:\Tools\gsl-2.6 -o gamma.exe gamma.c C:\Tools\gsl-2.6\err\error.c C:\Tools\gsl-2.6\specfunc\gamma.c C:\Tools\gsl-2.6\specfunc\exp.c C:\Tools\gsl-2.6\specfunc\log.c C:\Tools\gsl-2.6\specfunc\psi.c C:\Tools\gsl-2.6\specfunc\result.c C:\Tools\gsl-2.6\err\stream.c C:\Tools\gsl-2.6\complex\math.c C:\Tools\gsl-2.6\specfunc\trig.c C:\Tools\gsl-2.6\specfunc\zeta.c C:\Tools\gsl-2.6\sys\infnan.c C:\Tools\gsl-2.6\specfunc\elementary.c C:\Tools\gsl-2.6\sys\fdiv.c C:\Tools\gsl-2.6\sys\coerce.c
+ *
+ * gcc -Wall -O2 -o gamma gamma.c -lgsl -lm
  */
 #define HAVE_INLINE 1
 
@@ -9,8 +11,8 @@
 #include <gsl/gsl_sf_gamma.h>
 #include <gsl/gsl_sf_zeta.h>
 #include <gsl/gsl_inline.h>
-#include <complex/gsl_complex.h>
-#include <complex/gsl_complex_math.h>
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_complex_math.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
