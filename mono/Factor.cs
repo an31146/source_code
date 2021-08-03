@@ -11,12 +11,14 @@ class Program {
 	{
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
 			
-		return Factors(N, primes_list);
+		return Factors(N, primes_list, primes[primes.Length-1]);
 	}
 
-	private static string Factors(BigInteger N, List<uint> primes)
+	private static string Factors(BigInteger N, List<uint> primes, uint highest_prime)
 	{
 		string factorStr = "[";
+		string sign = N.Sign == -1 ? "-" : "";
+		N = BigInteger.Abs(N);
 		foreach (uint pr in primes)
 		{
 			int i = 0;
@@ -28,27 +30,35 @@ class Program {
 			if (i > 0)
 				factorStr += $"{pr}, {i}; ";
 		}
-		if (BigInteger.Abs(N).IsOne) 
+		while (!N.IsOne) 
 		{
-			factorStr = factorStr.Remove(factorStr.Length - 2, 2);		// Truncate trailing multiplication operator
-			if (N.Sign == -1)
-				factorStr = "-" + factorStr;
-			return factorStr + "]";		// smooth number with prime bound in factor_base
+			for (ulong pr = highest_prime; pr <= N; pr += 2)
+			{
+				int i = 0;
+				while ((N % pr).IsZero)    // trial division
+				{
+					N /= pr;
+					i++;
+				}
+				if (i > 0)
+					factorStr += $"{pr}, {i}; ";
+			}
 		}
-		else
-			return "No factors found, probable prime.";
+		factorStr = factorStr.Remove(factorStr.Length - 2, 2);		// Truncate trailing multiplication operator
+		return sign + factorStr + "]";		// smooth number with prime bound in factor_base
 	}
 
-	private static List<uint> Divisors(BigInteger N, List<uint> primes)
+	private static List<ulong> Divisors(BigInteger N, List<uint> primes)
 	{
-		string divisorStr = "[";
-		List<uint> divisors = new List<uint>() { 1 };
+		string divisorStr = "[1 ";
+		List<ulong> divisors = new List<ulong>() { 1 };
 		uint primorial = 1;
 		//while (divisor < N)
 		{
+			primes.Reverse();
 			foreach (uint pr in primes)
 			{
-				uint divisor = pr;
+				ulong divisor = pr;
 				primorial *= pr;
 				while ((N % divisor).IsZero && !divisors.Contains(divisor))
 				{
@@ -56,23 +66,53 @@ class Program {
 					divisorStr += $"{divisor} ";
 					divisor *= pr;
 				}
-			}
-			//divisors.Add(primorial);
-			//divisorStr += $"{primorial} ";
-
-			List<uint> quotients = new List<uint>();
-			foreach (uint d in divisors)
-			{	
-				if (!divisors.Contains((uint)N/d))
+				if (primorial != pr)
 				{
-					quotients.Add((uint)N/d);
-					divisorStr += $"{N/d} ";
+					divisors.Add(primorial);
+					divisorStr += $"{primorial} ";
 				}
 			}
+			//Console.WriteLine(divisorStr);
+
+			List<ulong> quotients = new List<ulong>();
+			foreach (ulong d in divisors)
+				foreach (uint pr in primes)
+				{	
+					ulong d1 = d;
+					while ((N % d1).IsZero)
+					{
+						if (!divisors.Contains((ulong)d1) &&
+							!quotients.Contains((ulong)d1) &&
+							(N % d1).IsZero)
+						{
+							quotients.Add((ulong)d1);
+							divisorStr += $"{d1} ";
+						}
+						if (!divisors.Contains((ulong)N / d1) &&
+							!quotients.Contains((ulong)N / d1) &&
+							(N % d1).IsZero)
+						{
+							quotients.Add((ulong)N / d1);
+							divisorStr += $"{N / d1} ";
+						}
+						d1 *= pr;
+					}
+				}
 			divisors.AddRange(quotients);
+			foreach (ulong d in quotients)
+				if (!quotients.Contains((ulong)N / d) && 
+					!divisors.Contains((ulong)N / d) &&
+					(N % d).IsZero)
+				{
+					divisors.Add((ulong)N / d);
+					divisorStr += $"{d} ";
+				}
+
 		}
 		divisorStr = divisorStr.Remove(divisorStr.Length - 1, 1) + "]"; 
+		//Console.WriteLine(divisorStr);
 		divisors.Sort();
+		
 		return divisors;
 	}
 	
@@ -82,7 +122,7 @@ class Program {
 		foreach (uint pr in primes)
 		{
 			int i = 0;
-			while ((N % pr).IsZero)    // divisible by prime in factor_base[]
+			while ((N % pr).IsZero)    // divisible by prime in primes List<uint>
 			{
 				N /= pr;
 				i++;
@@ -98,7 +138,7 @@ class Program {
 		
 		BigInteger N = BigInteger.Parse(args[0]);
 		
-		const uint LIMIT = 2000000;
+		const uint LIMIT = 1000000;
 		uint[] primes = new uint[LIMIT];
 		uint p;
 		
@@ -123,9 +163,9 @@ class Program {
 		Console.WriteLine($"Factors() took: {sw.ElapsedMilliseconds} ms\n{factors}\n");
 		
 		sw.Restart();
-			string divisors = string.Join<uint>(" ", Divisors(N, primes_list));
+			string divisors = string.Join<ulong>(" ", Divisors(N, primes_list));
 		sw.Stop();
-		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n{divisors}\n");
+		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n[{divisors}]\n");
 		
 		Console.WriteLine($"EulerPhi(): {EulerPhi(N, primes_list)}");
 	}
