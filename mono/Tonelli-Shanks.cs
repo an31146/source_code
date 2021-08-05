@@ -369,25 +369,28 @@ namespace TonelliShanks {
 
         private static bool GetPrimeFactors(BigInteger N, List<uint> primes)
         {
-			string expos = "";
+			string factors = "";
             foreach (uint pr in primes)
             {
 				int i = 0;
-                while ((N % pr).IsZero)    // divisible by prime in factor_base[]
+                while ((N % pr).IsZero)    // divisible by prime in primes list
                 {
 					N /= pr;
 					i++;
 				}
-				expos += pr.ToString();
-				if (i == 1) expos += "¹ ";
-				if (i == 2) expos += "² ";
-				if (i == 3) expos += "³ ";
-				if (i > 3) expos += '↑' + i.ToString() + ' ';
+				factors += pr.ToString();		// add prime to factors
+				switch (i)
+				{
+					case 1: factors += "¹ "; break;
+					case 2: factors += "² "; break;
+					case 3: factors += "³ "; break;
+					default: factors += '↑' + i.ToString() + ' '; break;
+				}
             }
 			if (Abs(N).IsOne)
 			{
-				Console.WriteLine(expos);
-				return true;		// smooth number with prime bound in factor_base
+				Console.WriteLine(factors);
+				return true;		// smooth number with prime bound in primes list
 			}
 			else
 				return false;
@@ -1562,7 +1565,6 @@ namespace TonelliShanks {
 					}
 					
 					var expos = GetPrimeFactors(Qa_residue, factor_base.ToArray());
-					// Debug.Assert(expos != null);
 					
 					if (expos != null)
 					{
