@@ -168,65 +168,34 @@ class Program {
 	private static List<ulong> Divisors(BigInteger N)
 	{
 		string divisorStr = "[1 ";
-		var saveN = N;
-		List<ulong> even_divisors = new List<ulong>();
+		List<ulong> divisors = new List<ulong>() { 1, (ulong)N };
 		
+		for (uint pr = 2; pr <= (uint)Math.Sqrt((double)N); pr++)
 		{
-			ulong divisor = 2;
-			while ( (N & 1).IsZero && (N % divisor).IsZero )
-			{
-				even_divisors.Add(divisor);
-				divisorStr += $"{divisor} ";
-				
-				divisor <<= 1;
-			}
-		}
-		
-		List<ulong> odd_divisors = new List<ulong>();
-		for (uint divisor = 3; divisor <= (uint)Math.Sqrt((double)N); divisor += 2)
-		{
+			ulong divisor = pr;
 			while ((N % divisor).IsZero)
 			{
-				odd_divisors.Add(divisor);
-				divisorStr += $"{divisor}|";
-				
-				if (!even_divisors.Contains((uint)N / divisor) &&
-					!odd_divisors.Contains((uint)N / divisor))
+				if (!divisors.Contains(divisor))
 				{
-					odd_divisors.Add((uint)N / divisor);
+					divisors.Add(divisor);
+					divisorStr += $"{divisor}|";
+				}
+			
+				if (!divisors.Contains((ulong)(N / divisor)))
+				{
+					divisors.Add((ulong)(N / divisor));
 					divisorStr += $"{N / divisor}*";
 				}
-				divisor *= divisor;
+				divisor *= pr;
 			}
 		}
 		
-		N = saveN;
-		List<ulong> divisors2 = new List<ulong>();
-		foreach (ulong even in even_divisors)
-		{
-			foreach (ulong odd in odd_divisors)
-					
-				if ((N % (even * odd)).IsZero)
-				{
-					if (!odd_divisors.Contains(even * odd))
-					{
-						divisors2.Add(even * odd);
-						divisorStr += $"{even * odd}!";
-					}
-				}
-		}
-		divisors2.AddRange(even_divisors);
-		divisors2.AddRange(odd_divisors);
-		divisors2.Add(1);
-		if (!divisors2.Contains((ulong)N))
-			divisors2.Add((ulong)N);
-		
-		divisors2.Sort();
+		divisors.Sort();
 		
 		divisorStr = divisorStr.Remove(divisorStr.Length - 1, 1) + "]"; 
-		Console.WriteLine(divisorStr);
+		Console.WriteLine("{0}\ncount: {1}\n", divisorStr, divisors.Count);
 		
-		return divisors2;
+		return divisors;
 	}
 	
 	private static List<ulong> Divisors(int curIndex, ulong curDivisor,
@@ -295,9 +264,10 @@ class Program {
 
 		string factors = "\u0000";
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
-		List<(uint, uint)> prime_factors;
 		//Console.WriteLine("[" + string.Join<uint>(" ", primes_list) + "]");
-			/*if (primes_list.Count > 0)
+
+			/*List<(uint, uint)> prime_factors;
+			if (primes_list.Count > 0)
 				prime_factors = Factors(N, primes_list);
 			else
 				prime_factors = Factors(N, primes.ToList());
@@ -310,7 +280,7 @@ class Program {
 		
 		sw.Restart();
 			//string divisors = string.Join<ulong>(" ", Divisors(0, 1, prime_factors));
-			string divisors = string.Join<ulong>(" ", Divisors(N, primes_list));
+			string divisors = string.Join<ulong>(" ", Divisors(N));
 		sw.Stop();
 		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n[{divisors}]\n");
 		
