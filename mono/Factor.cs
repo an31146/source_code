@@ -11,7 +11,7 @@ class Program {
 	{
 		var primes_list = primes.Where(p => N % p == 0).ToList();			
 		
-		return Factors(N, primes_list, primes[primes.Length-1]);
+		return Factors(N, primes_list, primes.Last());
 	}
 
 	private static List<(uint, uint)> Factors(BigInteger N, List<uint> primes)
@@ -31,24 +31,20 @@ class Program {
 				facts.Add((pr, i));
 		}
 		
-		while (!N.IsOne) 
+		for (uint pr = primes[primes.Count-1]; pr <= (ulong)Math.Sqrt((double)N); pr += 2)
 		{
-			for (uint pr = primes[primes.Count-1]; pr <= (ulong)Math.Sqrt((double)N); pr += 2)
+			uint i = 0;
+			while ((N % pr).IsZero)    // trial division
 			{
-				uint i = 0;
-				while ((N % pr).IsZero)    // trial division
-				{
-					N /= pr;
-					i++;
-				}
-				if (i > 0)
-					facts.Add((pr, i));
+				N /= pr;
+				i++;
 			}
-			if (!N.IsOne)
-			{
-				facts.Add(((uint)N, 1));
-				break;
-			}
+			if (i > 0)
+				facts.Add((pr, i));
+		}
+		if (!N.IsOne)		// Might still be factorable
+		{
+			facts.Add(((uint)N, 1));
 		}
 
 		return facts;
@@ -90,8 +86,8 @@ class Program {
 			}
 		}
 
-		factorStr = factorStr.Remove(factorStr.Length - 2, 2);		// Truncate trailing multiplication operator
-		return sign + factorStr + "]";		// smooth number with prime bound in factor_base
+		factorStr = factorStr.Remove(factorStr.Length - 2, 2);		// Remove trailing semicolon and whitespace
+		return sign + factorStr + "]";
 	}
 
 	private static List<ulong> Divisors(BigInteger N, List<uint> primes)
@@ -168,20 +164,20 @@ class Program {
 	private static List<ulong> Divisors(BigInteger N)
 	{
 		string divisorStr = "[1 ";
-		List<ulong> divisors = new List<ulong>() { 1, (ulong)N };
+		HashSet<ulong> divisors = new HashSet<ulong>() { 1, (ulong)N };
 		
 		for (uint pr = 2; pr <= (uint)Math.Sqrt((double)N); pr++)
 		{
 			ulong divisor = pr;
 			while ((N % divisor).IsZero)
 			{
-				if (!divisors.Contains(divisor))
+				//if (!divisors.Contains(divisor))
 				{
 					divisors.Add(divisor);
 					divisorStr += $"{divisor}|";
 				}
 			
-				if (!divisors.Contains((ulong)(N / divisor)))
+				//if (!divisors.Contains((ulong)(N / divisor)))
 				{
 					divisors.Add((ulong)(N / divisor));
 					divisorStr += $"{N / divisor}*";
@@ -190,12 +186,13 @@ class Program {
 			}
 		}
 		
-		divisors.Sort();
+		var div_list = divisors.ToList();
+		div_list.Sort();
 		
 		divisorStr = divisorStr.Remove(divisorStr.Length - 1, 1) + "]"; 
 		Console.WriteLine("{0}\ncount: {1}\n", divisorStr, divisors.Count);
 		
-		return divisors;
+		return div_list;
 	}
 	
 	private static List<ulong> Divisors(int curIndex, ulong curDivisor,
@@ -209,7 +206,7 @@ class Program {
 		if (curIndex == factors.Count)
 		{
 			divisors.Add(curDivisor);
-			Console.Write(curDivisor + " ");
+			//Console.Write(curDivisor + " ");
 			return new List<ulong>() { curDivisor };
 		}
 
@@ -263,26 +260,26 @@ class Program {
 		sw.Start();
 
 		string factors = "\u0000";
-		var primes_list = primes.Where(p => N % p == 0).ToList();			
+		//var primes_list = primes.Where(p => N % p == 0).ToList();
+		List<uint> primes_list = primes.Where(p => N % p == 0).ToList();
 		//Console.WriteLine("[" + string.Join<uint>(" ", primes_list) + "]");
-
-			/*List<(uint, uint)> prime_factors;
-			if (primes_list.Count > 0)
+			/*
+			List<(uint, uint)> prime_factors;
+			if (primes_list.Count() > 0)
 				prime_factors = Factors(N, primes_list);
 			else
 				prime_factors = Factors(N, primes.ToList());
 			*/
 			factors = Factors(N, primes);		// returns a string
-			
+			// factors = "[" + string.Join<(uint, uint)>(" ", prime_factors) + "]";
 		sw.Stop();
-		//factors = "[" + string.Join<(uint, uint)>(" ", prime_factors) + "]";
 		Console.WriteLine($"Factors() took: {sw.ElapsedMilliseconds} ms\n{factors}\n");
 		
 		sw.Restart();
-			//string divisors = string.Join<ulong>(" ", Divisors(0, 1, prime_factors));
+			// string divisors = string.Join<ulong>(" ", Divisors(0, 1, prime_factors));
 			string divisors = string.Join<ulong>(" ", Divisors(N));
 		sw.Stop();
-		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n[{divisors}]\n");
+		Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n\n[{divisors}]\n");
 		
 		Console.WriteLine($"EulerPhi(): {EulerPhi(N, primes_list)}");
 	}

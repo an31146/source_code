@@ -142,8 +142,10 @@ public class Example
         string fileName = @"C:\Users\richa\Google Drive\Documents\Text Files\strings.txt";
         
         // Why do things the easy way?  ;-)
-        string [] args2 = System.Diagnostics.Process.GetCurrentProcess().StartInfo.Arguments.Split('"');
-        if (args.Length == 1)
+        Process my_process = Process.GetCurrentProcess();
+		ProcessStartInfo si = my_process.StartInfo;		
+        
+		if (args.Length == 1)
             fileName = args[0];
         
         // Console.WriteLine(fileName);
