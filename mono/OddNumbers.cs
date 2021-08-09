@@ -3,6 +3,7 @@
  */
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,14 +12,22 @@ class Solution {
 
     static List<int> oddNumbers(int l, int r) {
         List<int> odd = new List<int>();
-        for (int i = l; i <= r; i++)
-            if (i % 2 == 1)
+		if (l % 2 == 0)
+			l++;
+        for (int i = l; i <= r; i+=2)
+            //if (i % 2 == 1)
                 odd.Add(i);
         return odd;
     }
+	
+	// 4-times slower!
+	static List<int> oddNumbers2(int l, int r) {
+		List<int> odd = Enumerable.Range(l, r-l+1).Where(n => (n & 1) == 1).ToList();
+		return odd;
+	}
 
     static void Main(string[] args) {
-        TextWriter textWriter = new StreamWriter(@System.Environment.GetEnvironmentVariable("OUTPUT_PATH"), true);
+        TextWriter textWriter = new StreamWriter(@System.Environment.GetEnvironmentVariable("OUTPUT_PATH"), append:false);
 
         int l = Convert.ToInt32(Console.ReadLine().Trim());
 
@@ -28,7 +37,7 @@ class Solution {
 
 		Stopwatch sw1 = new Stopwatch();
         sw1.Start();
-		List<int> res = oddNumbers(l, r);
+		List<int> res = oddNumbers2(l, r);
 		sw1.Stop();
 
         textWriter.WriteLine(String.Join("\n", res));
