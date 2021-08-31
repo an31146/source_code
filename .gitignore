@@ -16,6 +16,7 @@ mono/Microsoft.Net.Compilers.Toolset.3.8.0-4.final/
 /prime_progs/mpz_powm_neg-exp
 /prime_progs/sieve.c.orig
 /prime_progs/c60*
+/prime_progs/c37*
 *.obj
 *.pdb
 *.ini
@@ -24,6 +25,7 @@ mono/Microsoft.Net.Compilers.Toolset.3.8.0-4.final/
 *.txt
 *.zip
 *.poly
+*.out
 bin/
 obj/
 gamma

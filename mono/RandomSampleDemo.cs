@@ -9,7 +9,8 @@ public class RandomProportional : Random
     protected override double Sample()
     {
         return Math.Sqrt(base.Sample());
-    }
+		// return Math.Pow(base.Sample(), 2.0);
+	}
 
     public override int Next()
     {
@@ -76,11 +77,11 @@ public class RandomSampleDemo
             "is the count of values in each range:\n",
             runCount, distGroupCount);
         Console.WriteLine(
-            "{0,21}{1,12}{2,20}{3,12}", "Integer Range",
+            "{0,21}{1,12}{2,28}{3,12}", "Integer Range",
             "Count", "Double Range", "Count");
         Console.WriteLine(
-            "{0,21}{1,12}{2,20}{3,12}", "-------------",
-            "-----", "------------", "-----");
+            "{0,21}{1,12}{2,8}{3,20}{4,12}{5,8}", "-------------",
+            "-----", "-----", "------------", "-----", "-----");
 
         // Generate random integers and doubles, and then count
         // them by group.
@@ -95,13 +96,15 @@ public class RandomSampleDemo
         // Display the count of each group.
         for (int i = 0; i < distGroupCount; i++)
             Console.WriteLine(
-                "{0,10}-{1,10}{2,12:N0}{3,12:N5}-{4,7:N5}{5,12:N0}",
+                "{0,10}-{1,10}{2,12:N0}{3,8:P1}{4,12:N5}-{5,7:N5}{6,12:N0}{7,8:P1}",
                 (int)((double)i * intGroupSize),
                 (int)((double)(i + 1) * intGroupSize - 1.0),
                 intCounts[ i ],
-                ((double)i) / (double)distGroupCount,
+				intCounts[ i ] / (double)runCount,
+				((double)i) / (double)distGroupCount,
                 ((double)(i + 1)) / (double)distGroupCount,
-                realCounts[ i ]);
+                realCounts[ i ],
+				realCounts[ i ] / (double)runCount);
     }
 }
 

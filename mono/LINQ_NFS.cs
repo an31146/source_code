@@ -385,6 +385,115 @@ namespace TonelliShanks {
 			}
 		}
 
+		private static void FG_loop(int limit_a, int limit_b, List<uint> residue_primes, BigInteger afb, BigInteger rfb)
+		{
+			BigInteger root = Zero;
+			List<Tuple<BigInteger, int, int>> AFB = new List<Tuple<BigInteger, int, int>>();
+			List<Tuple<BigInteger, int, int>> RFB = new List<Tuple<BigInteger, int, int>>();
+			
+			int smooths_found = 0, thousand_smooths = 0;
+			var thousand_primes = primes.Where(pr => pr > 1000)
+				.Aggregate(One, (a, b) => Multiply(a, b));
+									
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			for (int b = 1; b <= limit_b; b++)		// 
+			{
+				for (int a = -limit_a; a < limit_a; a++)
+				{	
+				
+					if (gcd(a, b) == 1 || b == 1)
+					{
+						var F_of_ab = F(a, b);
+						//var G_of_ab = G(a, b, root);
+						// if (IsSmooth(G_of_ab, rfb_primorial))
+						// {
+							// int g_count = primes.Where(p => F_of_ab % p == 0).Count();
+							// Console.WriteLine("G({0}, {1}): {2}\n# primes {3}", a, b, G_of_ab, g_count);
+						// }
+						//if (!GreatestCommonDivisor(F_of_ab, thousand_primes).IsOne)
+						//int p_count = primes.Where(p => F_of_ab % p == 0).Count();
+						//if (p_count > 6)
+						{
+							///Console.WriteLine("F({0}, {1}): {2}\n# primes {3}", a, b, F_of_ab, p_count);
+							AFB.Add(new Tuple<BigInteger, int, int>(F_of_ab, a, b));
+							//RFB.Add(new Tuple<BigInteger, int, int>(G_of_ab, a, b));
+							//Console.WriteLine("{0}", F_of_ab);
+						}
+						//continue;
+						
+						Debug.Assert(GreatestCommonDivisor(a, b).IsOne);
+						//Debug.Assert(a % b == 0);
+						
+						BigInteger smooth1 = (int)Math.Pow(-b, 5.0) * F(-a / b);
+						BigInteger smooth2 = G(a, b, root);
+						BigInteger smooth3 = F(a, b);
+
+
+						bool bSmooth1 = IsSmooth(smooth1, afb);		// algebraic FB
+						bool bSmooth2 = IsSmooth(smooth2, rfb);		// rational FB
+						bool bSmooth3 = IsSmooth(smooth3, afb);		// algebraic FB
+
+						if (a % b == 0)
+						{
+							Debug.Assert(bSmooth1 == bSmooth3);
+							Debug.Assert(smooth1.Equals(smooth3));
+						}
+
+						//Console.Write("{0,8}{1,4}\t{2}, {3}\t{4}\r", a, b, bSmooth3, bSmooth2, smooth3);
+						
+						if (bSmooth3 && true)
+						{
+							smooths_found++;
+							//Console.WriteLine("\n({0}, {1})\t{2,5} {3,5}", a, b, bSmooth3, bSmooth2);
+							Console.WriteLine("({0},{1})\tsmooth3: {2}", a, b, smooth3);
+							bool smooth_again = IsSmooth(smooth3, primes);
+							Debug.Assert(smooth_again);
+						}
+						
+						if (bSmooth2 && false)
+						{
+							smooths_found++;
+							//Console.WriteLine("\n({0}, {1})\t{2,5} {3,5}", a, b, bSmooth3, bSmooth2);
+							Console.WriteLine("({0},{1})\tsmooth2: {2}", a, b, smooth2);
+							bool smooth_again = IsSmooth(smooth2, residue_primes);
+							Debug.Assert(smooth_again);
+						}
+					}	// if (H(a) % pr == 0)
+				}		// Parallel.For<int>(a, LIMIT
+			}			// for (; b <  -- while (smooths_found < FB_count)
+			sw.Stop();
+			Console.WriteLine("\n\nF+G(a, b) loop time: {0:F1} s\n\n", sw.Elapsed.TotalSeconds);
+
+			AFB.Sort(delegate(Tuple<BigInteger, int, int> A, Tuple<BigInteger, int, int> B) {
+				return A.Item3.CompareTo(B.Item3);
+			});
+			RFB.Sort(delegate(Tuple<BigInteger, int, int> A, Tuple<BigInteger, int, int> B) {
+				return A.Item3.CompareTo(B.Item3);
+			});
+
+			sw.Restart();
+			
+			ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 2 };
+			Parallel.ForEach<Tuple<BigInteger, int, int>>(AFB, options, t =>
+			{
+				if (!GreatestCommonDivisor(t.Item1, thousand_primes).IsOne)
+				{
+					thousand_smooths++;
+					if (IsSmooth(t.Item1, residue_primes))
+					{
+						Console.WriteLine("F({0}, {1}) =\t{2}", t.Item2, t.Item3, t.Item1);
+						smooths_found++;
+						//Debug.Assert(GetPrimeFactors(t.Item1, primes));
+					}
+				}
+			});
+			sw.Stop();
+			Console.WriteLine("foreach IsSmooth() time: {0:F1}", sw.Elapsed.TotalSeconds);
+			
+		}
+		
 		static void TonelliShanks_Test(BigInteger bn, uint[] pseudo_primes, BigInteger smooth_primorial)
 		{
 			foreach (uint p in pseudo_primes)

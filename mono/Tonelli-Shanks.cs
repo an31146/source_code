@@ -265,16 +265,12 @@ namespace TonelliShanks {
 
 		private static int Legendre(BigInteger n, BigInteger p)
 		{
-			BigInteger p1, l;
+			// assumes p is an odd prime, apply Euler's_criterion
+			var p_sub1 = (p - 1) >> 1;
+			var l = ModPow(n, p_sub1, p);
 
-			// assumes p is an odd prime
-			p1 = (p - 1) >> 1;
-			l = ModPow(n, p1, p);
-
-			if (l == 1)
-				return 1;
-			if (l == 0)
-				return 0;
+			if (l <= 1)
+				return (int)l;
 			else
 				return -1;
 		}
@@ -311,8 +307,8 @@ namespace TonelliShanks {
 
         private static int InverseMod(int a, int x)
 		{
-			// fail if both inputs are even, then inverse doesn't exist
-			Debug.Assert ( !((x & 1) == 0 && (a & 1) == 0) );
+			// fail if gcd of both inputs != 1, then inverse doesn't exist
+			Debug.Assert (gcd(a, x) == 1);
 
 			int r = x;
 			int _r = a;
@@ -452,17 +448,17 @@ namespace TonelliShanks {
 
         static BigInteger ShanksTonelli(BigInteger n, BigInteger p) 
 		{
-			Debug.Assert(p == 2 || (p & 1) == 1);		// p is 2 or must be odd
+			Debug.Assert(p == 2 || !p.IsEven);		// p is 2 or must be odd
 
-			// Is n a quadratic residue of p, i.e. n|p = 1
+			// Is n a quadratic residue of p, i.e. (n|p) = 1
             // https://en.wikipedia.org/wiki/Euler%27s_criterion
-			if (ModPow(n, (p - 1) >> 1, p) != 1) {
+			if (ModPow(n, (p - 1)>>1, p) != 1) {
                 return 0;
             }
  
             BigInteger Q = p - 1;
             uint S = 0;
-            while ((Q & 1) == 0) {
+            while (Q.IsEven) {
                 S += 1;
                 Q >>= 1;
             }
@@ -517,7 +513,7 @@ namespace TonelliShanks {
 			BigInteger tmp1, tmp2;
 			
 			p = SquareRoot(p_sqrd);			// assumes p_sqrd is a perfect square
-			Debug.Assert( (p * p).Equals(p_sqrd) );
+			Debug.Assert( (p * p).Equals(p_sqrd) );		// check anyway
 			
 			n_modp = n % p;
 			n_modp_sqrd = n % p_sqrd;
@@ -652,115 +648,30 @@ namespace TonelliShanks {
 			}
 		}
 
-		private static void FG_loop(int limit_a, int limit_b, uint[] residue_primes, BigInteger afb, BigInteger rfb)
+		public static void Print_Legendre_Table(int a, int n, uint[] primes)
 		{
-			BigInteger root = Zero;
-			List<Tuple<BigInteger, int, int>> AFB = new List<Tuple<BigInteger, int, int>>();
-			List<Tuple<BigInteger, int, int>> RFB = new List<Tuple<BigInteger, int, int>>();
+			Console.Write("  a ");
+			for (int i = 1; i <= a; i++)
+				Console.Write($"{i,4}");
+			Console.WriteLine("p   " + new String('-', 116));
 			
-			int smooths_found = 0, thousand_smooths = 0;
-			var thousand_primes = primes.Where(pr => pr > 1000)
-				.Aggregate(One, (a, b) => Multiply(a, b));
-									
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-
-			for (int b = 1; b <= limit_b; b++)		// 
+			for (int j = 0; j < n; j++)
 			{
-				for (int a = -limit_a; a < limit_a; a++)
-				{	
-				
-					if (gcd(a, b) == 1 || b == 1)
-					{
-						var F_of_ab = F(a, b);
-						//var G_of_ab = G(a, b, root);
-						// if (IsSmooth(G_of_ab, rfb_primorial))
-						// {
-							// int g_count = primes.Where(p => F_of_ab % p == 0).Count();
-							// Console.WriteLine("G({0}, {1}): {2}\n# primes {3}", a, b, G_of_ab, g_count);
-						// }
-						//if (!GreatestCommonDivisor(F_of_ab, thousand_primes).IsOne)
-						//int p_count = primes.Where(p => F_of_ab % p == 0).Count();
-						//if (p_count > 6)
-						{
-							///Console.WriteLine("F({0}, {1}): {2}\n# primes {3}", a, b, F_of_ab, p_count);
-							AFB.Add(new Tuple<BigInteger, int, int>(F_of_ab, a, b));
-							//RFB.Add(new Tuple<BigInteger, int, int>(G_of_ab, a, b));
-							//Console.WriteLine("{0}", F_of_ab);
-						}
-						//continue;
-						
-						Debug.Assert(GreatestCommonDivisor(a, b).IsOne);
-						//Debug.Assert(a % b == 0);
-						
-						BigInteger smooth1 = (int)Math.Pow(-b, 5.0) * F(-a / b);
-						BigInteger smooth2 = G(a, b, root);
-						BigInteger smooth3 = F(a, b);
-
-
-						bool bSmooth1 = IsSmooth(smooth1, afb);		// algebraic FB
-						bool bSmooth2 = IsSmooth(smooth2, rfb);		// rational FB
-						bool bSmooth3 = IsSmooth(smooth3, afb);		// algebraic FB
-
-						if (a % b == 0)
-						{
-							Debug.Assert(bSmooth1 == bSmooth3);
-							Debug.Assert(smooth1.Equals(smooth3));
-						}
-
-						//Console.Write("{0,8}{1,4}\t{2}, {3}\t{4}\r", a, b, bSmooth3, bSmooth2, smooth3);
-						
-						if (bSmooth3 && true)
-						{
-							smooths_found++;
-							//Console.WriteLine("\n({0}, {1})\t{2,5} {3,5}", a, b, bSmooth3, bSmooth2);
-							Console.WriteLine("({0},{1})\tsmooth3: {2}", a, b, smooth3);
-							bool smooth_again = IsSmooth(smooth3, primes);
-							Debug.Assert(smooth_again);
-						}
-						
-						if (bSmooth2 && false)
-						{
-							smooths_found++;
-							//Console.WriteLine("\n({0}, {1})\t{2,5} {3,5}", a, b, bSmooth3, bSmooth2);
-							Console.WriteLine("({0},{1})\tsmooth2: {2}", a, b, smooth2);
-							bool smooth_again = IsSmooth(smooth2, residue_primes);
-							Debug.Assert(smooth_again);
-						}
-					}	// if (H(a) % pr == 0)
-				}		// Parallel.For<int>(a, LIMIT
-			}			// for (; b <  -- while (smooths_found < FB_count)
-			sw.Stop();
-			Console.WriteLine("\n\nF+G(a, b) loop time: {0:F1} s\n\n", sw.Elapsed.TotalSeconds);
-
-			AFB.Sort(delegate(Tuple<BigInteger, int, int> A, Tuple<BigInteger, int, int> B) {
-				return A.Item3.CompareTo(B.Item3);
-			});
-			RFB.Sort(delegate(Tuple<BigInteger, int, int> A, Tuple<BigInteger, int, int> B) {
-				return A.Item3.CompareTo(B.Item3);
-			});
-
-			sw.Restart();
-			
-			ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 2 };
-			Parallel.ForEach<Tuple<BigInteger, int, int>>(AFB, options, t =>
-			{
-				if (!GreatestCommonDivisor(t.Item1, thousand_primes).IsOne)
+				if ((j & 1) == 1)
 				{
-					thousand_smooths++;
-					if (IsSmooth(t.Item1, residue_primes))
-					{
-						Console.WriteLine("F({0}, {1}) =\t{2}", t.Item2, t.Item3, t.Item1);
-						smooths_found++;
-						//Debug.Assert(GetPrimeFactors(t.Item1, primes));
-					}
+					Console.ForegroundColor = ConsoleColor.Black;
+					Console.BackgroundColor = ConsoleColor.DarkGray;
 				}
-			});
-			sw.Stop();
-			Console.WriteLine("foreach IsSmooth() time: {0:F1}", sw.Elapsed.TotalSeconds);
-			
+				else
+					Console.ResetColor();
+
+				Console.Write($"{primes[j],3} ");
+				for (uint i = 1; i <= a; i++)
+					Console.Write("{0,4}", Legendre(i, primes[j]));
+			}
+			Console.WriteLine("\n");
 		}
-		
+
 		static void TonelliShanks_Test(BigInteger N, uint[] residue_primes, BigInteger smooth_primorial)
 		{
 			foreach (uint p in residue_primes)
@@ -989,7 +900,9 @@ namespace TonelliShanks {
                 Console.WriteLine("p = {0}", pair.Item2);
                 if (!sol.IsZero) {
                     Console.WriteLine("root1 = {0}", sol);
-                    Console.WriteLine("root2 = {0}\n", pair.Item2 - sol);
+                    Debug.Assert( (sol*sol % pair.Item2) == pair.Item1 );
+					Console.WriteLine("root2 = {0}\n", pair.Item2 - sol);
+					Debug.Assert( (pair.Item2-sol)*(pair.Item2-sol) % pair.Item2 == pair.Item1 );
                 } else {
                     Console.WriteLine("No solution exists\n");
                 }
@@ -1002,7 +915,9 @@ namespace TonelliShanks {
             Console.WriteLine("p = {0}", bigP);
             if (!root.IsZero) {
                 Console.WriteLine("root1 = {0}", root);
-                Console.WriteLine("root2 = {0}\n", bigP - root);
+                Debug.Assert( (root*root % bigP) == bigN % bigP );
+				Console.WriteLine("root2 = {0}\n", bigP - root);
+				Debug.Assert( (bigP-root)*(bigP-root) % bigP == bigN % bigP );
             } else {
                 Console.WriteLine("No solution exists\n");
             }
@@ -1014,7 +929,9 @@ namespace TonelliShanks {
             Console.WriteLine("p = {0}", bigP);
             if (!root.IsZero) {
                 Console.WriteLine("root1 = {0}", root);
-                Console.WriteLine("root2 = {0}\n", bigP - root);
+                Debug.Assert( (root*root % bigP) == bigN % bigP );
+				Console.WriteLine("root2 = {0}\n", bigP - root);
+				Debug.Assert( (bigP-root)*(bigP-root) % bigP == bigN % bigP );
             } else {
                 Console.WriteLine("No solution exists\n");
             }
@@ -1129,7 +1046,6 @@ namespace TonelliShanks {
 			long LIMIT = Int32.Parse(args[1]);
 			uint[] primes = new uint[LIMIT];
 			
-			
 			// Eratosthenes sieve
 			uint p;
 			primes[0] = 2;
@@ -1142,7 +1058,7 @@ namespace TonelliShanks {
 				for (; primes[p] < LIMIT && primes[primes[p]] == 1; primes[p]++) ;
 			}
 			Array.Resize(ref primes, (int)p);
-			//Debugger.Break();
+			// Debugger.Break();
 
 			List<uint> factor_base = primes
 				.Where(qr => Legendre(bigN, qr) == 1).ToList();	// qr != 2 && include evens?
@@ -1152,6 +1068,11 @@ namespace TonelliShanks {
 				
 			var mod_sqrts = factor_base
 				.Select( p => new Tuple<uint, uint>(p, (uint)ShanksTonelli(bigN, p)) );
+			
+			// Following should evaluate to false, => .Count() == 0 
+			var quad_residues = mod_sqrts
+				.Where( t => (t.Item2*t.Item2 % t.Item1) != (uint)(bigN % t.Item1) );
+			Debug.Assert(quad_residues.Count() == 0);
 			
 			var dict_log_primes = log_primes
 				.ToDictionary(x => x.Item1);
@@ -1174,6 +1095,7 @@ namespace TonelliShanks {
 			Console.Write("\nCalculating primorial...");
 			BigInteger afb_primorial, rfb_primorial;
 			
+			
 			// https://docs.microsoft.com/en-us/dotnet/api/system.linq.enumerable.aggregate
 			
 			afb_primorial = factor_base
@@ -1192,6 +1114,13 @@ namespace TonelliShanks {
 
 			BigInteger S = Parse("188075526629752489672183125");
 			var pList = primes.Where(p => S % p == 0).ToList();
+
+
+			//FG_loop(2, (int)p, factor_base, afb_primorial, rfb_primorial);
+			//Print_Legendre_Table(29, 31, factor_base.ToArray());
+			//
+			//Debugger.Break();
+			
 			
 			Stopwatch sw = new Stopwatch();
 
@@ -1236,7 +1165,6 @@ namespace TonelliShanks {
 			Dictionary<long, List<string>> L_primes = new Dictionary<long, List<string>>();
 			List<BigInteger> L_residues = new List<BigInteger>();
 			List<BitArray> L_matrix = new List<BitArray>();
-			
 			
 
 			A = SquareRoot(4 * bigN) / LIMIT2;
@@ -1310,7 +1238,8 @@ namespace TonelliShanks {
 					uint res_p = obj.Item1;
 					if (res_p < 167) continue;
 				
-					Debug.Assert(ModPow(bigN, (res_p - 1) >> 1, res_p).IsOne);
+					// Euler's_criterion:
+					Debug.Assert(ModPow(bigN, (res_p - 1)>>1, res_p).IsOne);
 					// if (res_p == 17)
 						// Debugger.Break();
 						

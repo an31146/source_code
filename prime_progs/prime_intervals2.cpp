@@ -1,13 +1,16 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
+// g++ -Wall -O2 -std=c++11 -D__USE_MINGW_ANSI_STDIO -g -o prime_intervals2.exe prime_intervals2.cpp
+
+#include <cstdio>
+#include <cstdint>
+#include <cstdlib>
+#include <cinttypes>
+#include <cmath>
+#include <ctime>
 
 int base_primes[25] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97};
 
 /* This function calculates (ab)%c */
-int powmod(int a, int b, int c)
+int64_t powmod(uint64_t a, uint64_t b, uint64_t c)
 {
     int64_t x=1, y=a; // long long is taken to avoid overflow of intermediate results
     while (b > 0)
@@ -78,45 +81,75 @@ bool Miller(int64_t p, int iters)
             if (p%base_primes[i] == 0)  
                 return false;           // composite
     
-    int64_t s=p-1;
-    while ((s&1)==0)
-        s >>=1;
+    int64_t p_sub1 = p-1;
+    int s = 0;
+	while ((p_sub1&1)==0)
+	{
+		p_sub1 >>=1;
+		s++;
+	}
 
-    for (int i=0; i<iters; i++)
+	//printf("s: %lld\n", s);
+	
+	int is_prime = false;
+    for (int i=0; i<iters && !is_prime; i++)
     {
-        int64_t a = rand()%(p-1)+1;
-        int64_t temp = s;
-        int64_t mod = powmod(a, temp, p);
+        int64_t a = rand();
+        int k;
+        int64_t mod = powmod(a, p_sub1, p);
         
-        while(temp!=p-1 && mod!=1 && mod!=p-1)
-        {
+		if (mod == 1 || mod == p-1)
+		{
+			is_prime = true;
+			continue;
+		}
+        //while(temp!=p-1 && mod!=1 && mod!=p-1)
+        for(k = 0; k < s; k++)
+		{
             mod = mulmod(mod, mod, p);
-            temp <<= 1;
+			if (mod == p-1)
+			{
+				is_prime = true;				
+			    break;
+			}
+			if (mod == 1)
+			{
+				break;
+			}
         }
-        if(mod!=p-1 && (temp&1)==0)
-            return false;
+		//printf("%lld %lld\n", mod, p);
+        if (k == s)
+		{
+            break;
+		}
     }
-    return true;
+    return is_prime;
 }
 
 int main() {
-    unsigned cases, c, i, j, n, count = 0;
-    unsigned start, stop;
+    int32_t cases, c, count = 0;
+    uint32_t start, stop;
+	int64_t i, j, n;
 
     fscanf(stdin, "%d", &cases);
     for (c=0; c<cases; c++)
     {
-        fscanf(stdin, "%d %d", &i, &j);
+        fscanf(stdin, "%" PRId64 " %" PRId64, &i, &j);
         
+		// printf("%" PRId64 "\n", powmod(2, i-1, i));
+		// printf("%" PRId64 "\n", mulmod(i-1, i-1, i));
+		// printf("Miller: %d\n", Miller(i, 3));
+		// break;
+		
         start = clock();
         if (i<=2)
             printf("2\n");
         
         for (n=i|1; n<=j; n+=2) {
-            if (Miller(n,2))
+            if (Miller(n,3) == true)
             {
                 count++;
-                fprintf(stdout, "%d\n", n);
+                fprintf(stdout, "%" PRId64 "\n", n);
             }
         }
         stop = clock();

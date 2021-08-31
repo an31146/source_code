@@ -42,7 +42,7 @@ public class FloatingPointRepresentation
         Console.WriteLine("\ndouble value: {0}", dr.d);
         Console.WriteLine("hexadecimal:  {0:X}", dr.l);
 
-        dr.d = 123456789012.34567;
+        dr.d = -123456789012.34567;
         Double additional = Double.Epsilon * 1e305;
         Console.WriteLine("\n   {0}\n + {1}\n   ----------------\n = {2}", dr.d, additional,
                                                dr.d + additional);

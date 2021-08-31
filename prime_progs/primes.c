@@ -1,10 +1,25 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <time.h>
+#include <inttypes.h>
+#include <windows.h>
 #define SIZE 20017
 
 uint32_t *primes, k = 1;
+
+#ifdef _WIN32
+void __cdecl _sleep(unsigned long dwDuration)
+{
+
+    if (dwDuration == 0) {
+        dwDuration++;
+    }
+    Sleep(dwDuration);
+}
+#endif
 
 void sieve(uint32_t S)
 {
@@ -40,10 +55,10 @@ unsigned is_prime(int32_t N)
 int32_t rand_prime32()
 {
 	//uint32_t i = (rand() & 0xffff) * (clock() & 0xff) | 1;
-	int32_t i = rand() | 1;
-	//printf("%u\n", i);
+	int32_t i = rand() << 15 | rand() | 1;
+	//printf("%d\n%"PRIi32"\n", RAND_MAX, i);
 	
-	i %= 1600000000L;
+	//i %= 1600000000L;
 	while (!is_prime(i))
 	{
 		i += 2;
@@ -56,7 +71,7 @@ int32_t rand_prime32()
 void twin_primes(int32_t N)
 {
 	int32_t i;
-	double Bruns_const = 0, Twin_prime_const = 1.0d, p;
+	double Bruns_const = 0, Twin_prime_const = 1.0d, p = 0;
 	
 	for (i=1; i<k && primes[i]<N; i++)
 	{
@@ -79,7 +94,7 @@ int factor(uint32_t sqrt_n, uint64_t n)
 	char s[110], p_str[24];
 
 	//if (n & 1 == 1) return 0;		// reject odd numbers
-	sprintf(s, "%10u [%16llu] = ", sqrt_n, n);
+	sprintf(s, "%10u [%16"PRIu64"] = ", sqrt_n, n);
 	do {
 		if (n % primes[i] == 0)
 		{	
@@ -97,7 +112,7 @@ int factor(uint32_t sqrt_n, uint64_t n)
 	{
 	    //printf(".");
 	    //printf("%d ", strlen(s));
-	    sprintf(p_str, "%llu", n);
+	    sprintf(p_str, "%"PRIu64, n);
 	    strcat(s, p_str);
 	    return 0;
 	} else
@@ -109,6 +124,7 @@ int factor(uint32_t sqrt_n, uint64_t n)
     	    printf("%s\n", s);
     	    return 1;
     	}
+	return 0;
 }
 
 void smooth_num(uint64_t n)
@@ -200,7 +216,9 @@ unsigned pollard_rho(const int64_t n, unsigned a)
 			//else
 			//	h = bin_gcd(x_fixed - x, n);
 		} 
+		
 		if (h != 1)
+		{
 			if (h != n) 
 			{
 			//if (gcd(n, h) != n)
@@ -208,11 +226,12 @@ unsigned pollard_rho(const int64_t n, unsigned a)
 			} 
 			else {
 				//putchar('.');
-				printf("%lld\n", h);
+				printf("%"PRIi64"\n", h);
 				//cycle_size = h = 1; x = 2; a++;		// reset and try again...
 			}
+		}
 		cycle_size *= 2; 
-		printf("%10d\t%lld\n", cycle_size, x);
+		printf("%10d\t%"PRIi64"\n", cycle_size, x);
 		x_fixed = x; 
 	} 
 	//printf("%d\t%lld\n", cycle_size, x);
@@ -222,7 +241,7 @@ unsigned pollard_rho(const int64_t n, unsigned a)
 
 int main()
 {
-	int64_t n, x, pr1;
+	int64_t n, x;
 	int t0, t1;
 	char strInt[10];
 	
@@ -264,13 +283,13 @@ int main()
 	scanf("%s", strInt);
 	unsigned a = strtoul(strInt, NULL, 0);
 
-	srand(1);
+	srand(a);
 	unsigned avg_time = 0;
 	for (int j=0; j<5; j++)
 	{
 		//printf("rand_prime32() = %u\n", rand_prime32()); }
 		int32_t p = rand_prime32();
-		sleep(1);
+		_sleep(10);
 		int32_t q = rand_prime32();
 		n = (int64_t)p * q;
 
@@ -282,7 +301,7 @@ int main()
 
 		int32_t g = n / f;
 		avg_time += t1 - t0;
-		printf("factor(%llu) = %u x %u\n", n, f, g);
+		printf("factor(%"PRIu64") = %u x %u\n", n, f, g);
 		printf("gcd(n, f) = %u\n", d);
 		printf("time: %d ms\n\n", (t1-t0)/1000);
 	}	

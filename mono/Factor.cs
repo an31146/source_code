@@ -329,6 +329,21 @@ class Program {
 				phi *= (ulong)Math.Pow(pr, i-1);		// φ(n) = Π pªˉ¹(p-1)
 			phi *= pr - 1;
 		}
+		if (!N.IsOne)
+			phi *= (ulong)N - 1;
+		return phi;
+	}
+	
+	private static ulong EulerPhi(BigInteger N, List<(uint, uint)> prime_factors)
+	{
+		ulong phi = 1;
+		foreach (var fact in prime_factors)
+		{
+			(uint pr, uintexpo) = fact;
+			if (expo > 1)
+				phi *= (ulong)Math.Pow(pr, expo-1);		// φ(n) = Π pªˉ¹(p-1)
+			phi *= pr - 1;
+		}
 		return phi;
 	}
 	
@@ -343,10 +358,10 @@ class Program {
 		
 		const uint LIMIT = 1000000;
 		uint[] primes = new uint[LIMIT];
-		uint p;
+		uint p = 0;
 		
 		primes[0] = 2;
-		for (p = 0; primes[p] < LIMIT; ) 
+		while (primes[p] < LIMIT) 
 		{
 			for (uint i = primes[p]; i < LIMIT; i += primes[p])
 				primes[i] = 1;
@@ -359,8 +374,8 @@ class Program {
 		sw.Start();
 
 		string factors = "\u0000";
-		//var primes_list = primes.Where(p => N % p == 0).ToList();
-		List<uint> primes_list = primes.Where(p => N % p == 0).ToList();
+		var primes_list = primes.Where(p => N % p == 0).ToList();
+		// List<uint> primes_list = primes.Where(p => N % p == 0).ToList();
 		//Console.WriteLine("[" + string.Join<uint>(" ", primes_list) + "]");
 			
 			List<(uint, uint)> prime_factors;
@@ -378,12 +393,12 @@ class Program {
 		{
 			sw.Restart();
 				// var divisors = Divisors(0, 1, prime_factors);
-				var divisors = Divisors(N, prime_factors);
+				var divisors = Divisors(N);
 				string divStr = string.Join<ulong>(" ", divisors);
 			sw.Stop();
 			Console.WriteLine($"Divisors() took: {sw.ElapsedMilliseconds} ms\n\n[{divStr}]\n");
 			Console.WriteLine($"#divisors: {divisors.Count}\n");
-			Console.WriteLine($"EulerPhi(): {EulerPhi(N, primes_list)}");
+			Console.WriteLine($"EulerPhi(): {EulerPhi(N, prime_factors)}");
 		}
 	}
 }
