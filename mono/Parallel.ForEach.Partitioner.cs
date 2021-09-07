@@ -10,7 +10,7 @@ class Program
     {
 
         // Source must be array or IList.
-        var source = Enumerable.Range(1, 10000).ToArray();
+        var source = Enumerable.Range(1, 10000000).ToArray();
 
         // Partition the entire source array.
         var rangePartitioner = Partitioner.Create(0, source.Length);
@@ -26,6 +26,17 @@ class Program
                 results[i] = Math.Sqrt(source[i]); // * Math.PI;
             }
         });
+
+		var sw = new System.Diagnostics.Stopwatch();
+		sw.Start();
+
+            for (int i = 1; i < 10000000; i++)
+            {
+                results[i] = Math.Sqrt(source[i]); // * Math.PI;
+            }
+
+		sw.Stop();
+		//Console.WriteLine("{0}", sw.ElapsedMilliseconds);
 
         Console.Write("Operation complete.  Print results?  Y/n: ");
         char input = Console.ReadKey(false).KeyChar;

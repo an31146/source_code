@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 
 public class Example
 {
+	public static int Directories(string dir)
+	{
+		int count = 0;
+		if (Directory.Exists(dir))
+		{
+			//Console.WriteLine(dir);
+			var subDirs = Directory.GetDirectories(dir);
+			count += subDirs.Length;
+			foreach (var subDir in subDirs)
+				count += Directories(subDir);
+		}
+		return count;
+	}
+
 	public static async Task Main()
 	{
 		var tokenSource = new CancellationTokenSource();
@@ -44,6 +58,8 @@ public class Example
 		finally {
 			tokenSource.Dispose();
 		}
+		
+		Console.WriteLine("directory count: {0}", Directories(@"C:\Python39"));
 	}
 }
 // The example displays the following output:

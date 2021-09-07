@@ -11,7 +11,7 @@ class Program
         try
         {
             // Get a list of the files to use for the sorted set.
-            IEnumerable<string> files1 = Directory.EnumerateFiles(@"C:\Users\rhammond\Documents", 
+            IEnumerable<string> files1 = Directory.EnumerateFiles(@"C:\Users\richa\Documents", 
                                                                    "*", SearchOption.TopDirectoryOnly);
                                                                    //"*", SearchOption.AllDirectories);
 
@@ -57,7 +57,7 @@ class Program
             Console.WriteLine();
 
             // Create another sorted set.
-            IEnumerable<string> files2 = Directory.EnumerateFiles(@"C:\Users\rhammond\Documents", "*");
+            IEnumerable<string> files2 = Directory.EnumerateFiles(@"C:\Users\richa\Documents", "*");
                                                                    //"*", SearchOption.AllDirectories);
 
             SortedSet<string> mediaFiles2 = new SortedSet<string>(new ByFileExtension());

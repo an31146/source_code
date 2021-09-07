@@ -34,7 +34,8 @@ public class Example
                                 "2009-05-01T14:57:32.8375298-04:00", "5/01/2008",
                                 "5/01/2008 14:57:32.80 -07:00", 
                                 "1 May 2008 2:57:32.8 PM", "16-05-2009 1:00:32 PM", 
-                                "Fri, 15 May 2009 20:10:57 GMT" };
+                                "Fri, 15 May 2009 20:10:57 GMT",
+								"2021-08-31 00:00:00Z"};
         string[] datesHackerRank = {"20th Oct 2052", "6th Jun 1933", "26th May 1960", "20th Sep 1958", "16th Mar 2068", "25th May 1912", "16th Dec 2018", "26th Dec 2061", "4th Nov 2030", "28th Jul 1963" };
         DateTime dateValue;
 
