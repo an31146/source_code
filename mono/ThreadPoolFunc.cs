@@ -3,12 +3,11 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.Remoting.Contexts;
 //using System.Web;
 
 public class Program
 {
-    static readonly HttpClient client = new HttpClient();
-    
     public static void Main()
     {
         /*HttpResponseMessage response = await client.GetAsync("http://localhost:8000/");
@@ -18,15 +17,15 @@ public class Program
         
         ThreadPool.SetMinThreads(1, 1);
         //ThreadPool.SetMaxThreads(4, 4);
-        WaitHandle[] waitHandles = new WaitHandle[16];
- 
-        for (int i = 0; i < 16; i++)
+        WaitHandle[] waitHandles = new WaitHandle[12];
+		
+        for (int i = 0; i < 12; i++)
         {
             Console.WriteLine("Queued {0}", i);
             try
             {
                 waitHandles[i] = new AutoResetEvent(false);
-                ThreadPool.QueueUserWorkItem(new WaitCallback(PoolFunc), waitHandles[i]);
+                ThreadPool.QueueUserWorkItem(new WaitCallback(AutoLock.PoolFunc), waitHandles[i]);
             }
             catch (InvalidOperationException ex)
             {
@@ -39,8 +38,14 @@ public class Program
         Console.Write("\nPress Enter: ");
         Console.ReadLine();
     }
+}
 
-    private static void PoolFunc(object state)
+[Synchronization]
+public class AutoLock : ContextBoundObject
+{
+    static readonly HttpClient client = new HttpClient();
+    
+    public static void PoolFunc(object state)
     {
         int workerThreads, IOcompletionPortThreads;
         AutoResetEvent are = (AutoResetEvent) state;
@@ -53,9 +58,10 @@ public class Program
             IOcompletionPortThreads);
         //Thread.Sleep(100);
         var cts = new CancellationTokenSource();
-        cts.CancelAfter(10000);        // milliseconds
+        cts.CancelAfter(30000);        // milliseconds
 
         string url = "https://my.imanlocal.com:17870/ping";
+		url = "http://www.postman-echo.com/get?foo1=bar1&foo2=bar2";
 
         //HttpWebRequest myHttpWebRequest;
         // Creates an HttpWebRequest for the specified URL.    

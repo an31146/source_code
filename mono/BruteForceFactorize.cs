@@ -59,7 +59,7 @@ public class BruteForceFactorize
 	
 	static void Fibonacci()
 	{
-		BigInteger a = BigInteger.One;
+		BigInteger a = BigInteger.Zero;
 		BigInteger b = BigInteger.One;
 		
 		while (true)

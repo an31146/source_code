@@ -9,6 +9,11 @@ namespace FourierSeries
     {
         private BufferedGraphicsContext context;
         private BufferedGraphics grafx;
+        private Timer timer1;
+		private byte bufferingMode;
+		private int x;
+		private double w;
+		Point[] pt = (Point[])Array.CreateInstance(typeof(Point), 4);
 
         public FourierSeries()
             : base()
@@ -17,7 +22,23 @@ namespace FourierSeries
             this.Text = "Fourier Series approximation";
             this.Resize += new EventHandler(this.OnResize);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+			this.SetStyle(ControlStyles.OptimizedDoubleBuffer, false);
 
+			// Configure a timer to draw graphics updates.
+            timer1 = new Timer();
+            timer1.Interval = 20;
+            timer1.Tick += new EventHandler(this.OnTimer);
+			timer1.Start();
+
+            pt.Initialize();
+			pt.SetValue(new Point(600, 100), 0);
+            pt.SetValue(new Point(300, 240), 1);
+            pt.SetValue(new Point(500, 60), 2);
+            pt.SetValue(new Point(100, 400), 3);
+
+            bufferingMode = 2;
+			x = 0;
+			w = 0.0;
             // Retrieves the BufferedGraphicsContext for the 
             // current application domain.
             context = BufferedGraphicsManager.Current;
@@ -91,12 +112,12 @@ namespace FourierSeries
             double ret = 0.0, t;
 
             // upper limit for t is the number of harmonics
-            for (t = 1.0; t <= 31.0; t++)
+            for (t = 1.0; t <= 15.0; t++)
             {
                 ret += Math.Sin(2.0 * t * x) / t;
             }
 
-            return (0.5 - ret / Math.PI);
+            return (0.0 - ret / Math.PI);
         }
 
         // Fourier series for a triangle wave
@@ -125,7 +146,7 @@ namespace FourierSeries
 
         private double Sawtooth(double x)
         {
-            return ( 4.0 / Math.PI * (x % Math.PI/4) * Heaviside(x) );
+            return ( -0.5 + 4.0/Math.PI * (x % Math.PI/4) * Heaviside(x) );
         }
 
         private double Triangle(double x)
@@ -135,44 +156,61 @@ namespace FourierSeries
 
         private void DrawToBuffer(Graphics g)
         {
-            // Plot the graph given by the function f(x).
-            Point[] pt = (Point[])Array.CreateInstance(typeof(Point), this.Width);
-
-            pt.Initialize();
-            for (int i = 0; i < this.Width; i++)
+			// Clear background
+            g.FillRectangle(Brushes.Black, 0, 0, this.Width, this.Height);
+			
+			// Plot the graph given by the function f(x).
+            Point[] pt1 = (Point[])Array.CreateInstance(typeof(Point), this.Width);
+			Point[] pt2 = (Point[])Array.CreateInstance(typeof(Point), this.Width);
+			
+            pt1.Initialize();
+            pt2.Initialize();
+            
+			for (int i = 0; i < this.Width; i++)
             {
-                int px = i;
+                int px = (i + x) % this.Width;
+				int offset = (int)(this.Height / 2.5 * Sawtooth(i * 4.0 * Math.PI / (double)this.Width));
+				int py = this.Height / 2 - offset - 20;
+                
+				pt1.SetValue(new Point(px, py), px);
 
-                int offset = (int)(this.Height / 2.5 * s(i * 4.0 * Math.PI / (double)this.Width) );
-                int py = this.Height / 2 - offset - 20;
-                pt.SetValue(new Point(px, py), i);
+                offset = (int)(this.Height / 2.5 * s(i * 4.0 * Math.PI / (double)this.Width) );
+                py = this.Height / 2 - offset - 20;
+				pt2.SetValue(new Point(px, py), px);
             }
-            g.DrawLines(new Pen(Color.Red, 2.0f), pt);
-
-            pt.Initialize();
-            for (int i = 0; i < this.Width; i++)
-            {
-                int px = i;
-
-                int offset = (int)(this.Height / 2.5 * Sawtooth(i * 4.0 * Math.PI / (double)this.Width));
-                int py = this.Height / 2 - offset - 20;
-                pt.SetValue(new Point(px, py), i);
-            }
-            g.DrawLines(new Pen(Color.White, 2.0f), pt);
-
-            /*pt = (Point[])Array.CreateInstance(typeof(Point), 4);
-            pt.Initialize();
-
-            pt.SetValue(new Point(100, 100), 0);
-            pt.SetValue(new Point(300, 240), 0);
-            pt.SetValue(new Point(500, 60), 0);
-            pt.SetValue(new Point(100, 400), 0);
-
-            g.DrawBezier(new Pen(Color.Blue, 1), new Point(100, 100), new Point(300, 40), 
-                                                 new Point(500, 60),  new Point(100, 400));
-            */
+            g.DrawLines(new Pen(Color.White, 2.0f), pt1);
+            g.DrawLines(new Pen(Color.Red, 2.0f), pt2);
+			
+			x += 2;
         }
 
+        private void OnTimer(object sender, EventArgs e)
+        {
+            // Draw randomly positioned ellipses to the buffer.
+            DrawToBuffer(grafx.Graphics);
+
+            // If in bufferingMode 2, draw to the form's HDC.
+            if (bufferingMode == 2)
+                // Render the graphics buffer to the form's HDC.
+                grafx.Render(Graphics.FromHwnd(this.Handle));
+            // If in bufferingMode 0 or 1, draw in the paint method.
+            else
+                this.Refresh();
+        }
+
+		private void DrawToBuffer2(Graphics g)
+		{
+            g.FillRectangle(Brushes.Black, 0, 0, this.Width, this.Height);
+			g.DrawBezier(new Pen(Color.Red, 2), pt[0], pt[2], pt[1], pt[3]);
+
+			foreach (Point _pt in pt)
+				g.DrawRectangle(new Pen(Color.White, 2), _pt.X, _pt.Y, 1, 1);
+
+			pt[1].X = 300 + (int)(240.0 * Math.Cos(w));
+			pt[1].Y = 240 + (int)(240.0 * Math.Sin(w));
+			w += 0.01;
+		}
+		
         protected override void OnPaint(PaintEventArgs e)
         {
             grafx.Render(e.Graphics);
