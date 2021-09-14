@@ -125,13 +125,13 @@ namespace FourierSeries
         {
             double ret = 0.0, t, abs = 1.0;
 
-            for (t = 1.0; t <= 7.0; t += 2.0)
+            for (t = 1.0; t <= 3.0; t += 2.0)
             {
                 ret += abs * Math.Sin(t * x) / (t * t);
                 abs = -abs;
             }
 
-            return (8.0 / (Math.PI * Math.PI) * ret);
+            return (6.0 / (Math.PI * Math.PI) * ret);
         }
         
         private double Square(double x)
@@ -151,7 +151,7 @@ namespace FourierSeries
 
         private double Triangle(double x)
         {
-            return (2.0 / Math.PI * Math.Asin(Math.Sin(x)));
+            return (1.5 / Math.PI * Math.Asin(Math.Sin(x)));
         }
 
         private void DrawToBuffer(Graphics g)
@@ -169,12 +169,12 @@ namespace FourierSeries
 			for (int i = 0; i < this.Width; i++)
             {
                 int px = (i + x) % this.Width;
-				int offset = (int)(this.Height / 2.5 * Sawtooth(i * 4.0 * Math.PI / (double)this.Width));
+				int offset = (int)(this.Height / 2.5 * Triangle(i * 4.0 * Math.PI / (double)this.Width));
 				int py = this.Height / 2 - offset - 20;
                 
 				pt1.SetValue(new Point(px, py), px);
 
-                offset = (int)(this.Height / 2.5 * s(i * 4.0 * Math.PI / (double)this.Width) );
+                offset = (int)(this.Height / 2.5 * t(i * 4.0 * Math.PI / (double)this.Width) );
                 py = this.Height / 2 - offset - 20;
 				pt2.SetValue(new Point(px, py), px);
             }
